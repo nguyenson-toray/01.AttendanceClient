@@ -208,6 +208,26 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                 ),
                 TextButton.icon(
                   onPressed: () async {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     gValue.mongoDb.insertLeaveRegister(
                         await MyFile.readExcelLeaveRegister());
                     List<Text> logs = [];
@@ -345,6 +365,26 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                     Icons.remove_circle_outlined,
                   ),
                   onPressed: () {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     refreshDataCancel = true;
                     var row = rendererContext.row.toJson();
                     print(row);
@@ -352,7 +392,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                         color: Colors.redAccent,
                         fontSize: 16,
                         fontWeight: FontWeight.bold);
-                    String no = row['no'];
+                    int no = row['no'];
                     String empId = row['empId'];
                     String name = row['name'];
                     String fromDate = row['fromDate'];
@@ -377,7 +417,8 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                                 rendererContext.stateManager
                                     .removeRows([rendererContext.row]);
                               });
-                              await gValue.mongoDb.deleteOneLeaveRegister(no);
+                              await gValue.mongoDb
+                                  .deleteOneLeaveRegister(no.toString());
                               await MyFuntion.insertHistory(
                                   'DELETE leave register: ${no} Name: $empId-$name  $type   From: $fromDate $fromTime to: $toDate  $toTime');
                               refreshDataCancel = false;

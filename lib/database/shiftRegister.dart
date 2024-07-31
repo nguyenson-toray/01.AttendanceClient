@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:mongo_dart/mongo_dart.dart';
 
 class ShiftRegister {
   String objectId;
@@ -20,6 +21,7 @@ class ShiftRegister {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      // '_id': ObjectId(),
       'fromDate': fromDate,
       'toDate': toDate,
       'empId': empId,
@@ -63,6 +65,6 @@ class ShiftRegister {
 
   @override
   String toString() {
-    return 'ShiftRegister(objectId: $objectId, fromDate: $fromDate, toDate: $toDate, empId: $empId, name: $name, shift: $shift)';
+    return 'ShiftRegister(from: $fromDate, to: $toDate, empId: $empId, name: $name, shift: $shift)';
   }
 }

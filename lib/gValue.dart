@@ -13,6 +13,7 @@ import 'package:tiqn/database/timeSheetMonthYear.dart';
 
 class gValue {
   // static _Config config = _Config(mainFuntion: "mainFuntion");
+  static String accessMode = 'no'; //'no', 'read', 'edit'
   static String alertOTByActualFinal = 'Actual';
   static double screenWidth = 0, screenHeight = 0;
   static List<String> mainFuntions = [];

@@ -53,19 +53,26 @@ class MongoDb {
     }
   }
 
-  Future<bool> checkPermission(String pcName) async {
-    late var allPcs;
+  Future<String> checkPermission(String pcName) async {
+    late var allowEdit, allowRead;
+    String permission = 'no';
     try {
       if (!db.isConnected) {
         print('DB not connected, try connect again');
         await initDB();
       }
-      await colListPc.find().forEach((item) => {allPcs = item['pcs']});
+      await colListPc.find().forEach((item) => {allowEdit = item['allowEdit']});
+      await colListPc.find().forEach((item) => {allowRead = item['allowRead']});
     } catch (e) {
       print(e);
     }
-
-    return allPcs.contains(pcName);
+    if (allowEdit.contains(pcName)) {
+      return 'edit';
+    } else if (allowRead.contains(pcName)) {
+      return 'read';
+    } else {
+      return permission;
+    }
   }
 
   getConfig() async {
@@ -276,6 +283,7 @@ class MongoDb {
 
   Future<void> updateOneShiftRegisterByObjectId(
       String objectIdString, String key, dynamic value) async {
+    print('updateOneShiftRegisterByObjectId');
     try {
       if (!db.isConnected) {
         print(
@@ -299,6 +307,8 @@ class MongoDb {
       List<Map<String, dynamic>> maps = [];
       for (var element in shiftRegisters) {
         maps.add(element.toMap());
+        // await Future.delayed(Duration(milliseconds: 100));
+        // await colShiftRegister.insertOne(element.toMap());
       }
       await colShiftRegister.insertMany(maps);
     } catch (e) {

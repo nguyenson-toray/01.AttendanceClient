@@ -24,7 +24,6 @@ class HRUI extends StatefulWidget {
 class _HRUIState extends State<HRUI>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController tabController;
-  bool allowAccess = true;
 
   @override
   void initState() {
@@ -37,7 +36,8 @@ class _HRUIState extends State<HRUI>
     tabController = TabController(length: 8, vsync: this);
     final department = jsonDecode(gValue.departmentJson);
     Future.delayed(const Duration(milliseconds: 300)).then((value) async => {
-          allowAccess = await gValue.mongoDb.checkPermission(gValue.pcName),
+          gValue.accessMode =
+              await gValue.mongoDb.checkPermission(gValue.pcName),
           getHrData()
         });
 
@@ -209,7 +209,7 @@ class _HRUIState extends State<HRUI>
                       ],
                     ),
                   ),
-                  !allowAccess
+                  gValue.accessMode == 'no'
                       ? MyFuntion.showErrorPermission()
                       : Positioned(
                           bottom: 2,

@@ -398,6 +398,26 @@ class _AttLogUIState extends State<AttLogUI>
                   Row(children: [
                     TextButton.icon(
                       onPressed: () {
+                        if (gValue.accessMode != 'edit') {
+                          toastification.show(
+                            showProgressBar: true,
+                            backgroundColor: Colors.amber[200],
+                            alignment: Alignment.center,
+                            context: context,
+                            title: Text(
+                                'Bạn không có quyền sử dụng chức năng này !'),
+                            autoCloseDuration: Duration(seconds: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 16),
+                                spreadRadius: 0,
+                              )
+                            ],
+                          );
+                          return;
+                        }
                         final TextEditingController textEditingController =
                             TextEditingController();
                         int hour = 8, minute = 0;
@@ -850,6 +870,26 @@ class _AttLogUIState extends State<AttLogUI>
                         label: Text('Export current filter')),
                     TextButton.icon(
                       onPressed: () async {
+                        if (gValue.accessMode != 'edit') {
+                          toastification.show(
+                            showProgressBar: true,
+                            backgroundColor: Colors.amber[200],
+                            alignment: Alignment.center,
+                            context: context,
+                            title: Text(
+                                'Bạn không có quyền sử dụng chức năng này !'),
+                            autoCloseDuration: Duration(seconds: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 16),
+                                spreadRadius: 0,
+                              )
+                            ],
+                          );
+                          return;
+                        }
                         List<Text> logs = [];
                         gValue.mongoDb
                             .insertAttLogs(await MyFile.readExcelAttLog());
@@ -974,6 +1014,26 @@ class _AttLogUIState extends State<AttLogUI>
                     Icons.remove_circle_outlined,
                   ),
                   onPressed: () {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     var row = rendererContext.row.toJson();
                     refreshDataCancel = true;
                     print(row);

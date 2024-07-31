@@ -228,6 +228,26 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                 ),
                 TextButton.icon(
                   onPressed: () async {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     gValue.mongoDb
                         .insertOtRegisters(await MyFile.readExcelOtRegister());
                     List<Text> logs = [];
@@ -551,6 +571,26 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                     Icons.remove_circle_outlined,
                   ),
                   onPressed: () {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     refreshDataCancel = true;
                     var row = rendererContext.row.toJson();
                     print(row);

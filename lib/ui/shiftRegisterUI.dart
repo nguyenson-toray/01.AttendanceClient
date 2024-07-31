@@ -8,6 +8,7 @@ import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/gValue.dart';
 import 'package:tiqn/tools/myFunction.dart';
 import 'package:tiqn/tools/myfile.dart';
+import 'package:toastification/toastification.dart';
 
 class ShiftRegisterUI extends StatefulWidget {
   const ShiftRegisterUI({super.key});
@@ -105,6 +106,26 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                 const Divider(),
                 TextButton.icon(
                   onPressed: () {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     setState(() {
                       newOrEdit = 'new';
                       rowIdChanged = 0;
@@ -120,6 +141,26 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                 ),
                 TextButton.icon(
                   onPressed: () async {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
                     gValue.mongoDb.insertShiftRegisters(
                         await MyFile.readExcelShiftRegister());
                     List<Text> logs = [];
@@ -254,6 +295,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
     List<PlutoColumn> columns = [];
     columns = [
       PlutoColumn(
+          enableEditingMode: gValue.accessMode == 'edit' ? true : false,
           width: 200,
           title: 'From',
           field: 'fromDate',
@@ -266,6 +308,25 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                   Icons.remove_circle_outlined,
                 ),
                 onPressed: () {
+                  if (gValue.accessMode != 'edit') {
+                    toastification.show(
+                      showProgressBar: true,
+                      backgroundColor: Colors.amber[200],
+                      alignment: Alignment.center,
+                      context: context,
+                      title: Text('Bạn không có quyền sử dụng chức năng này !'),
+                      autoCloseDuration: Duration(seconds: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 16),
+                          spreadRadius: 0,
+                        )
+                      ],
+                    );
+                    return;
+                  }
                   var row = rendererContext.row.toJson();
                   print(row);
                   var style = const TextStyle(
@@ -361,16 +422,46 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         }
                         newOrEdit == 'edit'
                             ? {
-                                gValue.mongoDb.updateOneShiftRegisterByObjectId(
-                                    rowChangedJson['objectId']
-                                        .toString()
-                                        .substring(10, 34),
-                                    key,
-                                    value)
+                                if (currentShiftRegister['toDate'].compareTo(
+                                        currentShiftRegister['fromDate']) <
+                                    0)
+                                  {
+                                    toastification.show(
+                                      showProgressBar: true,
+                                      backgroundColor: Colors.red[200],
+                                      alignment: Alignment.center,
+                                      context: context,
+                                      title: Text(
+                                          'Ngày không hợp lệ\nHãy chọn lại ngày !'),
+                                      autoCloseDuration: Duration(seconds: 3),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 16),
+                                          spreadRadius: 0,
+                                        )
+                                      ],
+                                    )
+                                  }
+                                else
+                                  {
+                                    gValue.mongoDb
+                                        .updateOneShiftRegisterByObjectId(
+                                            rowChangedJson['objectId']
+                                                .toString()
+                                                .substring(10, 34),
+                                            key,
+                                            value),
+                                    MyFuntion.insertHistory(
+                                        'Edit shift: ${currentShiftRegister.toString()}\n -> $key : $value')
+                                  }
                               }
                             : {
                                 checkNewShiftRegisterEditBeforeImport(
-                                    currentShiftRegister)
+                                    currentShiftRegister),
+                                MyFuntion.insertHistory(
+                                    'Add shift: ${currentShiftRegister.toString()}')
                               };
                         setState(() {
                           newOrEdit = '';
@@ -385,6 +476,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
             ]);
           }),
       PlutoColumn(
+        enableEditingMode: gValue.accessMode == 'edit' ? true : false,
         width: 120,
         title: 'To',
         field: 'toDate',
@@ -393,6 +485,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
             defaultValue: DateTime.now().add(const Duration(days: 31))),
       ),
       PlutoColumn(
+        enableEditingMode: gValue.accessMode == 'edit' ? true : false,
         width: 200,
         title: 'Employee ID',
         field: 'empId',
@@ -406,6 +499,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
         type: PlutoColumnType.text(),
       ),
       PlutoColumn(
+        enableEditingMode: gValue.accessMode == 'edit' ? true : false,
         width: 80,
         title: 'Shift',
         field: 'shift',
@@ -413,6 +507,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
             defaultValue: 'Shift 1'),
       ),
       PlutoColumn(
+        enableEditingMode: gValue.accessMode == 'edit' ? true : false,
         width: 350,
         title: 'objectId',
         field: 'objectId',
