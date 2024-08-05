@@ -666,9 +666,9 @@ class MyFuntion {
                 endM = otRegisterEmpOnDates.last.otTimeEnd.split(':')[1];
               }
 
-              DateTime beginTime = DateFormat("dd-MM-yyyy hh:mm:ss")
+              DateTime beginTime = DateFormat("dd-MM-yyyy HH:mm:ss")
                   .parse('01-01-2000 $beginH:$beginM:00');
-              DateTime endTime = DateFormat("dd-MM-yyyy hh:mm:ss")
+              DateTime endTime = DateFormat("dd-MM-yyyy HH:mm:ss")
                   .parse('01-01-2000 $endH:$endM:00');
               DateTime otEndAllow = shiftTimeEnd
                   .add(Duration(hours: endTime.difference(beginTime).inHours));
