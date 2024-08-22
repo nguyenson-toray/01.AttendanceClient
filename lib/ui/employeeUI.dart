@@ -33,7 +33,7 @@ class _EmployeeUIState extends State<EmployeeUI>
     // TODO: implement initState
     print('initState EmployeeUI ');
     Future.delayed(Durations.long2).then((value) =>
-        Timer.periodic(const Duration(seconds: 1), (_) => refreshData()));
+        Timer.periodic(const Duration(seconds: 3), (_) => refreshData()));
 
     columns = getColumns();
     rows = getRows(gValue.employees, showResigned);

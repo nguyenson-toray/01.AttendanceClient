@@ -28,10 +28,10 @@ class MongoDb {
   late Db db;
   initDB() async {
     if (kReleaseMode) {
-      ipServer = '192.168.1.11';
+      ipServer = '10.0.1.4';
     } else {
       ipServer = 'localhost';
-      // ipServer = '192.168.1.11';
+      ipServer = '10.0.1.4';
     }
     db = Db("mongodb://$ipServer:27017/tiqn");
     try {
@@ -116,9 +116,8 @@ class MongoDb {
       await colEmployee
           .find(where.sortBy('empId', descending: true))
           .forEach((emp) => {result.add(Employee.fromMap(emp))});
-      // print('getAllEmployee => ${result.length} records');
     } catch (e) {
-      print(e);
+      print('getEmployees: $e');
     }
 
     return result;
@@ -354,7 +353,6 @@ class MongoDb {
   Future<List<OtRegister>> getOTRegisterByRangeDate(
       DateTime timeBegin, DateTime timeEnd) async {
     List<OtRegister> result = [];
-
     try {
       if (!db.isConnected) {
         print('getOTRegisterByRangeDate DB not connected, try connect again');

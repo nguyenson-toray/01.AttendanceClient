@@ -437,6 +437,7 @@ class MyFuntion {
     List<OtRegister> otRegistersOnDate = [];
     List<LeaveRegister> leaveRegisteronDate = [];
     for (var date in dates) {
+      otRegistersOnDate.clear();
       List<AttLog> dayLogs =
           attLogs.where((log) => (log.timestamp.day == date.day)).toList();
       if (dayLogs.isEmpty) continue;
@@ -673,6 +674,7 @@ class MyFuntion {
               DateTime otEndAllow = shiftTimeEnd
                   .add(Duration(hours: endTime.difference(beginTime).inHours));
               otApproved = endTime.difference(beginTime).inMinutes / 60;
+
               if (lastOut.isBefore(otEndAllow)) {
                 // OT ra som
                 otFinal = lastOut.difference(shiftTimeEnd).inMinutes / 60;
@@ -682,6 +684,17 @@ class MyFuntion {
               } else {
                 // OT ra dung gio
                 otFinal = otApproved;
+              }
+              if (int.parse(beginH) < 8) {
+                var beginOTAllow = shiftTimeBegin
+                    .subtract(Duration(minutes: otApproved.toInt()));
+                if (firstIn.isBefore(beginOTAllow)) {
+                  otActual = otApproved;
+                } else {
+                  otActual = shiftTimeBegin.difference(firstIn).inMinutes / 60;
+                }
+                otFinal = otActual >= otApproved ? otApproved : otActual;
+                attNote += "OT trước 08:00 ";
               }
             }
           }
@@ -710,6 +723,7 @@ class MyFuntion {
               break;
             }
           }
+
           if (attNote.endsWith(' ; ')) {
             attNote = attNote.substring(0, attNote.length - 3);
           }
