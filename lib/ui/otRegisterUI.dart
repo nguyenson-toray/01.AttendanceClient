@@ -142,7 +142,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
               children: [
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       "Filter by date",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -212,7 +212,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                               '${DateFormat('yyyyMMdd').format(DateTime.now())}' +
                                   '-bosungLine2',
                           requestDate: DateTime.now().appliedFromTimeOfDay(
-                              TimeOfDay(hour: 0, minute: 0)),
+                              const TimeOfDay(hour: 0, minute: 0)),
                           otDate: DateTime.parse(today),
                           otTimeBegin: '17:00',
                           otTimeEnd: '19:00',
@@ -234,9 +234,9 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                         backgroundColor: Colors.amber[200],
                         alignment: Alignment.center,
                         context: context,
-                        title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -577,9 +577,9 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                         backgroundColor: Colors.amber[200],
                         alignment: Alignment.center,
                         context: context,
-                        title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -611,7 +611,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                     AwesomeDialog(
                             context: context,
                             body: Text(
-                              'Delete: ID: ${id}   Request No: $requestNo     Name: $deletedEmpId-$deletedEmpName \nDate: $deltedOtDate \nFrom: $deltedOtTimeBegin To: $deltedOtTimeEnd',
+                              'Delete: ID: $id   Request No: $requestNo     Name: $deletedEmpId-$deletedEmpName \nDate: $deltedOtDate \nFrom: $deltedOtTimeBegin To: $deltedOtTimeEnd',
                               style: style,
                             ),
                             width: 800,
@@ -627,7 +627,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                               });
                               await gValue.mongoDb.deleteOneOtRegister(id);
                               await MyFuntion.insertHistory(
-                                  'DELETE OT register: ID: ${id}   Request No: $requestNo   Name: $deletedEmpId-$deletedEmpName   Date: $deltedOtDate   From: $deltedOtTimeBegin   To: $deltedOtTimeEnd');
+                                  'DELETE OT register: ID: $id   Request No: $requestNo   Name: $deletedEmpId-$deletedEmpName   Date: $deltedOtDate   From: $deltedOtTimeBegin   To: $deltedOtTimeEnd');
                               refreshDataCancel = false;
                             },
                             closeIcon: const Icon(Icons.close))

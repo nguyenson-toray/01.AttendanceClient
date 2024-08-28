@@ -123,7 +123,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                 ],
               ),
             ),
-            Divider(),
+            const Divider(),
             Card(
               elevation: 8,
               color: getColorByPercent(maxOtYear, 300, false),
@@ -172,8 +172,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                             height: 50,
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Highest overtime : ${maxOtYear.round()} hours\n' +
-                                    'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2024']!.first.lastUpdate.add(Duration(hours: 7)))}'),
+                                'Highest overtime : ${maxOtYear.round()} hours\n' 'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2024']!.first.lastUpdate.add(const Duration(hours: 7)))}'),
                           ),
                           // gValue.timeSheetMonthYears['2024']!.isNotEmpty
                           //     ? Text(
@@ -287,7 +286,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                     ],
                   )),
             ),
-            Divider(),
+            const Divider(),
             ListView.separated(
               shrinkWrap: true,
               itemBuilder: (context, index) {
@@ -300,7 +299,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                     0, (max, e) => e.otHours > max ? e.otHours : max);
                 String info = 'Highest overtime : ${maxOt.round()} hours\n';
                 info += gValue.timeSheetMonthYears[monthName]!.isNotEmpty
-                    ? 'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears[monthName]!.first.lastUpdate.add(Duration(hours: 7)))}'
+                    ? 'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears[monthName]!.first.lastUpdate.add(const Duration(hours: 7)))}'
                     : '';
 
                 return Card(
@@ -340,7 +339,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                 child:
                                     Image.asset('assets/images/warningRed.gif'),
                               ),
-                              Container(
+                              SizedBox(
                                 width: 200,
                                 height: 25,
                                 child: TextButton.icon(
@@ -468,7 +467,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
               },
               itemCount: MyFuntion.getMonthYearList().length,
               separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(
+                return const SizedBox(
                   height: 10,
                 );
               },

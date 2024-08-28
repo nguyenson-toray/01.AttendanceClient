@@ -14,7 +14,6 @@ import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/database/timeSheetDate.dart';
 import 'package:tiqn/database/timeSheetMonthYear.dart';
 import 'package:tiqn/gValue.dart';
-import 'package:tiqn/main.dart';
 import 'package:tiqn/tools/myFunction.dart';
 
 class MyFile {
@@ -242,8 +241,8 @@ class MyFile {
       } catch (e) {
         print(e);
       }
-      sheet.getRangeByName('I$row').setText('${type}');
-      sheet.getRangeByName('J$row').setText('${note}');
+      sheet.getRangeByName('I$row').setText(type);
+      sheet.getRangeByName('J$row').setText(note);
     }
     // Assigning text to cells
 
@@ -777,14 +776,16 @@ class MyFile {
     final Style styleHeaderOtApproved =
         workbook.styles.add('styleHeaderOtApproved');
     final Style styleHeaderLeave = workbook.styles.add('styleHeaderLeave');
+    final Style styleAttNote = workbook.styles.add('styleAttNote');
     styleHeader.bold = true;
     styleHeader.backColorRgb = const Color.fromARGB(255, 174, 210, 239);
     styleHeaderOtApproved.bold = true;
     styleHeaderOtApproved.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
-    styleHeaderLeave.backColorRgb = Color.fromARGB(255, 157, 73, 183);
-    sheetDetail.getRangeByName('A1:T1').cellStyle = styleHeader;
+    styleHeaderLeave.backColorRgb = const Color.fromARGB(255, 157, 73, 183);
+    styleAttNote.backColorRgb = const Color.fromARGB(255, 241, 39, 73);
+    sheetDetail.getRangeByName('A1:U1').cellStyle = styleHeader;
     sheetDetail.getRangeByName('Q1:Q1').cellStyle = styleHeaderOtApproved;
-    sheetDetail.getRangeByName('S1:T1').cellStyle = styleHeaderLeave;
+    sheetDetail.getRangeByName('S1:U1').cellStyle = styleHeaderLeave;
     sheetDetail.getRangeByName('C1').columnWidth = 10;
     sheetDetail.getRangeByName('D1').columnWidth = 6;
     sheetDetail.getRangeByName('J1').columnWidth = 4;
@@ -795,9 +796,11 @@ class MyFile {
     sheetDetail.getRangeByName('O1').columnWidth = 6.2;
     sheetDetail.getRangeByName('P1').columnWidth = 9;
     sheetDetail.getRangeByName('Q1').columnWidth = 5;
-    sheetDetail.getRangeByName('R1').columnWidth = 30;
-    sheetDetail.getRangeByName('T1').columnWidth = 45;
-    sheetDetail.getRangeByName('A1:T1').cellStyle.wrapText = true;
+    sheetDetail.getRangeByName('R1').columnWidth = 20;
+    sheetDetail.getRangeByName('S1').columnWidth = 10;
+    sheetDetail.getRangeByName('T1').columnWidth = 6;
+    sheetDetail.getRangeByName('U1').columnWidth = 45;
+    sheetDetail.getRangeByName('A1:U1').cellStyle.wrapText = true;
     sheetDetail.getRangeByName('A1').setText('No');
     sheetDetail.getRangeByName('B1').setText('Date');
     sheetDetail.getRangeByName('C1').setText('Employee ID');
@@ -816,8 +819,9 @@ class MyFile {
     sheetDetail.getRangeByName('P1').setText('OT Approved (hours)');
     sheetDetail.getRangeByName('Q1').setText('OT Final');
     sheetDetail.getRangeByName('R1').setText('Attendance Note');
-    sheetDetail.getRangeByName('S1').setText('Leave Type');
-    sheetDetail.getRangeByName('T1').setText('Leave Info');
+    sheetDetail.getRangeByName('S1').setText('Chế độ mang thai/ nuôi con nhỏ');
+    sheetDetail.getRangeByName('T1').setText('Leave Type');
+    sheetDetail.getRangeByName('U1').setText('Leave Info');
     int row = 1;
     for (var timeSheet in timeSheets) {
       row++;
@@ -863,17 +867,23 @@ class MyFile {
       sheetDetail
           .getRangeByName('Q$row')
           .setNumber(roundDouble(timeSheet.otHoursFinal, 1));
-      sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote);
+      sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote1);
+      if (timeSheet.attNote1.contains('Không chấm công')) {
+        sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote;
+      }
+      if (timeSheet.attNote2 != '') {
+        sheetDetail.getRangeByName('S$row').setText('X');
+      }
       try {
         sheetDetail
-            .getRangeByName('S$row')
+            .getRangeByName('T$row')
             .setNumber(double.parse(timeSheet.leaveRegisterType));
       } catch (e) {
         sheetDetail
-            .getRangeByName('S$row')
+            .getRangeByName('T$row')
             .setText(timeSheet.leaveRegisterType);
       }
-      sheetDetail.getRangeByName('T$row').setText(timeSheet.leaveRegisterInfo);
+      sheetDetail.getRangeByName('U$row').setText(timeSheet.leaveRegisterInfo);
     }
 
     // Auto-Fit column the range
@@ -881,7 +891,7 @@ class MyFile {
     sheetDetail.autoFitColumn(2);
     sheetDetail.autoFitColumn(5);
     final ExcelTable tableDetail = sheetDetail.tableCollection
-        .create('tableDetail', sheetDetail.getRangeByName('A1:T$row'));
+        .create('tableDetail', sheetDetail.getRangeByName('A1:U$row'));
     tableDetail.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
     //------------Summary
@@ -1201,7 +1211,7 @@ class MyFile {
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         if (table == 'OT Registers') {
-          print('get data in sheet : ${table}');
+          print('get data in sheet : $table');
           for (int rowIndex = 1;
               rowIndex < excel.tables[table]!.maxRows;
               rowIndex++) {
@@ -1353,7 +1363,7 @@ class MyFile {
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         if (table == 'Leave Registers') {
-          print('get data in sheet : ${table}');
+          print('get data in sheet : $table');
           for (int rowIndex = 1;
               rowIndex < excel.tables[table]!.maxRows;
               rowIndex++) {

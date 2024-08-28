@@ -130,7 +130,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
       body: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             color: Colors.blue[50],
             width: 300,
             child: Column(
@@ -139,7 +139,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
               children: [
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       "Filter by date",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -191,10 +191,10 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                           name: 'Lê Văn A',
                           empId: 'TIQN-9999',
                           fromDate: DateTime.now().appliedFromTimeOfDay(
-                              TimeOfDay(hour: 0, minute: 0)),
+                              const TimeOfDay(hour: 0, minute: 0)),
                           fromTime: '08:00',
                           toDate: DateTime.now().appliedFromTimeOfDay(
-                              TimeOfDay(hour: 0, minute: 0)),
+                              const TimeOfDay(hour: 0, minute: 0)),
                           toTime: '17:00',
                           type: 'Phép năm',
                           note: '')
@@ -215,8 +215,8 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                         alignment: Alignment.center,
                         context: context,
                         title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -372,8 +372,8 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                         alignment: Alignment.center,
                         context: context,
                         title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -403,7 +403,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                     AwesomeDialog(
                             context: context,
                             body: Text(
-                              'Delete: no#: ${no}      $type\n$empId    $name\nFrom: $fromDate $fromTime to: $toDate  $toTime',
+                              'Delete: no#: $no      $type\n$empId    $name\nFrom: $fromDate $fromTime to: $toDate  $toTime',
                               style: style,
                             ),
                             width: 800,
@@ -420,7 +420,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                               await gValue.mongoDb
                                   .deleteOneLeaveRegister(no.toString());
                               await MyFuntion.insertHistory(
-                                  'DELETE leave register: ${no} Name: $empId-$name  $type   From: $fromDate $fromTime to: $toDate  $toTime');
+                                  'DELETE leave register: $no Name: $empId-$name  $type   From: $fromDate $fromTime to: $toDate  $toTime');
                               refreshDataCancel = false;
                             },
                             closeIcon: const Icon(Icons.close))

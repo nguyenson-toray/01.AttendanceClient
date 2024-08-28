@@ -26,14 +26,14 @@ class _SettinngUiState extends State<SettinngUi> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Column(
         children: [
           Card(
             elevation: 8,
             child: ListTile(
               leading: InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.folder,
                   size: 40,
                   color: Colors.orange,
@@ -43,8 +43,8 @@ class _SettinngUiState extends State<SettinngUi> {
                       'file://T:/03.Department/01.Operation Management/03.HR-GA/01.HR/4. EMPLOYEE/7.OT request/02.Pdf');
                 },
               ),
-              title: Text('Folder save OT form'),
-              subtitle: Row(
+              title: const Text('Folder save OT form'),
+              subtitle: const Row(
                 children: [
                   Text(
                       r'T:\03.Department\01.Operation Management\03.HR-GA\01.HR\4. EMPLOYEE\7.OT request\02.Pdf'),
@@ -56,7 +56,7 @@ class _SettinngUiState extends State<SettinngUi> {
             elevation: 8,
             child: ListTile(
               leading: InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.file_open,
                   size: 40,
                   color: Colors.greenAccent,
@@ -66,8 +66,8 @@ class _SettinngUiState extends State<SettinngUi> {
                       'file://T:/03.Department/01.Operation Management/03.HR-GA/01.HR/4. EMPLOYEE/7.OT request/01.OT summary-link data OT.xlsx');
                 },
               ),
-              title: Text('File OT summary'),
-              subtitle: Row(
+              title: const Text('File OT summary'),
+              subtitle: const Row(
                 children: [
                   Text(
                       r'T:\03.Department\01.Operation Management\03.HR-GA\01.HR\4. EMPLOYEE\7.OT request\01.OT summary-link data OT.xlsx'),
@@ -79,7 +79,7 @@ class _SettinngUiState extends State<SettinngUi> {
             elevation: 8,
             child: ListTile(
               leading: InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.file_open,
                   size: 40,
                   color: Colors.pinkAccent,
@@ -89,8 +89,8 @@ class _SettinngUiState extends State<SettinngUi> {
                       'file://T:/02.Public/02.Form/1.Overtime request form-update 25-6-24_Ngay binh thuong.xlsm');
                 },
               ),
-              title: Text('File form OT'),
-              subtitle: Row(
+              title: const Text('File form OT'),
+              subtitle: const Row(
                 children: [
                   Text(
                       r'T:\02.Public\02.Form\1.Overtime request form-update 25-6-24_Ngay binh thuong.xlsm'),
@@ -101,13 +101,13 @@ class _SettinngUiState extends State<SettinngUi> {
           Card(
             elevation: 8,
             child: ListTile(
-              leading: CircleAvatar(
-                child: Text('1'),
+              leading: const CircleAvatar(
                 backgroundColor: Colors.teal,
+                child: Text('1'),
               ),
               title: Row(
                 children: [
-                  Text('Shift 1 & 2 : Not allow OT'),
+                  const Text('Shift 1 & 2 : Not allow OT'),
                   Checkbox(
                     value: gValue.shift12NoOt,
                     onChanged: (value) {
@@ -123,14 +123,14 @@ class _SettinngUiState extends State<SettinngUi> {
           Card(
             elevation: 8,
             child: ListTile(
-              leading: CircleAvatar(
-                child: Text('2'),
+              leading: const CircleAvatar(
                 backgroundColor: Colors.indigoAccent,
+                child: Text('2'),
               ),
-              title: Text('Default OT minutes'),
+              title: const Text('Default OT minutes'),
               subtitle: Row(
                 children: [
-                  Text('Min'),
+                  const Text('Min'),
                   DropdownButtonHideUnderline(
                       child: DropdownButton2(
                           isExpanded: true,

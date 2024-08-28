@@ -86,6 +86,6 @@ class LeaveRegister {
 
   @override
   String toString() {
-    return 'No: $no, Name: $name, Emp ID: $empId, From: ${DateFormat('dd-MMM-yyyy').format(fromDate)} : ${fromTime}, To: ${DateFormat('dd-MMM-yyyy').format(toDate)} :  $toTime, Type: $type, Note: $note)';
+    return 'No: $no, Name: $name, Emp ID: $empId, From: ${DateFormat('dd-MMM-yyyy').format(fromDate)} : $fromTime, To: ${DateFormat('dd-MMM-yyyy').format(toDate)} :  $toTime, Type: $type, Note: $note)';
   }
 }

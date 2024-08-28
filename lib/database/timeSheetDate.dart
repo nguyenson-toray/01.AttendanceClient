@@ -1,7 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
 
-import 'package:tiqn/database/leaveRegister.dart';
 
 class TimeSheetDate {
   DateTime date;
@@ -19,7 +17,8 @@ class TimeSheetDate {
   double otHours;
   double otHoursApproved;
   double otHoursFinal;
-  String attNote;
+  String attNote1;
+  String attNote2;
   String leaveRegisterType;
   String leaveRegisterInfo;
   TimeSheetDate({
@@ -38,14 +37,15 @@ class TimeSheetDate {
     required this.otHours,
     required this.otHoursApproved,
     required this.otHoursFinal,
-    required this.attNote,
+    required this.attNote1,
+    required this.attNote2,
     required this.leaveRegisterType,
     required this.leaveRegisterInfo,
   });
 
   @override
   String toString() {
-    return 'TimeSheetDate(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group, lineTeam: $lineTeam,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, otHours: $otHours,  otHoursApproved: $otHoursApproved, otHoursFinal: $otHoursFinal, attNote: $attNote), leaveRegisterType:  $leaveRegisterType, leaveRegisterInfo: $leaveRegisterInfo';
+    return 'TimeSheetDate(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group, lineTeam: $lineTeam,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, otHours: $otHours,  otHoursApproved: $otHoursApproved, otHoursFinal: $otHoursFinal, attNote1: $attNote1, attNote2: $attNote2, leaveRegisterType:  $leaveRegisterType, leaveRegisterInfo: $leaveRegisterInfo';
   }
 
   @override
@@ -67,7 +67,8 @@ class TimeSheetDate {
         other.otHours == otHours &&
         other.otHoursApproved == otHoursApproved &&
         other.otHoursFinal == otHoursFinal &&
-        other.attNote == attNote &&
+        other.attNote1 == attNote1 &&
+        other.attNote2 == attNote2 &&
         other.leaveRegisterType == leaveRegisterType &&
         other.leaveRegisterInfo == leaveRegisterInfo;
   }

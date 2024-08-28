@@ -13,8 +13,6 @@ import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/database/timeSheetDate.dart';
 import 'package:tiqn/database/timeSheetMonthYear.dart';
 import 'package:tiqn/gValue.dart';
-import 'package:tiqn/main.dart';
-import 'package:tiqn/tools/myfile.dart';
 
 class MyFuntion {
   // static void calculateLastId(RealmResults<Employee> employees) {
@@ -262,7 +260,7 @@ class MyFuntion {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Bạn không có quyền sử dụng phần mềm này !\nVui lòng liên hệ Mr. Sơn - IT',
                 style: TextStyle(
                     fontSize: 30,
@@ -481,7 +479,11 @@ class MyFuntion {
           (!element.workStatus.toString().contains('Resigned') ||
               (element.workStatus.toString().contains('Resigned') &&
                   date.isBefore(element.resignOn!))))) {
-        String leaveRegisterType = '', leaveRegisterInfo = '', attNote = '';
+        String leaveRegisterType = '',
+            leaveRegisterInfo = '',
+            attNote1 = '',
+            attNote2 =
+                ''; //attNote1 = vào trễ, ra sớm, thiếu chấm công //attNote2 = chế độ
         if (date.isBefore(emp.joiningDate!)) {
           continue;
         }
@@ -558,16 +560,32 @@ class MyFuntion {
               emp.maternityEnd != null &&
               date.compareTo(emp.maternityEnd!) <= 0) {
             shiftTimeEnd = shiftTimeEnd.subtract(const Duration(hours: 1));
-            attNote += 'Chế độ mang thai/ nuôi con nhỏ ; ';
+            attNote2 += 'Chế độ mang thai/ nuôi con nhỏ';
           }
-          if ((firstIn.isBefore(shiftTimeBegin) &&
-                  lastOut.isBefore(shiftTimeBegin)) ||
-              (firstIn.isAfter(shiftTimeEnd) &&
-                  lastOut.isAfter(shiftTimeEnd))) {
+          if (firstIn.isBefore(shiftTimeBegin) &&
+              lastOut.isBefore(shiftTimeBegin)) {
             normalHours = 0;
             otApproved = 0;
             otActual = 0;
-          } else if (firstIn.isAtSameMomentAs(lastOut)) {
+            attNote1 += 'Không chấm công RA';
+          } else if (firstIn.isAfter(shiftTimeEnd) &&
+              lastOut.isAfter(shiftTimeEnd)) {
+            normalHours = 0;
+            otApproved = 0;
+            otActual = 0;
+            attNote1 += 'Không chấm công VÀO';
+          }
+
+          // if ((firstIn.isBefore(shiftTimeBegin) &&
+          //         lastOut.isBefore(shiftTimeBegin)) ||
+          //     (firstIn.isAfter(shiftTimeEnd) &&
+          //         lastOut.isAfter(shiftTimeEnd))) {
+          //   normalHours = 0;
+          //   otApproved = 0;
+          //   otActual = 0;
+          //   attNote += 'Chấm công ; ';
+          // }
+          else if (firstIn.isAtSameMomentAs(lastOut)) {
             normalHours = 0;
             otApproved = 0;
             otActual = 0;
@@ -694,7 +712,7 @@ class MyFuntion {
                   otActual = shiftTimeBegin.difference(firstIn).inMinutes / 60;
                 }
                 otFinal = otActual >= otApproved ? otApproved : otActual;
-                attNote += "OT trước 08:00 ";
+                attNote1 += "OT trước 08:00 ";
               }
             }
           }
@@ -707,13 +725,15 @@ class MyFuntion {
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
         }
         if (date.weekday == DateTime.sunday && otActual > 0) {
-          attNote += 'OT ngày CN';
+          attNote1 += 'OT ngày CN';
         } else {
           if (logs.length >= 2 && firstIn.isAfter(shiftTimeBegin)) {
-            attNote += 'Vào trễ';
+            attNote1 += 'Vào trễ ; ';
           }
-          if (logs.length >= 2 && lastOut.isBefore(shiftTimeEnd)) {
-            attNote += 'Ra sớm';
+          if (logs.length >= 2 &&
+              lastOut.isBefore(shiftTimeEnd) &&
+              firstIn.isAfter(shiftTimeBegin)) {
+            attNote1 += 'Ra sớm ; ';
           }
           for (var record in leaveRegisteronDate) {
             if (record.empId == emp.empId && record.fromDate == date) {
@@ -724,8 +744,8 @@ class MyFuntion {
             }
           }
 
-          if (attNote.endsWith(' ; ')) {
-            attNote = attNote.substring(0, attNote.length - 3);
+          if (attNote1.endsWith(' ; ')) {
+            attNote1 = attNote1.substring(0, attNote1.length - 3);
           }
         }
 
@@ -745,7 +765,8 @@ class MyFuntion {
             otHours: otActual,
             otHoursApproved: otApproved,
             otHoursFinal: otFinal,
-            attNote: attNote,
+            attNote1: attNote1,
+            attNote2: attNote2,
             leaveRegisterType: leaveRegisterType,
             leaveRegisterInfo: leaveRegisterInfo));
       }
@@ -757,7 +778,7 @@ class MyFuntion {
   static Future<void> insertHistory(String log) async {
     var history = History(
         pcName: gValue.pcName,
-        time: DateTime.now().add(Duration(hours: 7)),
+        time: DateTime.now().add(const Duration(hours: 7)),
         log: log);
     await gValue.mongoDb.insertHistory([history]);
   }

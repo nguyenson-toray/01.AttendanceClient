@@ -113,8 +113,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         alignment: Alignment.center,
                         context: context,
                         title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -148,8 +148,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         alignment: Alignment.center,
                         context: context,
                         title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
@@ -274,13 +274,13 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         .value
                         .value ==
                     'Shift 1') {
-                  return Color.fromARGB(255, 179, 216, 235);
+                  return const Color.fromARGB(255, 179, 216, 235);
                 } else if (rowColorContext.row.cells.entries
                         .elementAt(4)
                         .value
                         .value ==
                     'Shift 2') {
-                  return Color.fromARGB(255, 169, 189, 245);
+                  return const Color.fromARGB(255, 169, 189, 245);
                 } else
                   return Colors.white;
               },
@@ -314,8 +314,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                       backgroundColor: Colors.amber[200],
                       alignment: Alignment.center,
                       context: context,
-                      title: Text('Bạn không có quyền sử dụng chức năng này !'),
-                      autoCloseDuration: Duration(seconds: 2),
+                      title: const Text('Bạn không có quyền sử dụng chức năng này !'),
+                      autoCloseDuration: const Duration(seconds: 2),
                       boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
@@ -431,9 +431,9 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                                       backgroundColor: Colors.red[200],
                                       alignment: Alignment.center,
                                       context: context,
-                                      title: Text(
+                                      title: const Text(
                                           'Ngày không hợp lệ\nHãy chọn lại ngày !'),
-                                      autoCloseDuration: Duration(seconds: 3),
+                                      autoCloseDuration: const Duration(seconds: 3),
                                       boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,

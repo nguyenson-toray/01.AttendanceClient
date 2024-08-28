@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -135,7 +134,7 @@ class _AttLogUIState extends State<AttLogUI>
                 width: 500,
                 child: SfDateRangePicker(
                   enableMultiView: true,
-                  monthViewSettings: DateRangePickerMonthViewSettings(
+                  monthViewSettings: const DateRangePickerMonthViewSettings(
                       enableSwipeSelection: true,
                       showWeekNumber: false,
                       firstDayOfWeek: 1,
@@ -201,7 +200,7 @@ class _AttLogUIState extends State<AttLogUI>
                 ),
               ),
               showButtonOKSellectRangeDate
-                  ? Text(
+                  ? const Text(
                       'Press button OK to load data',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -209,7 +208,7 @@ class _AttLogUIState extends State<AttLogUI>
                           fontSize: 20),
                     )
                   : Container(),
-              Divider(),
+              const Divider(),
 
               Row(children: [
                 Visibility(
@@ -349,7 +348,7 @@ class _AttLogUIState extends State<AttLogUI>
                           alignment: Alignment.center,
                           context: context,
                           title: const Text('Data is loading...!'),
-                          autoCloseDuration: Duration(seconds: 5),
+                          autoCloseDuration: const Duration(seconds: 5),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black12,
@@ -391,7 +390,7 @@ class _AttLogUIState extends State<AttLogUI>
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Attendance history :',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -404,9 +403,9 @@ class _AttLogUIState extends State<AttLogUI>
                             backgroundColor: Colors.amber[200],
                             alignment: Alignment.center,
                             context: context,
-                            title: Text(
+                            title: const Text(
                                 'Bạn không có quyền sử dụng chức năng này !'),
-                            autoCloseDuration: Duration(seconds: 2),
+                            autoCloseDuration: const Duration(seconds: 2),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
@@ -765,7 +764,7 @@ class _AttLogUIState extends State<AttLogUI>
                                         context: context,
                                         title: Text(
                                             'Adding:  $empId   $empName: time: $time'),
-                                        autoCloseDuration: Duration(seconds: 1),
+                                        autoCloseDuration: const Duration(seconds: 1),
                                         boxShadow: const [
                                           BoxShadow(
                                             color: Colors.black12,
@@ -777,7 +776,7 @@ class _AttLogUIState extends State<AttLogUI>
                                       );
                                     }
                                   },
-                                  label: Text('ADD MORE'),
+                                  label: const Text('ADD MORE'),
                                 ),
                                 btnOkOnPress: () async {
                                   stateManager.resetCurrentState();
@@ -811,7 +810,7 @@ class _AttLogUIState extends State<AttLogUI>
                                       context: context,
                                       title: Text(
                                           'Adding:  $empId   $empName: time: $time'),
-                                      autoCloseDuration: Duration(seconds: 1),
+                                      autoCloseDuration: const Duration(seconds: 1),
                                       boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,
@@ -851,8 +850,7 @@ class _AttLogUIState extends State<AttLogUI>
                         ),
                         onPressed: () {
                           List<AttLog> attLogs = [];
-                          stateManager.refRows.forEach(
-                            (row) {
+                          for (var row in stateManager.refRows) {
                               var tempJson = row.toJson();
                               attLogs.add(AttLog(
                                   objectId: tempJson['objectId'],
@@ -862,12 +860,11 @@ class _AttLogUIState extends State<AttLogUI>
                                   timestamp: DateFormat('dd-MMM-yyyy hh:mm:ss')
                                       .parse(tempJson['timeStamp']),
                                   machineNo: tempJson['machineNo']));
-                            },
-                          );
+                            }
 
                           MyFile.createExcelAttLog(attLogs, 'Attendance logs');
                         },
-                        label: Text('Export current filter')),
+                        label: const Text('Export current filter')),
                     TextButton.icon(
                       onPressed: () async {
                         if (gValue.accessMode != 'edit') {
@@ -876,9 +873,9 @@ class _AttLogUIState extends State<AttLogUI>
                             backgroundColor: Colors.amber[200],
                             alignment: Alignment.center,
                             context: context,
-                            title: Text(
+                            title: const Text(
                                 'Bạn không có quyền sử dụng chức năng này !'),
-                            autoCloseDuration: Duration(seconds: 2),
+                            autoCloseDuration: const Duration(seconds: 2),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
@@ -1021,8 +1018,8 @@ class _AttLogUIState extends State<AttLogUI>
                         alignment: Alignment.center,
                         context: context,
                         title:
-                            Text('Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: Duration(seconds: 2),
+                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,

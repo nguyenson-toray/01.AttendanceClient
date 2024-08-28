@@ -13,7 +13,7 @@ import 'package:tiqn/gValue.dart';
 import 'package:tiqn/main.dart';
 
 class MongoDb {
-  String ipServer = '192.168.1.11';
+  String ipServer = '10.0.1.4';
 
   late var colEmployee,
       colAttLog,
@@ -31,7 +31,7 @@ class MongoDb {
       ipServer = '10.0.1.4';
     } else {
       ipServer = 'localhost';
-      ipServer = '10.0.1.4';
+      // ipServer = '10.0.1.4';
     }
     db = Db("mongodb://$ipServer:27017/tiqn");
     try {
@@ -596,7 +596,7 @@ class MongoDb {
           .find(where
               .lte('fromDate', begin)
               .and(where.gte('toDate',
-                  end.appliedFromTimeOfDay(TimeOfDay(hour: 00, minute: 00))))
+                  end.appliedFromTimeOfDay(const TimeOfDay(hour: 00, minute: 00))))
               .sortBy('no', descending: true))
           .forEach((record) => {result.add(LeaveRegister.fromMap(record))});
     } catch (e) {
