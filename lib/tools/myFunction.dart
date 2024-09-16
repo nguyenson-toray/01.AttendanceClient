@@ -593,7 +593,8 @@ class MyFuntion {
             normalHours = 8;
             // NORMAL
             if (firstIn.isAfter(shiftTimeBegin) &&
-                lastOut.isAfter(shiftTimeEnd)) {
+                (lastOut.isAtSameMomentAs(shiftTimeEnd) ||
+                    lastOut.isAfter(shiftTimeEnd))) {
               // vao tre, ra dung gio
               if (firstIn.isBefore(restBegin)) {
                 // truoc 12h
