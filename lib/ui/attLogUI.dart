@@ -428,11 +428,17 @@ class _AttLogUIState extends State<AttLogUI>
                         ];
                         List<String> minuteList = [
                           '0',
+                          '5',
                           '10',
+                          '15',
                           '20',
+                          '25',
                           '30',
+                          '35',
                           '40',
-                          '50'
+                          '45',
+                          '50',
+                          '55'
                         ];
                         AwesomeDialog(
                                 padding: const EdgeInsets.all(10),
@@ -764,7 +770,8 @@ class _AttLogUIState extends State<AttLogUI>
                                         context: context,
                                         title: Text(
                                             'Adding:  $empId   $empName: time: $time'),
-                                        autoCloseDuration: const Duration(seconds: 1),
+                                        autoCloseDuration:
+                                            const Duration(seconds: 1),
                                         boxShadow: const [
                                           BoxShadow(
                                             color: Colors.black12,
@@ -810,7 +817,8 @@ class _AttLogUIState extends State<AttLogUI>
                                       context: context,
                                       title: Text(
                                           'Adding:  $empId   $empName: time: $time'),
-                                      autoCloseDuration: const Duration(seconds: 1),
+                                      autoCloseDuration:
+                                          const Duration(seconds: 1),
                                       boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,
@@ -851,16 +859,16 @@ class _AttLogUIState extends State<AttLogUI>
                         onPressed: () {
                           List<AttLog> attLogs = [];
                           for (var row in stateManager.refRows) {
-                              var tempJson = row.toJson();
-                              attLogs.add(AttLog(
-                                  objectId: tempJson['objectId'],
-                                  attFingerId: tempJson['attFingerId'],
-                                  empId: tempJson['empId'],
-                                  name: tempJson['name'],
-                                  timestamp: DateFormat('dd-MMM-yyyy hh:mm:ss')
-                                      .parse(tempJson['timeStamp']),
-                                  machineNo: tempJson['machineNo']));
-                            }
+                            var tempJson = row.toJson();
+                            attLogs.add(AttLog(
+                                objectId: tempJson['objectId'],
+                                attFingerId: tempJson['attFingerId'],
+                                empId: tempJson['empId'],
+                                name: tempJson['name'],
+                                timestamp: DateFormat('dd-MMM-yyyy hh:mm:ss')
+                                    .parse(tempJson['timeStamp']),
+                                machineNo: tempJson['machineNo']));
+                          }
 
                           MyFile.createExcelAttLog(attLogs, 'Attendance logs');
                         },
@@ -1017,8 +1025,8 @@ class _AttLogUIState extends State<AttLogUI>
                         backgroundColor: Colors.amber[200],
                         alignment: Alignment.center,
                         context: context,
-                        title:
-                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
                         autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
