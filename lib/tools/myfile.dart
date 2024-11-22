@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -858,15 +859,19 @@ class MyFile {
             .getRangeByName('N$row')
             .setNumber(roundDouble(timeSheet.normalHours / 8, 2));
       }
+      int roundNumber = 1;
+      if (timeSheet.otHours - timeSheet.otHours.toInt() >= 0.96) {
+        roundNumber = 2;
+      }
       sheetDetail
           .getRangeByName('O$row')
-          .setNumber(roundDouble(timeSheet.otHours, 1));
+          .setNumber(roundDouble(timeSheet.otHours, roundNumber));
       sheetDetail
           .getRangeByName('P$row')
           .setNumber(roundDouble(timeSheet.otHoursApproved, 1));
       sheetDetail
           .getRangeByName('Q$row')
-          .setNumber(roundDouble(timeSheet.otHoursFinal, 1));
+          .setNumber(roundDouble(timeSheet.otHoursFinal, roundNumber));
       sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote1);
       if (timeSheet.attNote1.contains('Không chấm công')) {
         sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote;

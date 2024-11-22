@@ -642,7 +642,8 @@ class MyFuntion {
                   !empIdShift1.contains(emp.empId) &&
                   !empIdShift2.contains(emp.empId)) {
                 // vao tre sau 8h, ra som truoc 17h
-                normalHours = lastOut.difference(firstIn).inMinutes / 60 - 1;
+                // normalHours = lastOut.difference(firstIn).inMinutes / 60 - 1;
+                normalHours = lastOut.difference(firstIn).inMinutes / 60;
               }
             }
             if (empIdShift1.contains(emp.empId) ||
@@ -722,7 +723,6 @@ class MyFuntion {
           var ot = normalHours + otActual;
           otActual = ot;
           normalHours = 0;
-          otActual = ot;
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
         }
         if (date.weekday == DateTime.sunday && otActual > 0) {
