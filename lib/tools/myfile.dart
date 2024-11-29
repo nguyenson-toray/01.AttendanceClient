@@ -859,19 +859,17 @@ class MyFile {
             .getRangeByName('N$row')
             .setNumber(roundDouble(timeSheet.normalHours / 8, 2));
       }
-      int roundNumber = 1;
-      if (timeSheet.otHours - timeSheet.otHours.toInt() >= 0.96) {
-        roundNumber = 2;
-      }
       sheetDetail
           .getRangeByName('O$row')
-          .setNumber(roundDouble(timeSheet.otHours, roundNumber));
+          .setNumber(((timeSheet.otHours * 10).floor() / 10));
+      //chỗ cột OT final: a dùng rouddown(x,1), nó ra giá trị đúng như e cần ạ
       sheetDetail
           .getRangeByName('P$row')
           .setNumber(roundDouble(timeSheet.otHoursApproved, 1));
       sheetDetail
           .getRangeByName('Q$row')
-          .setNumber(roundDouble(timeSheet.otHoursFinal, roundNumber));
+          .setNumber((timeSheet.otHoursFinal * 10).floor() / 10);
+      //chỗ cột OT final: a dùng rouddown(x,1), nó ra giá trị đúng như e cần ạ
       sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote1);
       if (timeSheet.attNote1.contains('Không chấm công')) {
         sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote;

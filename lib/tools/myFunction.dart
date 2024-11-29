@@ -727,6 +727,9 @@ class MyFuntion {
         }
         if (date.weekday == DateTime.sunday && otActual > 0) {
           attNote1 += 'OT ngày CN';
+          if (otActual > 4 && lastOut.isAfter(restEnd)) {
+            attNote1 += ' - Có phụ cấp cơm trưa';
+          }
         } else {
           if (logs.length >= 2 && firstIn.isAfter(shiftTimeBegin)) {
             attNote1 += 'Vào trễ ; ';

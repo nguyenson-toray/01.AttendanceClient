@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/Programming/01.AttendanceApp/03.Client/tiqn/windows"
+    "cmake.sourceDirectory": "D:/Programming/01.AttendanceApp/03.Client/tiqn/windows",
+    "remote.SSH.defaultForwardedPorts": []
 }
