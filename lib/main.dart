@@ -11,7 +11,7 @@ Future<void> main() async {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     await windowManager.ensureInitialized();
     WindowManager.instance.setMinimumSize(const Size(1280, 720));
-    WindowManager.instance.setTitle('Author: Sơn.NT');
+    WindowManager.instance.setTitle('TIQN Attendance - Dev by: Sơn.NT');
   }
   await initPackageInfo();
   print(gValue.packageInfo.toString());

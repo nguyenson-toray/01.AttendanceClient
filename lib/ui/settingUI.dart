@@ -11,9 +11,8 @@ class SettinngUi extends StatefulWidget {
 }
 
 class _SettinngUiState extends State<SettinngUi> {
-  List<String> minOtList = ['0', '20', '30'];
+  List<String> minOtList = ['0', '15', '20', '25', '30'];
   List<String> maxOtList = [
-    '0',
     '30',
     '60',
     '90',
@@ -40,14 +39,14 @@ class _SettinngUiState extends State<SettinngUi> {
                 ),
                 onTap: () {
                   launch(
-                      'file://T:/03.Department/01.Operation Management/03.HR-GA/01.HR/4. EMPLOYEE/7.OT request/02.Pdf');
+                      'file://T:/03.Department/01.Operation Management/03.HR-GA/01.HR/4. EMPLOYEE/7.OT request/01.Imported');
                 },
               ),
               title: const Text('Folder save OT form'),
               subtitle: const Row(
                 children: [
                   Text(
-                      r'T:\03.Department\01.Operation Management\03.HR-GA\01.HR\4. EMPLOYEE\7.OT request\02.Pdf'),
+                      r'T:\03.Department\01.Operation Management\03.HR-GA\01.HR\4. EMPLOYEE\7.OT request\01.Imported'),
                 ],
               ),
             ),
@@ -86,14 +85,14 @@ class _SettinngUiState extends State<SettinngUi> {
                 ),
                 onTap: () {
                   launch(
-                      'file://T:/02.Public/02.Form/1.Overtime request form-update 25-6-24_Ngay binh thuong.xlsm');
+                      'file://T:/02.Public/02.Form/1.Overtime request form_Ngay binh thuong.xlsx');
                 },
               ),
               title: const Text('File form OT'),
               subtitle: const Row(
                 children: [
                   Text(
-                      r'T:\02.Public\02.Form\1.Overtime request form-update 25-6-24_Ngay binh thuong.xlsm'),
+                      r'T:\02.Public\02.Form\1.Overtime request form_Ngay binh thuong.xlsx'),
                 ],
               ),
             ),
@@ -127,7 +126,8 @@ class _SettinngUiState extends State<SettinngUi> {
                 backgroundColor: Colors.indigoAccent,
                 child: Text('2'),
               ),
-              title: const Text('Default OT minutes'),
+              title: const Text(
+                  'OT minutes allow - Reset to default after exit app (Min : 30,  Max : 240)'),
               subtitle: Row(
                 children: [
                   const Text('Min'),

@@ -574,18 +574,7 @@ class MyFuntion {
             otApproved = 0;
             otActual = 0;
             attNote1 += 'Không chấm công VÀO';
-          }
-
-          // if ((firstIn.isBefore(shiftTimeBegin) &&
-          //         lastOut.isBefore(shiftTimeBegin)) ||
-          //     (firstIn.isAfter(shiftTimeEnd) &&
-          //         lastOut.isAfter(shiftTimeEnd))) {
-          //   normalHours = 0;
-          //   otApproved = 0;
-          //   otActual = 0;
-          //   attNote += 'Chấm công ; ';
-          // }
-          else if (firstIn.isAtSameMomentAs(lastOut)) {
+          } else if (firstIn.isAtSameMomentAs(lastOut)) {
             normalHours = 0;
             otApproved = 0;
             otActual = 0;
@@ -646,77 +635,170 @@ class MyFuntion {
                 normalHours = lastOut.difference(firstIn).inMinutes / 60;
               }
             }
+            // -> Tính OT
+            // Ca 1 & 2 không tính OT
             if (empIdShift1.contains(emp.empId) ||
                 empIdShift2.contains(emp.empId)) {
               otActual = 0;
               otApproved = 0;
-            }
-
-            DateTime otEndAllow =
-                shiftTimeEnd.add(Duration(minutes: gValue.maxOtMinutes));
-
-            if (lastOut.isBefore(otEndAllow)) {
-              // OT ra som
-              otActual = lastOut.difference(shiftTimeEnd).inMinutes / 60;
             } else {
-              // OT ra dung gio
-              otActual = gValue.maxOtMinutes / 60;
-            }
-            otActual = otActual < gValue.minOtMinutes / 60 ? 0 : otActual;
-            if (empIdOT.contains(emp.empId)) {
-              List<OtRegister> otRegisterEmpOnDates = [];
-              String beginH = '', beginM = '', endH = '', endM = '';
-              OtRegister otRegisterEmp;
-              otRegisterEmpOnDates = otRegistersOnDate
-                  .where((otRecord) => otRecord.empId == emp.empId)
-                  .toList();
-              if (otRegisterEmpOnDates.length == 1) {
-                // neu trong danh sach OT - 1 ban ghi
-                otRegisterEmp = otRegisterEmpOnDates.first;
-                beginH = otRegisterEmp.otTimeBegin.split(':')[0];
-                beginM = otRegisterEmp.otTimeBegin.split(':')[1];
-                endH = otRegisterEmp.otTimeEnd.split(':')[0];
-                endM = otRegisterEmp.otTimeEnd.split(':')[1];
-              } else if (otRegisterEmpOnDates.length > 1) {
-                // neu trong danh sach OT - nhieu ban ghi
-                otRegisterEmpOnDates
-                    .sort((a, b) => a.otTimeEnd.compareTo(b.otTimeEnd));
-                beginH = otRegisterEmpOnDates.first.otTimeBegin.split(':')[0];
-                beginM = otRegisterEmpOnDates.first.otTimeBegin.split(':')[1];
-                endH = otRegisterEmpOnDates.last.otTimeEnd.split(':')[0];
-                endM = otRegisterEmpOnDates.last.otTimeEnd.split(':')[1];
-              }
+              // emp có trong DS OT
+              if (empIdOT.contains(emp.empId)) {
+                List<OtRegister> otRegisterEmpOnDates = [];
+                String beginH = '', beginM = '', endH = '', endM = '';
+                OtRegister otRegisterEmp;
+                otRegisterEmpOnDates = otRegistersOnDate
+                    .where((otRecord) => otRecord.empId == emp.empId)
+                    .toList();
+                if (otRegisterEmpOnDates.length == 1) {
+                  otRegisterEmp = otRegisterEmpOnDates.first;
+                  beginH = otRegisterEmp.otTimeBegin.split(':')[0];
+                  beginM = otRegisterEmp.otTimeBegin.split(':')[1];
+                  endH = otRegisterEmp.otTimeEnd.split(':')[0];
+                  endM = otRegisterEmp.otTimeEnd.split(':')[1];
+                  //
+                  DateTime beginTimeOTRegister = DateTime.utc(
+                      date.year,
+                      date.month,
+                      date.day,
+                      int.parse(beginH),
+                      int.parse(beginM));
+                  DateTime endTimeOTRegister = DateTime.utc(date.year,
+                      date.month, date.day, int.parse(endH), int.parse(endM));
 
-              DateTime beginTime = DateFormat("dd-MM-yyyy HH:mm:ss")
-                  .parse('01-01-2000 $beginH:$beginM:00');
-              DateTime endTime = DateFormat("dd-MM-yyyy HH:mm:ss")
-                  .parse('01-01-2000 $endH:$endM:00');
-              DateTime otEndAllow = shiftTimeEnd
-                  .add(Duration(hours: endTime.difference(beginTime).inHours));
-              otApproved = endTime.difference(beginTime).inMinutes / 60;
+                  otApproved = endTimeOTRegister
+                          .difference(beginTimeOTRegister)
+                          .inMinutes /
+                      60;
+                  // đăng ký OT trước 8h
+                  if (int.parse(beginH) < shiftTimeBegin.hour) {
+                    var beginOTAllow = shiftTimeBegin
+                        .subtract(Duration(minutes: otApproved.toInt()));
+                    if (firstIn.isBefore(beginOTAllow)) {
+                      otActual = otApproved;
+                    } else {
+                      otActual =
+                          shiftTimeBegin.difference(firstIn).inMinutes / 60;
+                    }
+                    otFinal = otActual >= otApproved ? otApproved : otActual;
+                    attNote1 += "OT trước ca làm việc ; ";
+                  } else if (int.parse(beginH) >= shiftTimeEnd.hour) {
+                    // đăng ký OT sau ca làm việc (sau 16h hoặc 17h)
+                    if (lastOut.isAfter(shiftTimeEnd
+                        .add(Duration(minutes: gValue.minOtMinutes)))) {
+                      if (lastOut.isBefore(endTimeOTRegister)) {
+                        // OT ra som
+                        otActual =
+                            lastOut.difference(shiftTimeEnd).inMinutes / 60;
+                      } else {
+                        // OT ra dung gio
+                        otActual =
+                            lastOut.difference(beginTimeOTRegister).inMinutes /
+                                60;
+                      }
+                    }
+                  }
+                } else if (otRegisterEmpOnDates.length == 2) {
+                  // max 2 bản ghi OT / ngày
+                  otRegisterEmpOnDates
+                      .sort((a, b) => a.otTimeEnd.compareTo(b.otTimeEnd));
+                  beginH = otRegisterEmpOnDates.first.otTimeBegin.split(':')[0];
+                  beginM = otRegisterEmpOnDates.first.otTimeBegin.split(':')[1];
+                  endH = otRegisterEmpOnDates.last.otTimeEnd.split(':')[0];
+                  endM = otRegisterEmpOnDates.last.otTimeEnd.split(':')[1];
+                  if (int.parse(beginH) >= shiftTimeBegin.hour &&
+                      int.parse(endH) >= shiftTimeBegin.hour) {
+                    // Cả 2 bản ghi sau ca làm việc => cộng dồn 2 bản ghi
+                    DateTime beginTimeOTRegister = DateTime.utc(
+                        date.year,
+                        date.month,
+                        date.day,
+                        int.parse(beginH),
+                        int.parse(beginM));
+                    DateTime endTimeOTRegister = DateTime.utc(date.year,
+                        date.month, date.day, int.parse(endH), int.parse(endM));
+                    otApproved = endTimeOTRegister
+                            .difference(beginTimeOTRegister)
+                            .inMinutes /
+                        60;
+                    if (lastOut.isAfter(shiftTimeEnd
+                        .add(Duration(minutes: gValue.minOtMinutes)))) {
+                      if (lastOut.isBefore(endTimeOTRegister)) {
+                        // OT ra som
+                        otActual =
+                            lastOut.difference(shiftTimeEnd).inMinutes / 60;
+                      } else {
+                        // OT ra dung gio
+                        otActual =
+                            lastOut.difference(beginTimeOTRegister).inMinutes /
+                                60;
+                      }
+                    }
+                  } else if (int.parse(beginH) < shiftTimeBegin.hour &&
+                      int.parse(endH) >= shiftTimeEnd.hour) {
+                    attNote1 += "OT trước & sau ca làm việc ; ";
+                    // 1 bản ghi trước & 1 sau ca làm việc
+                    double otActual1, otActual2, otApproved1, otApproved2 = 0;
 
-              if (lastOut.isBefore(otEndAllow)) {
-                // OT ra som
-                otFinal = lastOut.difference(shiftTimeEnd).inMinutes / 60;
-                if (otFinal < gValue.minOtMinutes / 60) {
-                  otFinal = 0;
+                    // trước
+                    DateTime beginTimeOTRegister1 = DateTime.utc(
+                        date.year,
+                        date.month,
+                        date.day,
+                        int.parse(beginH),
+                        int.parse(beginM));
+                    otApproved1 = shiftTimeBegin
+                            .difference(beginTimeOTRegister1)
+                            .inMinutes /
+                        60;
+                    if (firstIn.isBefore(beginTimeOTRegister1)) {
+                      otActual1 = otApproved1;
+                    } else {
+                      otActual1 =
+                          shiftTimeBegin.difference(firstIn).inMinutes / 60;
+                    }
+                    otFinal = otActual >= otApproved ? otApproved : otActual;
+                    // sau
+                    DateTime endTimeOTRegister2 = DateTime.utc(date.year,
+                        date.month, date.day, int.parse(endH), int.parse(endM));
+                    otApproved2 =
+                        endTimeOTRegister2.difference(shiftTimeEnd).inMinutes /
+                            60;
+                    if (lastOut.isAfter(shiftTimeEnd) &&
+                        lastOut.isBefore(endTimeOTRegister2)) {
+                      // OT ra som
+                      otActual2 =
+                          lastOut.difference(shiftTimeEnd).inMinutes / 60;
+                    } else {
+                      // OT ra dung gio
+                      otActual2 =
+                          lastOut.difference(shiftTimeEnd).inMinutes / 60;
+                    }
+                    otActual = otActual1 + otActual2;
+                    otApproved = otApproved1 + otApproved2;
+                  }
                 }
-              } else {
-                // OT ra dung gio
-                otFinal = otApproved;
-              }
-              if (int.parse(beginH) < 8) {
-                var beginOTAllow = shiftTimeBegin
-                    .subtract(Duration(minutes: otApproved.toInt()));
-                if (firstIn.isBefore(beginOTAllow)) {
-                  otActual = otApproved;
-                } else {
-                  otActual = shiftTimeBegin.difference(firstIn).inMinutes / 60;
-                }
-                otFinal = otActual >= otApproved ? otApproved : otActual;
-                attNote1 += "OT trước 08:00 ";
               }
             }
+            otFinal = (otActual <= otApproved) ? otActual : otApproved;
+            // <- Tính OT
+          }
+        }
+
+        if (logs.length >= 2 && firstIn.isAfter(shiftTimeBegin)) {
+          attNote1 += 'Vào trễ ; ';
+        }
+        if (logs.length >= 2 &&
+            lastOut.isBefore(shiftTimeEnd) &&
+            firstIn.isAfter(shiftTimeBegin)) {
+          attNote1 += 'Ra sớm ; ';
+        }
+        for (var record in leaveRegisteronDate) {
+          if (record.empId == emp.empId && record.fromDate == date) {
+            leaveRegisterType = record.type;
+            leaveRegisterInfo =
+                '# ${record.no}: from ${record.fromTime} to ${record.toTime},  ${record.note}';
+            break;
           }
         }
         if (date.weekday == DateTime.sunday) {
@@ -724,33 +806,15 @@ class MyFuntion {
           otActual = ot;
           normalHours = 0;
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
-        }
-        if (date.weekday == DateTime.sunday && otActual > 0) {
-          attNote1 += 'OT ngày CN';
-          if (otActual > 4 && lastOut.isAfter(restEnd)) {
-            attNote1 += ' - Có phụ cấp cơm trưa';
-          }
-        } else {
-          if (logs.length >= 2 && firstIn.isAfter(shiftTimeBegin)) {
-            attNote1 += 'Vào trễ ; ';
-          }
-          if (logs.length >= 2 &&
-              lastOut.isBefore(shiftTimeEnd) &&
-              firstIn.isAfter(shiftTimeBegin)) {
-            attNote1 += 'Ra sớm ; ';
-          }
-          for (var record in leaveRegisteronDate) {
-            if (record.empId == emp.empId && record.fromDate == date) {
-              leaveRegisterType = record.type;
-              leaveRegisterInfo =
-                  '# ${record.no}: from ${record.fromTime} to ${record.toTime},  ${record.note}';
-              break;
+          if (otActual > 0) {
+            attNote1 = 'OT ngày CN ; ';
+            if (otActual > 4 && lastOut.isAfter(restEnd)) {
+              attNote1 += 'Có phụ cấp cơm trưa ; ';
             }
           }
-
-          if (attNote1.endsWith(' ; ')) {
-            attNote1 = attNote1.substring(0, attNote1.length - 3);
-          }
+        }
+        if (attNote1.endsWith(' ; ')) {
+          attNote1 = attNote1.substring(0, attNote1.length - 3);
         }
 
         result.add(TimeSheetDate(

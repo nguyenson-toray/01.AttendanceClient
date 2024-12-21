@@ -778,12 +778,14 @@ class MyFile {
         workbook.styles.add('styleHeaderOtApproved');
     final Style styleHeaderLeave = workbook.styles.add('styleHeaderLeave');
     final Style styleAttNote = workbook.styles.add('styleAttNote');
+    final Style styleAttNote2 = workbook.styles.add('styleAttNote2');
     styleHeader.bold = true;
     styleHeader.backColorRgb = const Color.fromARGB(255, 174, 210, 239);
     styleHeaderOtApproved.bold = true;
     styleHeaderOtApproved.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
     styleHeaderLeave.backColorRgb = const Color.fromARGB(255, 157, 73, 183);
     styleAttNote.backColorRgb = const Color.fromARGB(255, 241, 39, 73);
+    styleAttNote2.backColorRgb = Color.fromARGB(255, 250, 207, 13);
     sheetDetail.getRangeByName('A1:U1').cellStyle = styleHeader;
     sheetDetail.getRangeByName('Q1:Q1').cellStyle = styleHeaderOtApproved;
     sheetDetail.getRangeByName('S1:U1').cellStyle = styleHeaderLeave;
@@ -873,6 +875,10 @@ class MyFile {
       sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote1);
       if (timeSheet.attNote1.contains('Không chấm công')) {
         sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote;
+      }
+      if (timeSheet.attNote1.contains('CN') ||
+          timeSheet.attNote1.contains('OT trước & sau ca làm việc')) {
+        sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote2;
       }
       if (timeSheet.attNote2 != '') {
         sheetDetail.getRangeByName('S$row').setText('X');
