@@ -7,6 +7,7 @@ import 'package:tiqn/gValue.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:tiqn/tools/myFunction.dart';
 import 'package:tiqn/tools/myfile.dart';
+import 'package:toastification/toastification.dart';
 
 class EmployeeUI extends StatefulWidget {
   const EmployeeUI({super.key});
@@ -27,13 +28,15 @@ class _EmployeeUIState extends State<EmployeeUI>
   late PlutoGridStateManager stateManager;
   bool pauseLoadData = false;
   bool showResigned = false;
+  late DateTime lastUpdate;
 
   @override
   void initState() {
     // TODO: implement initState
     print('initState EmployeeUI ');
+    lastUpdate = DateTime.now();
     Future.delayed(Durations.long2).then((value) =>
-        Timer.periodic(const Duration(seconds: 3), (_) => refreshData()));
+        Timer.periodic(const Duration(minutes: 30), (_) => refreshData()));
 
     columns = getColumns();
     rows = getRows(gValue.employees, showResigned);
@@ -55,6 +58,24 @@ class _EmployeeUIState extends State<EmployeeUI>
           }
         });
       }
+      setState(() {
+        lastUpdate = DateTime.now();
+      });
+      toastification.show(
+        backgroundColor: Colors.greenAccent,
+        alignment: Alignment.center,
+        context: context,
+        title: const Text('Data loaded !'),
+        autoCloseDuration: const Duration(seconds: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(6, 93, 250, 87),
+            blurRadius: 16,
+            offset: Offset(0, 16),
+            spreadRadius: 0,
+          )
+        ],
+      );
     }
   }
 
@@ -138,7 +159,14 @@ class _EmployeeUIState extends State<EmployeeUI>
                     // chartWorkingMaternity(),
                   ],
                 )
-              : popupMenuImportExport(),
+              : Column(
+                  children: [
+                    popupMenuImportExport(),
+                    RotatedBox(
+                        quarterTurns: 45,
+                        child: Text('Last update at $lastUpdate')),
+                  ],
+                ),
           Expanded(
             child: PlutoGrid(
               mode: plutoGridMode,
@@ -562,6 +590,11 @@ class _EmployeeUIState extends State<EmployeeUI>
     return PopupMenuButton(
       onSelected: (value) async {
         switch (value) {
+          case 'refresh':
+            {
+              refreshData();
+            }
+            break;
           case 'showResigned':
             {
               showResigned = !showResigned;
@@ -643,6 +676,18 @@ class _EmployeeUIState extends State<EmployeeUI>
       },
       itemBuilder: (BuildContext bc) {
         return [
+          const PopupMenuItem(
+            value: 'refresh',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.refresh,
+                  color: Colors.green,
+                ),
+                Text("Refresh Data"),
+              ],
+            ),
+          ),
           PopupMenuItem(
               value: 'showResigned',
               child: Row(

@@ -826,7 +826,8 @@ class MyFile {
     sheetDetail.getRangeByName('T1').setText('Leave Type');
     sheetDetail.getRangeByName('U1').setText('Leave Info');
     int row = 1;
-    for (var timeSheet in timeSheets) {
+    for (var i = 0; i < timeSheets.length; i++) {
+      var timeSheet = timeSheets[i];
       row++;
       sheetDetail.getRangeByName('A$row').setNumber((row - 1));
       sheetDetail.getRangeByName('B$row').numberFormat = 'dd-MMM-yyyy';
@@ -850,9 +851,11 @@ class MyFile {
       sheetDetail.getRangeByName('L$row').setDateTime(
           timeSheet.lastOut?.year == 2000 ? null : timeSheet.lastOut);
       if (timeSheet.normalHours >= 7.9 && timeSheet.normalHours < 8) {
+        timeSheets[i].normalHours = 7.9;
         sheetDetail.getRangeByName('M$row').setNumber(7.9);
         sheetDetail.getRangeByName('N$row').setNumber(0.99);
       } else {
+        timeSheets[i].normalHours = roundDouble(timeSheet.normalHours, 1);
         sheetDetail
             .getRangeByName('M$row')
             .setNumber(roundDouble(timeSheet.normalHours, 1));
@@ -861,6 +864,8 @@ class MyFile {
             .getRangeByName('N$row')
             .setNumber(roundDouble(timeSheet.normalHours / 8, 2));
       }
+
+      timeSheets[i].otHours = (timeSheet.otHours * 10).floor() / 10;
       sheetDetail
           .getRangeByName('O$row')
           .setNumber(((timeSheet.otHours * 10).floor() / 10));
@@ -868,6 +873,8 @@ class MyFile {
       sheetDetail
           .getRangeByName('P$row')
           .setNumber(roundDouble(timeSheet.otHoursApproved, 1));
+
+      timeSheets[i].otHoursFinal = (timeSheet.otHoursFinal * 10).floor() / 10;
       sheetDetail
           .getRangeByName('Q$row')
           .setNumber((timeSheet.otHoursFinal * 10).floor() / 10);
@@ -935,6 +942,10 @@ class MyFile {
       final double totalNormalHours = timeSheets
           .where((element) => element.empId == empId)
           .fold(0, (sum, item) => sum + item.normalHours);
+      double totalDay = timeSheets
+          .where((element) => element.empId == empId)
+          .fold(0, (sum, item) => sum + item.normalHours);
+      totalDay = totalNormalHours / 8;
       final double totalOtHours = timeSheets
           .where((element) => element.empId == empId)
           .fold(0, (sum, item) => sum + item.otHours);
@@ -951,6 +962,7 @@ class MyFile {
       employeeWO.group = empInfo.group;
       employeeWO.lineTeam = empInfo.lineTeam;
       employeeWO.totalW = totalNormalHours;
+      employeeWO.totalDay = totalDay;
       employeeWO.totalOt = totalOtHours;
       employeeWO.totalOtApproved = totalOtHoursApproved;
       employeeWO.totalOtFinal = totalOtHoursFinal;
@@ -971,7 +983,7 @@ class MyFile {
           .setNumber(roundDouble(element.totalW, 1));
       sheetSummary
           .getRangeByName('I$row')
-          .setNumber(roundDouble(element.totalW / 8, 1));
+          .setNumber(roundDouble(element.totalDay, 2));
       sheetSummary
           .getRangeByName('J$row')
           .setNumber(roundDouble(element.totalOt, 1));

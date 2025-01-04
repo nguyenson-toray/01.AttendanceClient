@@ -14,6 +14,7 @@ class TimeSheet {
   DateTime? firstIn;
   DateTime? lastOut;
   double normalHours;
+  double workingDay;
   double otHours;
   double otHoursApproved;
   TimeSheet({
@@ -29,6 +30,7 @@ class TimeSheet {
     this.firstIn,
     this.lastOut,
     required this.normalHours,
+    required this.workingDay,
     required this.otHours,
     required this.otHoursApproved,
   });
@@ -45,6 +47,7 @@ class TimeSheet {
     DateTime? firstIn,
     DateTime? lastOut,
     double? normalHours,
+    double? workingDay,
     double? otHours,
     double? otHoursApproved,
   }) {
@@ -61,6 +64,7 @@ class TimeSheet {
       firstIn: firstIn ?? this.firstIn,
       lastOut: lastOut ?? this.lastOut,
       normalHours: normalHours ?? this.normalHours,
+      workingDay: workingDay ?? this.workingDay,
       otHours: otHours ?? this.otHours,
       otHoursApproved: otHours ?? this.otHoursApproved,
     );
@@ -80,6 +84,7 @@ class TimeSheet {
       'firstIn': firstIn,
       'lastOut': lastOut,
       'normalHours': normalHours,
+      'workingDay': workingDay,
       'otHours': otHours,
       'otHoursApproved': otHoursApproved,
     };
@@ -99,6 +104,7 @@ class TimeSheet {
       firstIn: map['firstIn'] != null ? DateTime.parse(map['firstIn']) : null,
       lastOut: map['lastOut'] != null ? DateTime.parse(map['lastOut']) : null,
       normalHours: map['normalHours'] as double,
+      workingDay: map['workingDay'] as double,
       otHours: map['otHours'] as double,
       otHoursApproved: map['otHoursApproved'] as double,
     );
@@ -111,7 +117,7 @@ class TimeSheet {
 
   @override
   String toString() {
-    return 'TimeSheet(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group, lineTeam: $lineTeam,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, otHours: $otHours,  otHoursApproved: $otHoursApproved)';
+    return 'TimeSheet(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group, lineTeam: $lineTeam,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, workingDay: $workingDay, otHours: $otHours,  otHoursApproved: $otHoursApproved)';
   }
 
   @override
@@ -130,6 +136,7 @@ class TimeSheet {
         other.firstIn == firstIn &&
         other.lastOut == lastOut &&
         other.normalHours == normalHours &&
+        other.workingDay == workingDay &&
         other.otHours == otHours &&
         other.otHoursApproved == otHoursApproved;
   }
@@ -147,6 +154,7 @@ class TimeSheet {
         firstIn.hashCode ^
         lastOut.hashCode ^
         normalHours.hashCode ^
+        workingDay.hashCode ^
         otHours.hashCode ^
         otHoursApproved.hashCode;
   }

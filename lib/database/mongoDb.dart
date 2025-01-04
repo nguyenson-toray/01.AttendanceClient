@@ -240,6 +240,43 @@ class MongoDb {
     return result;
   }
 
+  Future<List<ShiftRegister>> getShiftRegisterByYear(int year) async {
+    List<ShiftRegister> result = [];
+    late DateTime timeBegin, timeEnd;
+    if (year == 2024) {
+      timeBegin = DateTime(2023, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2024, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    } else if (year == 2025) {
+      timeBegin = DateTime(2024, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2025, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    }
+    try {
+      if (!db.isConnected) {
+        print('getShiftRegister DB not connected, try connect again');
+        await initDB();
+      }
+      await colShiftRegister
+          .find(
+              where.gte('toDate', timeBegin).and(where.lte('toDate', timeEnd)))
+          .forEach((e) => {result.add(ShiftRegister.fromMap(e))});
+    } catch (e) {
+      print(e);
+    }
+    return result;
+  }
+
   Future<void> deleteOneShiftRegister(String objectIdString) async {
     if (objectIdString.isNotEmpty) {
       try {
@@ -332,6 +369,46 @@ class MongoDb {
     return result;
   }
 
+  Future<List<History>> getHistoryByYear(int year) async {
+    print('getHistoryAll');
+    late DateTime timeBegin, timeEnd;
+    if (year == 2024) {
+      timeBegin = DateTime(2023, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2024, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    } else if (year == 2025) {
+      timeBegin = DateTime(2024, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2025, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    }
+    List<History> result = [];
+    try {
+      if (!db.isConnected) {
+        print('getHistoryAll DB not connected, try connect again');
+        await initDB();
+      }
+      await colHistory
+          .find(where
+              .gte('time', timeBegin)
+              .and(where.lte('time', timeEnd))
+              .sortBy('time', descending: false))
+          .forEach((history) => {result.add(History.fromMap(history))});
+    } catch (e) {
+      print(e);
+    }
+    return result;
+  }
+
   Future<void> insertHistory(List<History> histories) async {
     // print('insertHistory : $histories');
     try {
@@ -374,20 +451,37 @@ class MongoDb {
   }
 
   Future<List<OtRegister>> getOTRegisterAll() async {
-    // print('getOTRegisterAll');
+    print('--------------getOTRegisterAll');
     List<OtRegister> result = [];
+    DateTime date = DateTime.utc(2024, 12, 25, 0, 0, 0);
     try {
+      // Kiểm tra kết nối DB
       if (!db.isConnected) {
         print('getOTRegisterAll DB not connected, try connect again');
         await initDB();
       }
-      await colOtRegister
-          .find(where.sortBy('_id', descending: true))
-          .forEach((ot) => {result.add(OtRegister.fromMap(ot))});
+
+      // Tạo điều kiện query
+      final query = where.gt('OtDate', date).sortBy('_id', descending: true);
+
+      // Thực hiện query và chuyển đổi kết quả
+      await colOtRegister.find(query).forEach((ot) {
+        print('--------------ot: $ot');
+        try {
+          result.add(OtRegister.fromMap(ot));
+        } catch (e) {
+          print('Error parsing OT record: $e');
+          // Có thể log thêm data gốc để debug: print('Raw data: $ot');
+        }
+      });
+
+      return result;
     } catch (e) {
-      print(e);
+      print('Error in getOTRegisterAll: $e');
+      // Có thể throw exception để caller xử lý
+      // throw Exception('Failed to fetch OT registers: $e');
+      return result;
     }
-    return result;
   }
 
   Future<void> deleteOneOtRegister(int id) async {
@@ -497,7 +591,7 @@ class MongoDb {
     } catch (e) {
       print(e);
     }
-    // print('getTimesheetsMonthYear : $monthYear--------> ${result.length}');
+    print('getTimesheetsMonthYear : -$monthYear--------> ${result.length}');
     return result;
   }
 
@@ -595,8 +689,10 @@ class MongoDb {
       await colLeaveRegister
           .find(where
               .lte('fromDate', begin)
-              .and(where.gte('toDate',
-                  end.appliedFromTimeOfDay(const TimeOfDay(hour: 00, minute: 00))))
+              .and(where.gte(
+                  'toDate',
+                  end.appliedFromTimeOfDay(
+                      const TimeOfDay(hour: 00, minute: 00))))
               .sortBy('no', descending: true))
           .forEach((record) => {result.add(LeaveRegister.fromMap(record))});
     } catch (e) {

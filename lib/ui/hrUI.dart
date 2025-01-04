@@ -32,8 +32,8 @@ class _HRUIState extends State<HRUI>
       gValue.screenHeight = MediaQuery.of(context).size.height;
       print('screen size : ${gValue.screenWidth} x ${gValue.screenHeight}');
     });
-    tabController = TabController(length: 8, vsync: this);
-    final department = jsonDecode(gValue.departmentJson);
+    tabController = TabController(length: 7, vsync: this);
+    // final department = jsonDecode(gValue.departmentJson);
     Future.delayed(const Duration(milliseconds: 300)).then((value) async => {
           gValue.accessMode =
               await gValue.mongoDb.checkPermission(gValue.pcName),
@@ -71,18 +71,18 @@ class _HRUIState extends State<HRUI>
     gValue.employees = await gValue.mongoDb.getEmployees();
     gValue.attLogs = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
     gValue.shifts = await gValue.mongoDb.getShifts();
-    gValue.shiftRegisters = await gValue.mongoDb.getShiftRegister();
-    gValue.history = await gValue.mongoDb.getHistoryAll();
-    gValue.otRegisters = await gValue.mongoDb.getOTRegisterByRangeDate(
-        DateTime.utc(2024, 3, 1), timeBegin.add(const Duration(days: 30)));
-    gValue.leaveRegisters = await gValue.mongoDb.getLeaveRegister();
-    gValue.monthYears = MyFuntion.getMonthYearList();
+    gValue.shiftRegisters = await gValue.mongoDb.getShiftRegisterByYear(2025);
+    gValue.history = await gValue.mongoDb.getHistoryByYear(2025);
+    // gValue.otRegisters = await gValue.mongoDb.getOTRegisterByRangeDate(
+    //     DateTime.utc(2024, 12, 26), timeBegin.add(const Duration(days: 30)));
+    // gValue.leaveRegisters = await gValue.mongoDb.getLeaveRegister();
+    gValue.monthYears = MyFuntion.getMonthYearList('2025');
     for (var month in gValue.monthYears) {
       gValue.timeSheetMonthYears[month] =
           await gValue.mongoDb.getTimesheetsMonthYear(month);
     }
-    gValue.timeSheetMonthYears['2024'] =
-        await gValue.mongoDb.getTimesheetsMonthYear('2024');
+    gValue.timeSheetMonthYears['2025'] =
+        await gValue.mongoDb.getTimesheetsMonthYear('2025');
     setState(() {
       MyFuntion.calculateEmployeeStatus();
       MyFuntion.calculateAttendanceStatus();
@@ -139,13 +139,13 @@ class _HRUIState extends State<HRUI>
                         ),
                         text: "Overtime",
                       ),
-                      Tab(
-                        icon: Icon(
-                          Icons.work_off,
-                          color: Colors.red,
-                        ),
-                        text: "Leave",
-                      ),
+                      // Tab(
+                      //   icon: Icon(
+                      //     Icons.work_off,
+                      //     color: Colors.red,
+                      //   ),
+                      //   text: "Leave",
+                      // ),
                       Tab(
                         icon: Icon(
                           Icons.work_history,
@@ -197,7 +197,7 @@ class _HRUIState extends State<HRUI>
                               EmployeeUI(),
                               AttLogUI(),
                               OtRegisterUI(),
-                              LeaveRegisterUI(),
+                              // LeaveRegisterUI(),
                               ShiftRegisterUI(), TimesheetsUI(),
                               SettinngUi(), HistoryUI()
 

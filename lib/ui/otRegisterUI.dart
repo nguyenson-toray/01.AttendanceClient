@@ -20,6 +20,7 @@ class OtRegisterUI extends StatefulWidget {
 
 class _OtRegisterUIState extends State<OtRegisterUI>
     with AutomaticKeepAliveClientMixin {
+  int yearNo = 2025;
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   PlutoGridMode plutoGridMode = PlutoGridMode.normal;
@@ -28,27 +29,29 @@ class _OtRegisterUIState extends State<OtRegisterUI>
   String newOrEdit = '';
   int rowIdChanged = 0, colIdChange = 0, countOt = 0;
   Map<String, dynamic> rowChangedJson = {};
-  late DateTime timeBegin;
-  late DateTime timeEnd;
+  late DateTime timeBegin, timeEnd, lastUpdate;
   bool isDataChanged = false, filterByDate = false, refreshDataCancel = false;
   @override
   void initState() {
     // TODO: implement initState
+    lastUpdate = DateTime.now();
+    refreshData();
     columns = getColumns();
     rows = getRows(gValue.otRegisters);
-    Timer.periodic(const Duration(seconds: 3), (_) => refreshData());
-    timeBegin = DateTime.now()
-        .subtract(const Duration(days: 7))
-        .appliedFromTimeOfDay(const TimeOfDay(
-          hour: 0,
-          minute: 0,
-        ));
-    timeEnd = timeBegin
-        .add(const Duration(days: 31))
-        .appliedFromTimeOfDay(const TimeOfDay(
-          hour: 23,
-          minute: 59,
-        ));
+    Timer.periodic(const Duration(minutes: 10), (_) => refreshData());
+
+    // timeBegin = DateTime.now()
+    //     .subtract(const Duration(days: 7))
+    //     .appliedFromTimeOfDay(const TimeOfDay(
+    //       hour: 0,
+    //       minute: 0,
+    //     ));
+    // timeEnd = timeBegin
+    //     .add(const Duration(days: 31))
+    //     .appliedFromTimeOfDay(const TimeOfDay(
+    //       hour: 23,
+    //       minute: 59,
+    //     ));
     super.initState();
   }
 
@@ -98,14 +101,61 @@ class _OtRegisterUIState extends State<OtRegisterUI>
       return;
     }
     List<OtRegister> newList = [];
-    if (filterByDate) {
-      newList =
-          await gValue.mongoDb.getOTRegisterByRangeDate(timeBegin, timeEnd);
-    } else {
-      newList = await gValue.mongoDb.getOTRegisterAll();
-    }
 
+    if (yearNo == 2024) {
+      timeBegin = DateTime(2023, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2024, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    } else if (yearNo == 2025) {
+      timeBegin = DateTime(2024, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2025, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    }
     // await gValue.mongoDb.getOTRegisterAll();
+    // toastification.show(
+    //   backgroundColor: Colors.blue[200],
+    //   alignment: Alignment.center,
+    //   context: context,
+    //   title: Text('Data $yearNo is loading...!'),
+    //   autoCloseDuration: const Duration(seconds: 3),
+    //   boxShadow: const [
+    //     BoxShadow(
+    //       color: Colors.black12,
+    //       blurRadius: 8,
+    //       offset: Offset(0, 16),
+    //       spreadRadius: 0,
+    //     )
+    //   ],
+    // );
+    newList = await gValue.mongoDb.getOTRegisterByRangeDate(timeBegin, timeEnd);
+    toastification.show(
+      backgroundColor: Colors.blue[200],
+      alignment: Alignment.center,
+      context: context,
+      title: Text('Data $yearNo loaded !'),
+      autoCloseDuration: const Duration(seconds: 2),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 8,
+          offset: Offset(0, 16),
+          spreadRadius: 0,
+        )
+      ],
+    );
+    setState(() {
+      lastUpdate = DateTime.now();
+    });
     if (checkDiff(gValue.otRegisters, newList) && mounted) {
       print(
           'OtRegisterUI Data changed : ${gValue.otRegisters.length} => ${newList.length} records');
@@ -143,18 +193,56 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                 Row(
                   children: [
                     const Text(
-                      "Filter by date",
+                      "2024",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Checkbox(
-                      value: filterByDate,
+                      value: yearNo != 2025,
                       onChanged: (value) {
                         setState(() {
-                          filterByDate = value!;
+                          // filterByDate = value!;
+                          yearNo = value! ? 2024 : 2025;
                         });
                         refreshData();
                       },
-                    )
+                    ),
+                    const Text(
+                      "2025",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Checkbox(
+                      value: yearNo == 2025,
+                      onChanged: (value) {
+                        setState(() {
+                          // filterByDate = value!;
+                          yearNo = value! ? 2025 : 2024;
+                        });
+                        refreshData();
+                      },
+                    ),
+                    // const Text(
+                    //   "Filter by date",
+                    //   style: TextStyle(fontWeight: FontWeight.bold),
+                    // ),
+                    // Checkbox(
+                    //   value: filterByDate,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       filterByDate = value!;
+                    //     });
+                    //     refreshData();
+                    //   },
+                    // )
+                    TextButton.icon(
+                      onPressed: () {
+                        refreshData();
+                      },
+                      icon: const Icon(
+                        Icons.refresh,
+                        color: Colors.blueAccent,
+                      ),
+                      label: const Text('Refresh'),
+                    ),
                   ],
                 ),
                 Visibility(
@@ -182,6 +270,9 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                     ),
                   ),
                 ),
+                const Divider(),
+                Text("Auto refresh data every 10 minutes"),
+                Text('Last update at $lastUpdate'),
                 const Divider(),
                 Text('OT records: ${gValue.otRegisters.length}'),
                 Text('OT employees: $countOt'),

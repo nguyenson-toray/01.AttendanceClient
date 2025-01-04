@@ -15,6 +15,7 @@ class _HistoryUIState extends State<HistoryUI> {
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   bool firstBuild = true;
+  int yearNo = 2025;
   late final PlutoGridStateManager stateManager;
   @override
   void initState() {
@@ -29,21 +30,57 @@ class _HistoryUIState extends State<HistoryUI> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton.icon(
-          onPressed: () async {
-            gValue.history = await gValue.mongoDb.getHistoryAll();
-            setState(() {
-              rows = getRows(gValue.history);
-              stateManager.removeRows(stateManager.rows);
-              stateManager.appendRows(rows);
-            });
-          },
-          icon: const Icon(
-            Icons.refresh_outlined,
-            size: 40,
-            color: Colors.greenAccent,
-          ),
-          label: const Text('Refresh'),
+        Column(
+          children: [
+            Row(
+              children: [
+                const Text(
+                  "2024",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Checkbox(
+                  value: yearNo != 2025,
+                  onChanged: (value) {
+                    setState(() {
+                      yearNo = value! ? 2024 : 2025;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text(
+                  "2025",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Checkbox(
+                  value: yearNo == 2025,
+                  onChanged: (value) {
+                    setState(() {
+                      yearNo = value! ? 2025 : 2024;
+                    });
+                  },
+                ),
+              ],
+            ),
+            TextButton.icon(
+              onPressed: () async {
+                gValue.history = await gValue.mongoDb.getHistoryByYear(yearNo);
+                setState(() {
+                  rows = getRows(gValue.history);
+                  stateManager.removeRows(stateManager.rows);
+                  stateManager.appendRows(rows);
+                });
+              },
+              icon: const Icon(
+                Icons.refresh_outlined,
+                size: 40,
+                color: Colors.greenAccent,
+              ),
+              label: const Text('Refresh'),
+            ),
+          ],
         ),
         Expanded(
             child: PlutoGrid(

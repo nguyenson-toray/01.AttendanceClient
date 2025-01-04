@@ -36,11 +36,10 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
   void initState() {
     // TODO: implement initState
     columns = getColumns();
-    yearData = gValue.timeSheetMonthYears['2024']!;
-    maxOtYear =
-        yearData.fold<double>(0, (max, e) => e.otHours > max ? e.otHours : max);
+    yearData = gValue.timeSheetMonthYears['2025']!;
+    maxOtYear = yearData.fold<double>(
+        0, (max, e) => e.otHoursFinal > max ? e.otHoursFinal : max);
     rowsYear = getRows(yearData);
-    Timer.periodic(const Duration(seconds: 10), (_) => refreshData());
     super.initState();
   }
 
@@ -53,31 +52,33 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
         },
       );
     }
-    gValue.mongoDb.getTimesheetsMonthYear('2024').then(
-      (value2024) {
-        temp['2024'] = value2024;
+    maxOtYear = yearData.fold<double>(
+        0, (max, e) => e.otHoursApproved > max ? e.otHoursApproved : max);
+    toastification.show(
+      backgroundColor: Colors.greenAccent,
+      alignment: Alignment.center,
+      context: context,
+      title: const Text('Data updating ...'),
+      autoCloseDuration: const Duration(seconds: 2),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.green,
+          blurRadius: 16,
+          offset: Offset(0, 16),
+          spreadRadius: 0,
+        )
+      ],
+    );
+    gValue.mongoDb.getTimesheetsMonthYear('2025').then(
+      (value2025) {
+        temp['2025'] = value2025;
         if (mounted &&
             temp.toString() != gValue.timeSheetMonthYears.toString()) {
-          toastification.show(
-            backgroundColor: Colors.greenAccent,
-            alignment: Alignment.center,
-            context: context,
-            title: const Text('Data updating...'),
-            autoCloseDuration: const Duration(seconds: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.green,
-                blurRadius: 16,
-                offset: Offset(0, 16),
-                spreadRadius: 0,
-              )
-            ],
-          );
           setState(() {
             gValue.timeSheetMonthYears = temp;
-            yearData = gValue.timeSheetMonthYears['2024']!;
+            yearData = gValue.timeSheetMonthYears['2025']!;
             maxOtYear = yearData.fold<double>(
-                0, (max, e) => e.otHours > max ? e.otHours : max);
+                0, (max, e) => e.otHoursFinal > max ? e.otHoursFinal : max);
             rowsYear = getRows(yearData);
           });
         }
@@ -97,8 +98,19 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      refreshData();
+                    },
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: Colors.blueAccent,
+                    ),
+                    label: const Text('Refresh'),
+                  ),
+                  Text("Data load manual by press Refresh button"),
                   const Text('Max OT allowed : 300h/year - 40h/month'),
-                  const Text('Highlight color by current OT hours : '),
+                  const Text('Highlight color by current OT Final (h) : '),
                   Container(
                     padding: const EdgeInsets.all(2),
                     color: Colors.redAccent,
@@ -142,7 +154,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                             padding: const EdgeInsets.all(5),
                             width: 95,
                             child: const Text(
-                              'YEAR 2024',
+                              'YEAR 2025',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -172,11 +184,12 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                             height: 50,
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Highest overtime : ${maxOtYear.round()} hours\n' 'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2024']!.first.lastUpdate.add(const Duration(hours: 7)))}'),
+                                'Highest overtime : ${maxOtYear.round()} hours\n'
+                                'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2025']!.first.lastUpdate.add(const Duration(hours: 7)))}'),
                           ),
-                          // gValue.timeSheetMonthYears['2024']!.isNotEmpty
+                          // gValue.timeSheetMonthYears['2025']!.isNotEmpty
                           //     ? Text(
-                          //         'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2024']!.first.lastUpdate.add(Duration(hours: 7)))}')
+                          //         'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears['2025']!.first.lastUpdate.add(Duration(hours: 7)))}')
                           //     : Container(),
                           expandYear
                               ? Row(
@@ -188,7 +201,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                         label: const Text('Export data '),
                                         onPressed: () {
                                           MyFile.createExcelTimeSheetYear(
-                                              yearData, '2024');
+                                              yearData, '2025');
                                         },
                                       ),
                                     ),
@@ -201,14 +214,14 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                           yearData =
                                               MyFuntion.createTimeSheetsYear(
                                                   gValue.timeSheetMonthYears,
-                                                  '2024');
+                                                  '2025');
                                           await gValue.mongoDb
                                               .updateTimesheetsMonthYear(
-                                                  yearData, '2024');
-                                          gValue.timeSheetMonthYears['2024'] =
+                                                  yearData, '2025');
+                                          gValue.timeSheetMonthYears['2025'] =
                                               await gValue.mongoDb
                                                   .getTimesheetsMonthYear(
-                                                      '2024');
+                                                      '2025');
                                           setState(() {
                                             rowsYear = getRows(yearData);
                                             stateManager
@@ -216,8 +229,8 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                             stateManager.appendRows(rowsYear);
                                             stateManager.sortDescending(
                                                 PlutoColumn(
-                                                    title: 'OT Actual',
-                                                    field: 'otActual',
+                                                    title: 'OT Final',
+                                                    field: 'otFinal',
                                                     type: PlutoColumnType
                                                         .number()));
                                           });
@@ -261,8 +274,8 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                     stateManager = event.stateManager;
                                     stateManager.setShowColumnFilter(true);
                                     stateManager.sortDescending(PlutoColumn(
-                                        title: 'OT Actual',
-                                        field: 'otActual',
+                                        title: 'OT Final',
+                                        field: 'otFinal',
                                         type: PlutoColumnType.number()));
                                   },
                                   onSelected: (event) {
@@ -274,7 +287,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                   rowColorCallback: (rowColorContext) {
                                     var value = rowColorContext
                                         .row.cells.entries
-                                        .elementAt(7)
+                                        .elementAt(9)
                                         .value
                                         .value;
                                     return getColorByPercent(
@@ -296,7 +309,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                 dataMonth = gValue.timeSheetMonthYears[monthName]
                     as List<TimeSheetMonthYear>;
                 final maxOt = dataMonth.fold<double>(
-                    0, (max, e) => e.otHours > max ? e.otHours : max);
+                    0, (max, e) => e.otHoursFinal > max ? e.otHoursFinal : max);
                 String info = 'Highest overtime : ${maxOt.round()} hours\n';
                 info += gValue.timeSheetMonthYears[monthName]!.isNotEmpty
                     ? 'Last update at : ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(gValue.timeSheetMonthYears[monthName]!.first.lastUpdate.add(const Duration(hours: 7)))}'
@@ -436,8 +449,8 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                         stateManager = event.stateManager;
                                         stateManager.setShowColumnFilter(true);
                                         stateManager.sortDescending(PlutoColumn(
-                                            title: 'OT Actual',
-                                            field: 'otActual',
+                                            title: 'OT Final',
+                                            field: 'otFinal',
                                             type: PlutoColumnType.number()));
                                       },
                                       onSelected: (event) {
@@ -449,7 +462,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                       rowColorCallback: (rowColorContext) {
                                         var value = rowColorContext
                                             .row.cells.entries
-                                            .elementAt(7)
+                                            .elementAt(9)
                                             .value
                                             .value;
                                         return getColorByPercent(
@@ -465,7 +478,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                       )),
                 );
               },
-              itemCount: MyFuntion.getMonthYearList().length,
+              itemCount: MyFuntion.getMonthYearList('2025').length,
               separatorBuilder: (BuildContext context, int index) {
                 return const SizedBox(
                   height: 10,
@@ -625,9 +638,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
       stateManager.removeRows(stateManager.rows);
       stateManager.appendRows(rows);
       stateManager.sortDescending(PlutoColumn(
-          title: 'OT Actual',
-          field: 'otActual',
-          type: PlutoColumnType.number()));
+          title: 'OT Final', field: 'otFinal', type: PlutoColumnType.number()));
     });
   }
 

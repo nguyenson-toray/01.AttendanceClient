@@ -6,6 +6,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'package:tiqn/database/shift.dart';
 import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/gValue.dart';
+import 'package:tiqn/main.dart';
 import 'package:tiqn/tools/myFunction.dart';
 import 'package:tiqn/tools/myfile.dart';
 import 'package:toastification/toastification.dart';
@@ -25,15 +26,17 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
   late PlutoGridStateManager stateManager;
   bool firstBuild = true;
   String newOrEdit = '';
-  int rowIdChanged = 0, colIdChange = 0;
+  int rowIdChanged = 0, colIdChange = 0, yearNo = 2025;
   Map<String, dynamic> rowChangedJson = {};
+  late DateTime timeBegin, timeEnd, lastUpdate;
   @override
   void initState() {
     // TODO: implement initState
+    lastUpdate = DateTime.now();
     columns = getColumns();
     rows = getRows(gValue.shiftRegisters);
     columnsShift = getColumnsShift();
-    Timer.periodic(const Duration(seconds: 1), (_) => refreshData());
+    Timer.periodic(const Duration(minutes: 10), (_) => refreshData());
     super.initState();
   }
 
@@ -60,7 +63,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
   }
 
   Future<void> refreshData() async {
-    List<ShiftRegister> newList = await gValue.mongoDb.getShiftRegister();
+    List<ShiftRegister> newList =
+        await gValue.mongoDb.getShiftRegisterByYear(yearNo);
     if (checkDiff(gValue.shiftRegisters, newList)) {
       print(
           'ShistRegisterUI Data changed : ${gValue.shiftRegisters.length} => ${newList.length} records');
@@ -73,6 +77,24 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
         }
       });
     }
+    setState(() {
+      lastUpdate = DateTime.now();
+    });
+    toastification.show(
+      backgroundColor: Colors.blue[200],
+      alignment: Alignment.center,
+      context: context,
+      title: Text('Data loaded !'),
+      autoCloseDuration: const Duration(seconds: 2),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 8,
+          offset: Offset(0, 16),
+          spreadRadius: 0,
+        )
+      ],
+    );
   }
 
   @override
@@ -104,6 +126,50 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                   ),
                 ),
                 const Divider(),
+                Row(children: [
+                  const Text(
+                    "2024",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Checkbox(
+                    value: yearNo != 2025,
+                    onChanged: (value) {
+                      setState(() {
+                        // filterByDate = value!;
+                        yearNo = value! ? 2024 : 2025;
+                      });
+                      refreshData();
+                    },
+                  ),
+                  const Text(
+                    "2025",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Checkbox(
+                    value: yearNo == 2025,
+                    onChanged: (value) {
+                      setState(() {
+                        // filterByDate = value!;
+                        yearNo = value! ? 2025 : 2024;
+                      });
+                      refreshData();
+                    },
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      refreshData();
+                    },
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: Colors.blueAccent,
+                    ),
+                    label: const Text('Refresh'),
+                  ),
+                ]),
+                const Divider(),
+                Text("Auto refresh data every 10 minute"),
+                Text('Last update at $lastUpdate'),
+                const Divider(),
                 TextButton.icon(
                   onPressed: () {
                     if (gValue.accessMode != 'edit') {
@@ -112,8 +178,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         backgroundColor: Colors.amber[200],
                         alignment: Alignment.center,
                         context: context,
-                        title:
-                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
                         autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
@@ -147,8 +213,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                         backgroundColor: Colors.amber[200],
                         alignment: Alignment.center,
                         context: context,
-                        title:
-                            const Text('Bạn không có quyền sử dụng chức năng này !'),
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
                         autoCloseDuration: const Duration(seconds: 2),
                         boxShadow: const [
                           BoxShadow(
@@ -314,7 +380,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                       backgroundColor: Colors.amber[200],
                       alignment: Alignment.center,
                       context: context,
-                      title: const Text('Bạn không có quyền sử dụng chức năng này !'),
+                      title: const Text(
+                          'Bạn không có quyền sử dụng chức năng này !'),
                       autoCloseDuration: const Duration(seconds: 2),
                       boxShadow: const [
                         BoxShadow(
@@ -433,7 +500,8 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                                       context: context,
                                       title: const Text(
                                           'Ngày không hợp lệ\nHãy chọn lại ngày !'),
-                                      autoCloseDuration: const Duration(seconds: 3),
+                                      autoCloseDuration:
+                                          const Duration(seconds: 3),
                                       boxShadow: const [
                                         BoxShadow(
                                           color: Colors.black12,

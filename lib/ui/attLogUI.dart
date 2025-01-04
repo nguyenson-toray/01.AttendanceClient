@@ -27,12 +27,10 @@ class _AttLogUIState extends State<AttLogUI>
     with AutomaticKeepAliveClientMixin {
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
-  late DateTime timeBegin;
-  late DateTime timeEnd;
-  late DateTime dateAddRecord;
+  late DateTime timeBegin, timeEnd, dateAddRecord, lastUpdate;
   var listOfEmpIdPresent = [];
   String selectedMonth = '';
-  List<String> monthYears = [];
+  List<String> monthYears2025 = [];
   late final PlutoGridStateManager stateManager;
   bool firstBuild = true,
       showButtonOKSellectRangeDate = false,
@@ -44,9 +42,9 @@ class _AttLogUIState extends State<AttLogUI>
   @override
   void initState() {
     // TODO: implement initState
-    monthYears = MyFuntion.getMonthYearList();
-    selectedMonth = monthYears.first;
-    MyFuntion.getMonthYearList();
+    lastUpdate = DateTime.now();
+    monthYears2025 = MyFuntion.getMonthYearList('2025');
+    selectedMonth = monthYears2025.first;
     timeBegin = DateTime.now().appliedFromTimeOfDay(const TimeOfDay(
       hour: 0,
       minute: 0,
@@ -58,7 +56,7 @@ class _AttLogUIState extends State<AttLogUI>
     dateAddRecord = timeBegin;
     Future.delayed(Durations.long2).then(
       (value) {
-        Timer.periodic(const Duration(seconds: 3),
+        Timer.periodic(const Duration(minutes: 1),
             (_) => refreshData(timeBegin, timeEnd, false));
       },
     );
@@ -96,6 +94,7 @@ class _AttLogUIState extends State<AttLogUI>
           exportTimeSheetDaysVisible = true;
           toastification.dismissAll();
           showButtonOKSellectRangeDate = false;
+          lastUpdate = DateTime.now();
         });
       }
     } else if (isLoaded && !checkIsFilter()) {
@@ -129,6 +128,13 @@ class _AttLogUIState extends State<AttLogUI>
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("Data load every 1 minute"),
+                  Text('Last update at $lastUpdate')
+                ],
+              ),
               SizedBox(
                 height: 220,
                 width: 500,
@@ -297,7 +303,7 @@ class _AttLogUIState extends State<AttLogUI>
                               color: Theme.of(context).hintColor,
                             ),
                           ),
-                          items: monthYears
+                          items: monthYears2025
                               .map((String item) => DropdownMenuItem<String>(
                                     value: item,
                                     child: Text(

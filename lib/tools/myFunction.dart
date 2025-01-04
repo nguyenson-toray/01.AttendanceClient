@@ -271,13 +271,13 @@ class MyFuntion {
             ]));
   }
 
-  static List<String> getMonthYearList() {
+  static List<String> getMonthYearList(String year) {
     DateTime endDate = DateTime.now();
     List<String> list = [];
     int lastMonth = endDate.month;
     if (endDate.day > 25) lastMonth += 1;
     for (int i = 1; i <= lastMonth; i++) {
-      list.add(DateFormat('yMMMM').format(DateTime.utc(2024, i, 1)));
+      list.add(DateFormat('yMMMM').format(DateTime.utc(int.parse(year), i, 1)));
     }
     return list.reversed.toList();
   }
@@ -328,7 +328,7 @@ class MyFuntion {
     List<TimeSheetMonthYear> dataYear = [];
     List<String> empIdYear = [];
     timeSheetMonths.forEach((monthName, monthData) {
-      if (monthName != '2024') {
+      if (monthName != '2025') {
         empIdYear.addAll(monthData.map((e) => e.empId).toSet().toList());
         for (var data in monthData) {
           dataYear.add(data);
