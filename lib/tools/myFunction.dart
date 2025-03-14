@@ -642,6 +642,11 @@ class MyFuntion {
               otActual = 0;
               otApproved = 0;
             } else {
+              // Fix lỗi thiếu otActual nếu không có trong ds đăng ký OT
+              otActual = lastOut.difference(shiftTimeEnd).inMinutes / 60;
+              otActual = otActual < gValue.minOtMinutes / 60 ? 0 : otActual;
+              // Fix lỗi thiếu tăng ca thực tế nếu không có trong ds đăng ký OT
+
               // emp có trong DS OT
               if (empIdOT.contains(emp.empId)) {
                 List<OtRegister> otRegisterEmpOnDates = [];
