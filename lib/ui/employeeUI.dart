@@ -356,10 +356,10 @@ class _EmployeeUIState extends State<EmployeeUI>
         title: 'Group',
         field: 'group',
         type: PlutoColumnType.text(),
-        hide: gValue.miniInfoEmployee,
+        // hide: gValue.miniInfoEmployee,
       ),
-      PlutoColumn(
-          title: 'Line Team', field: 'lineTeam', type: PlutoColumnType.text()),
+      // PlutoColumn(
+      //     title: 'Line Team', field: 'lineTeam', type: PlutoColumnType.text()),
       PlutoColumn(
           hide: gValue.miniInfoEmployee,
           title: 'Gender',

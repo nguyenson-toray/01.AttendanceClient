@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 class TimeSheetDate {
   DateTime date;
   String empId;
@@ -9,7 +8,6 @@ class TimeSheetDate {
   String department;
   String section;
   String group;
-  String lineTeam;
   String shift;
   DateTime? firstIn;
   DateTime? lastOut;
@@ -29,7 +27,6 @@ class TimeSheetDate {
     required this.department,
     required this.section,
     required this.group,
-    required this.lineTeam,
     required this.shift,
     this.firstIn,
     this.lastOut,
@@ -45,7 +42,7 @@ class TimeSheetDate {
 
   @override
   String toString() {
-    return 'TimeSheetDate(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group, lineTeam: $lineTeam,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, otHours: $otHours,  otHoursApproved: $otHoursApproved, otHoursFinal: $otHoursFinal, attNote1: $attNote1, attNote2: $attNote2, leaveRegisterType:  $leaveRegisterType, leaveRegisterInfo: $leaveRegisterInfo';
+    return 'TimeSheetDate(date: $date, empId: $empId, attFingerId: $attFingerId, name: $name, department: $department, section: $section, group: $group,  shift: $shift, firstIn: $firstIn, lastOut: $lastOut, normalHours: $normalHours, otHours: $otHours,  otHoursApproved: $otHoursApproved, otHoursFinal: $otHoursFinal, attNote1: $attNote1, attNote2: $attNote2, leaveRegisterType:  $leaveRegisterType, leaveRegisterInfo: $leaveRegisterInfo';
   }
 
   @override
@@ -59,7 +56,6 @@ class TimeSheetDate {
         other.department == department &&
         other.section == section &&
         other.group == group &&
-        other.lineTeam == lineTeam &&
         other.shift == shift &&
         other.firstIn == firstIn &&
         other.lastOut == lastOut &&

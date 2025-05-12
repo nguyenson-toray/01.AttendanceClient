@@ -504,7 +504,7 @@ class MyFuntion {
         DateTime shiftTimeEnd =
             DateTime.utc(date.year, date.month, date.day, 17);
 
-        if (emp.section == 'Canteen') {
+        if (emp.group == 'Canteen') {
           shift = 'Canteen';
         } else if (empIdShift1.contains(emp.empId)) {
           shift = 'Shift 1';
@@ -830,7 +830,7 @@ class MyFuntion {
             department: emp.department!,
             section: emp.section!,
             group: emp.group ?? '',
-            lineTeam: emp.lineTeam ?? "",
+            // lineTeam: emp.lineTeam ?? "",
             shift: shift,
             firstIn: firstIn.year == 2000 ? null : firstIn,
             lastOut: lastOut.year == 2000 ? null : lastOut,

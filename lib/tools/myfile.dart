@@ -687,14 +687,13 @@ class MyFile {
     final Worksheet sheetSummary = workbook.worksheets[0];
     sheetSummary.name = 'Year Summary - $year';
     final Style styleHeader = workbook.styles.add('styleHeader');
-    final Style styleHeaderOtApproved =
-        workbook.styles.add('styleHeaderOtApproved');
+    final Style styleHeaderTime = workbook.styles.add('styleHeaderTime');
     styleHeader.bold = true;
     styleHeader.backColorRgb = const Color.fromARGB(255, 174, 210, 239);
-    styleHeaderOtApproved.bold = true;
-    styleHeaderOtApproved.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
+    styleHeaderTime.bold = true;
+    styleHeaderTime.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
     sheetSummary.getRangeByName('A1:I1').cellStyle = styleHeader;
-    sheetSummary.getRangeByName('J1:J1').cellStyle = styleHeaderOtApproved;
+    sheetSummary.getRangeByName('J1:J1').cellStyle = styleHeaderTime;
     sheetSummary.getRangeByName('H1').columnWidth = 15;
     sheetSummary.getRangeByName('I1').columnWidth = 10;
     sheetSummary.getRangeByName('J1').columnWidth = 15;
@@ -705,10 +704,9 @@ class MyFile {
     sheetSummary.getRangeByName('D1').setText('Department');
     sheetSummary.getRangeByName('E1').setText('Section');
     sheetSummary.getRangeByName('F1').setText('Group');
-    sheetSummary.getRangeByName('G1').setText('Line/Team');
-    sheetSummary.getRangeByName('H1').setText('Total Working hours');
-    sheetSummary.getRangeByName('I1').setText('Total OT hours');
-    sheetSummary.getRangeByName('J1').setText('Total OT hours (approved)');
+    sheetSummary.getRangeByName('G1').setText('Total Working hours');
+    sheetSummary.getRangeByName('H1').setText('Total OT hours');
+    sheetSummary.getRangeByName('I1').setText('Total OT hours (approved)');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
     timeSheets.sort((a, b) => b.otHours.round().compareTo(a.otHours.round()));
     int row = 1;
@@ -720,15 +718,14 @@ class MyFile {
       sheetSummary.getRangeByName('D$row').setText(element.department);
       sheetSummary.getRangeByName('E$row').setText(element.section);
       sheetSummary.getRangeByName('F$row').setText(element.group);
-      sheetSummary.getRangeByName('G$row').setText(element.lineTeam);
       sheetSummary
-          .getRangeByName('H$row')
+          .getRangeByName('G$row')
           .setNumber(roundDouble(element.normalHours, 1));
       sheetSummary
-          .getRangeByName('I$row')
+          .getRangeByName('H$row')
           .setNumber(roundDouble(element.otHours, 1));
       sheetSummary
-          .getRangeByName('J$row')
+          .getRangeByName('I$row')
           .setNumber(roundDouble(element.otHoursApproved, 1));
     }
 
@@ -737,7 +734,7 @@ class MyFile {
     sheetSummary.autoFitColumn(3);
     sheetSummary.autoFitColumn(4);
     final ExcelTable tableSummary = sheetSummary.tableCollection
-        .create('tableSummary', sheetSummary.getRangeByName('A1:J$row'));
+        .create('tableSummary', sheetSummary.getRangeByName('A1:I$row'));
     tableSummary.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
 //Save and launch the excel.
@@ -774,36 +771,32 @@ class MyFile {
     // Range range = sheetDetail.getRangeByName('A2:N2');
     //Creating a new style for header.
     final Style styleHeader = workbook.styles.add('styleHeader');
-    final Style styleHeaderOtApproved =
-        workbook.styles.add('styleHeaderOtApproved');
+    final Style styleHeaderTime = workbook.styles.add('styleHeaderTime');
     final Style styleHeaderLeave = workbook.styles.add('styleHeaderLeave');
     final Style styleAttNote = workbook.styles.add('styleAttNote');
     final Style styleAttNote2 = workbook.styles.add('styleAttNote2');
     styleHeader.bold = true;
     styleHeader.backColorRgb = const Color.fromARGB(255, 174, 210, 239);
-    styleHeaderOtApproved.bold = true;
-    styleHeaderOtApproved.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
+    styleHeaderTime.bold = true;
+    styleHeaderTime.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
     styleHeaderLeave.backColorRgb = const Color.fromARGB(255, 157, 73, 183);
     styleAttNote.backColorRgb = const Color.fromARGB(255, 241, 39, 73);
     styleAttNote2.backColorRgb = Color.fromARGB(255, 250, 207, 13);
-    sheetDetail.getRangeByName('A1:U1').cellStyle = styleHeader;
-    sheetDetail.getRangeByName('Q1:Q1').cellStyle = styleHeaderOtApproved;
-    sheetDetail.getRangeByName('S1:U1').cellStyle = styleHeaderLeave;
+    sheetDetail.getRangeByName('A1:H1').cellStyle = styleHeader;
+    sheetDetail.getRangeByName('I1:P1').cellStyle = styleHeaderTime;
     sheetDetail.getRangeByName('C1').columnWidth = 10;
     sheetDetail.getRangeByName('D1').columnWidth = 6;
-    sheetDetail.getRangeByName('J1').columnWidth = 4;
+    sheetDetail.getRangeByName('H1').columnWidth = 17;
+    sheetDetail.getRangeByName('J1').columnWidth = 6;
     sheetDetail.getRangeByName('K1').columnWidth = 6;
     sheetDetail.getRangeByName('L1').columnWidth = 6;
     sheetDetail.getRangeByName('M1').columnWidth = 7.3;
     sheetDetail.getRangeByName('N1').columnWidth = 7.3;
-    sheetDetail.getRangeByName('O1').columnWidth = 6.2;
-    sheetDetail.getRangeByName('P1').columnWidth = 9;
-    sheetDetail.getRangeByName('Q1').columnWidth = 5;
-    sheetDetail.getRangeByName('R1').columnWidth = 20;
-    sheetDetail.getRangeByName('S1').columnWidth = 10;
-    sheetDetail.getRangeByName('T1').columnWidth = 6;
-    sheetDetail.getRangeByName('U1').columnWidth = 45;
-    sheetDetail.getRangeByName('A1:U1').cellStyle.wrapText = true;
+    sheetDetail.getRangeByName('O1').columnWidth = 7.3;
+    sheetDetail.getRangeByName('P1').columnWidth = 7.3;
+    sheetDetail.getRangeByName('Q1').columnWidth = 10;
+    sheetDetail.getRangeByName('R1').columnWidth = 10;
+    sheetDetail.getRangeByName('A1:R1').cellStyle.wrapText = true;
     sheetDetail.getRangeByName('A1').setText('No');
     sheetDetail.getRangeByName('B1').setText('Date');
     sheetDetail.getRangeByName('C1').setText('Employee ID');
@@ -812,19 +805,16 @@ class MyFile {
     sheetDetail.getRangeByName('F1').setText('Department');
     sheetDetail.getRangeByName('G1').setText('Section');
     sheetDetail.getRangeByName('H1').setText('Group');
-    sheetDetail.getRangeByName('I1').setText('Line/Team');
-    sheetDetail.getRangeByName('J1').setText('Shift');
-    sheetDetail.getRangeByName('K1').setText('Fist In');
-    sheetDetail.getRangeByName('L1').setText('Last Out');
-    sheetDetail.getRangeByName('M1').setText('Working (hour)');
-    sheetDetail.getRangeByName('N1').setText('Working (day)');
-    sheetDetail.getRangeByName('O1').setText('OT Actual (hours)');
-    sheetDetail.getRangeByName('P1').setText('OT Approved (hours)');
-    sheetDetail.getRangeByName('Q1').setText('OT Final');
-    sheetDetail.getRangeByName('R1').setText('Attendance Note');
-    sheetDetail.getRangeByName('S1').setText('Chế độ mang thai/ nuôi con nhỏ');
-    sheetDetail.getRangeByName('T1').setText('Leave Type');
-    sheetDetail.getRangeByName('U1').setText('Leave Info');
+    sheetDetail.getRangeByName('I1').setText('Shift');
+    sheetDetail.getRangeByName('J1').setText('Fist In');
+    sheetDetail.getRangeByName('K1').setText('Last Out');
+    sheetDetail.getRangeByName('L1').setText('Working (hour)');
+    sheetDetail.getRangeByName('M1').setText('Working (day)');
+    sheetDetail.getRangeByName('N1').setText('OT Actual (hours)');
+    sheetDetail.getRangeByName('O1').setText('OT Approved (hours)');
+    sheetDetail.getRangeByName('P1').setText('OT Final');
+    sheetDetail.getRangeByName('Q1').setText('Attendance Note');
+    sheetDetail.getRangeByName('R1').setText('Chế độ mang thai/ nuôi con nhỏ');
     int row = 1;
     for (var i = 0; i < timeSheets.length; i++) {
       var timeSheet = timeSheets[i];
@@ -840,66 +830,54 @@ class MyFile {
       sheetDetail.getRangeByName('F$row').setText(timeSheet.department);
       sheetDetail.getRangeByName('G$row').setText(timeSheet.section);
       sheetDetail.getRangeByName('H$row').setText(timeSheet.group);
-      sheetDetail.getRangeByName('I$row').setText(
-          timeSheet.lineTeam.toString() != 'null' ? timeSheet.lineTeam : '');
-      sheetDetail.getRangeByName('J$row').setText(timeSheet.shift);
-      sheetDetail.getRangeByName('K$row').numberFormat = 'hh:mm';
-      sheetDetail.getRangeByName('K$row').setDateTime(
+      sheetDetail.getRangeByName('I$row').setText(timeSheet.shift);
+      sheetDetail.getRangeByName('J$row').numberFormat = 'hh:mm';
+      sheetDetail.getRangeByName('J$row').setDateTime(
           timeSheet.firstIn?.year == 2000 ? null : timeSheet.firstIn);
       //
-      sheetDetail.getRangeByName('L$row').numberFormat = 'hh:mm';
-      sheetDetail.getRangeByName('L$row').setDateTime(
+      sheetDetail.getRangeByName('K$row').numberFormat = 'hh:mm';
+      sheetDetail.getRangeByName('K$row').setDateTime(
           timeSheet.lastOut?.year == 2000 ? null : timeSheet.lastOut);
       if (timeSheet.normalHours >= 7.9 && timeSheet.normalHours < 8) {
         timeSheets[i].normalHours = 7.9;
-        sheetDetail.getRangeByName('M$row').setNumber(7.9);
-        sheetDetail.getRangeByName('N$row').setNumber(0.99);
+        sheetDetail.getRangeByName('L$row').setNumber(7.9);
+        sheetDetail.getRangeByName('L$row').setNumber(0.99);
       } else {
         timeSheets[i].normalHours = roundDouble(timeSheet.normalHours, 1);
         sheetDetail
-            .getRangeByName('M$row')
+            .getRangeByName('L$row')
             .setNumber(roundDouble(timeSheet.normalHours, 1));
 
         sheetDetail
-            .getRangeByName('N$row')
+            .getRangeByName('M$row')
             .setNumber(roundDouble(timeSheet.normalHours / 8, 2));
       }
 
       timeSheets[i].otHours = (timeSheet.otHours * 10).floor() / 10;
       sheetDetail
-          .getRangeByName('O$row')
+          .getRangeByName('N$row')
           .setNumber(((timeSheet.otHours * 10).floor() / 10));
       //chỗ cột OT final: a dùng rouddown(x,1), nó ra giá trị đúng như e cần ạ
       sheetDetail
-          .getRangeByName('P$row')
+          .getRangeByName('O$row')
           .setNumber(roundDouble(timeSheet.otHoursApproved, 1));
 
       timeSheets[i].otHoursFinal = (timeSheet.otHoursFinal * 10).floor() / 10;
       sheetDetail
-          .getRangeByName('Q$row')
+          .getRangeByName('P$row')
           .setNumber((timeSheet.otHoursFinal * 10).floor() / 10);
       //chỗ cột OT final: a dùng rouddown(x,1), nó ra giá trị đúng như e cần ạ
-      sheetDetail.getRangeByName('R$row').setText(timeSheet.attNote1);
+      sheetDetail.getRangeByName('Q$row').setText(timeSheet.attNote1);
       if (timeSheet.attNote1.contains('Không chấm công')) {
-        sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote;
+        sheetDetail.getRangeByName('Q$row:Q$row').cellStyle = styleAttNote;
       }
       if (timeSheet.attNote1.contains('CN') ||
           timeSheet.attNote1.contains('OT trước & sau ca làm việc')) {
-        sheetDetail.getRangeByName('R$row:R$row').cellStyle = styleAttNote2;
+        sheetDetail.getRangeByName('Q$row:Q$row').cellStyle = styleAttNote2;
       }
       if (timeSheet.attNote2 != '') {
-        sheetDetail.getRangeByName('S$row').setText('X');
+        sheetDetail.getRangeByName('R$row').setText('X');
       }
-      try {
-        sheetDetail
-            .getRangeByName('T$row')
-            .setNumber(double.parse(timeSheet.leaveRegisterType));
-      } catch (e) {
-        sheetDetail
-            .getRangeByName('T$row')
-            .setText(timeSheet.leaveRegisterType);
-      }
-      sheetDetail.getRangeByName('U$row').setText(timeSheet.leaveRegisterInfo);
     }
 
     // Auto-Fit column the range
@@ -907,31 +885,31 @@ class MyFile {
     sheetDetail.autoFitColumn(2);
     sheetDetail.autoFitColumn(5);
     final ExcelTable tableDetail = sheetDetail.tableCollection
-        .create('tableDetail', sheetDetail.getRangeByName('A1:U$row'));
+        .create('tableDetail', sheetDetail.getRangeByName('A1:R$row'));
     tableDetail.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
     //------------Summary
-    sheetSummary.getRangeByName('A1:K1').cellStyle = styleHeader;
-    sheetSummary.getRangeByName('L1:L1').cellStyle = styleHeaderOtApproved;
+    sheetSummary.getRangeByName('A1:F1').cellStyle = styleHeader;
+    sheetSummary.getRangeByName('G1:K1').cellStyle = styleHeaderTime;
     sheetSummary.getRangeByName('C1').columnWidth = 12;
+    sheetSummary.getRangeByName('F1').columnWidth = 15;
     sheetSummary.getRangeByName('H1').columnWidth = 10;
     sheetSummary.getRangeByName('I1').columnWidth = 10;
     sheetSummary.getRangeByName('J1').columnWidth = 10;
     sheetSummary.getRangeByName('K1').columnWidth = 10;
     sheetSummary.getRangeByName('L1').columnWidth = 10;
-    sheetSummary.getRangeByName('A1:L1').cellStyle.wrapText = true;
+    sheetSummary.getRangeByName('A1:K1').cellStyle.wrapText = true;
     sheetSummary.getRangeByName('A1').setText('No');
     sheetSummary.getRangeByName('B1').setText('Employee ID');
     sheetSummary.getRangeByName('C1').setText('Full name');
     sheetSummary.getRangeByName('D1').setText('Department');
     sheetSummary.getRangeByName('E1').setText('Section');
     sheetSummary.getRangeByName('F1').setText('Group');
-    sheetSummary.getRangeByName('G1').setText('Line/Team');
-    sheetSummary.getRangeByName('H1').setText('Total Working (hours)');
-    sheetSummary.getRangeByName('I1').setText('Total Working (days)');
-    sheetSummary.getRangeByName('J1').setText('Total OT Actual (hours)');
-    sheetSummary.getRangeByName('K1').setText('Total OT Aproved (hours)');
-    sheetSummary.getRangeByName('L1').setText('Total OT Final (hours)');
+    sheetSummary.getRangeByName('G1').setText('Total Working (hours)');
+    sheetSummary.getRangeByName('H1').setText('Total Working (days)');
+    sheetSummary.getRangeByName('I1').setText('Total OT Actual (hours)');
+    sheetSummary.getRangeByName('J1').setText('Total OT Aproved (hours)');
+    sheetSummary.getRangeByName('K1').setText('Total OT Final (hours)');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
     row = 1;
     List<EmployeeWO> employeeWOs = [];
@@ -977,21 +955,20 @@ class MyFile {
       sheetSummary.getRangeByName('D$row').setText(element.department);
       sheetSummary.getRangeByName('E$row').setText(element.section);
       sheetSummary.getRangeByName('F$row').setText(element.group);
-      sheetSummary.getRangeByName('G$row').setText(element.lineTeam);
       sheetSummary
-          .getRangeByName('H$row')
+          .getRangeByName('G$row')
           .setNumber(roundDouble(element.totalW, 1));
       sheetSummary
-          .getRangeByName('I$row')
+          .getRangeByName('G$row')
           .setNumber(roundDouble(element.totalDay, 2));
       sheetSummary
-          .getRangeByName('J$row')
+          .getRangeByName('I$row')
           .setNumber(roundDouble(element.totalOt, 1));
       sheetSummary
-          .getRangeByName('K$row')
+          .getRangeByName('J$row')
           .setNumber(roundDouble(element.totalOtApproved, 1));
       sheetSummary
-          .getRangeByName('L$row')
+          .getRangeByName('K$row')
           .setNumber(roundDouble(element.totalOtFinal, 1));
     }
 
@@ -1000,7 +977,7 @@ class MyFile {
     sheetSummary.autoFitColumn(3);
     sheetSummary.autoFitColumn(4);
     final ExcelTable tableSummary = sheetSummary.tableCollection
-        .create('tableSummary', sheetSummary.getRangeByName('A1:L$row'));
+        .create('tableSummary', sheetSummary.getRangeByName('A1:K$row'));
     tableSummary.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
 //Save and launch the excel.
