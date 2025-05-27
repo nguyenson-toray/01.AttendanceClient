@@ -214,6 +214,7 @@ class MongoDb {
         }
         List<Map<String, dynamic>> maps = [];
         for (var element in logs) {
+          print('insertAttLogs element : $element');
           maps.add(element.toMap());
         }
         await colAttLog.insertMany(maps);

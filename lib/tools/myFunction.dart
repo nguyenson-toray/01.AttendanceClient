@@ -675,8 +675,23 @@ class MyFuntion {
                           .difference(beginTimeOTRegister)
                           .inMinutes /
                       60;
+                  if (date.weekday == DateTime.sunday &&
+                      int.parse(beginH) < restBegin.hour &&
+                      int.parse(endH) > restEnd.hour) {
+                    // CN - trừ giờ nghỉ trưa
+                    otApproved -= 1;
+
+                    if (beginTimeOTRegister.isBefore(shiftTimeBegin) &&
+                        firstIn.hour < shiftTimeBegin.hour) {
+                      // OT truoc 8h
+                      otActual =
+                          shiftTimeBegin.difference(firstIn).inMinutes / 60;
+                    }
+                  }
+
                   // đăng ký OT trước 8h
-                  if (int.parse(beginH) < shiftTimeBegin.hour) {
+                  else if (int.parse(beginH) < shiftTimeBegin.hour &&
+                      int.parse(endH) <= shiftTimeBegin.hour) {
                     var beginOTAllow = shiftTimeBegin
                         .subtract(Duration(minutes: otApproved.toInt()));
                     if (firstIn.isBefore(beginOTAllow)) {
@@ -813,7 +828,9 @@ class MyFuntion {
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
           if (otActual > 0) {
             attNote1 = 'OT ngày CN ; ';
-            if (otActual > 4 && lastOut.isAfter(restEnd)) {
+            if (otActual > 4 &&
+                lastOut.isAfter(restEnd) &&
+                firstIn.isBefore(restBegin)) {
               attNote1 += 'Có phụ cấp cơm trưa ; ';
             }
           }

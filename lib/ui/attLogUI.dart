@@ -38,6 +38,7 @@ class _AttLogUIState extends State<AttLogUI>
       exportTimeSheetDaysVisible = true,
       pauseLoad = false,
       refreshDataCancel = false;
+  int countNoName = 0;
 
   @override
   void initState() {
@@ -86,6 +87,7 @@ class _AttLogUIState extends State<AttLogUI>
 
       if (mounted) {
         setState(() {
+          countNoName = 0;
           rows = getRows(gValue.attLogs);
           stateManager.removeRows(stateManager.rows);
           stateManager.appendRows(rows);
@@ -215,7 +217,6 @@ class _AttLogUIState extends State<AttLogUI>
                     )
                   : Container(),
               const Divider(),
-
               Row(children: [
                 Visibility(
                   visible: timeEnd.difference(timeBegin).inHours <= 24,
@@ -290,7 +291,6 @@ class _AttLogUIState extends State<AttLogUI>
                 ),
               ]),
               const Divider(),
-
               Row(
                 children: [
                   DropdownButtonHideUnderline(
@@ -946,17 +946,25 @@ class _AttLogUIState extends State<AttLogUI>
                   ]),
                 ],
               ),
-
-              // Text(
-              //     'Total Enrolled : ${gValue.enrolled}  -  Total Working Normal : ${gValue.workingNormal}\nMaternity leave : ${gValue.maternityLeave}\nPresent : ${gValue.present}\nAbsent : ${gValue.absent}'),
               const Divider(),
-              timeBegin.day == timeEnd.day
-                  ? chartPresent(
-                      gValue.employeeIdPresents.length,
-                      gValue.employeeIdMaternityLeaves.length,
-                      gValue.employeeIdPresents.length,
-                      gValue.employeeIdAbsents.length)
-                  : Container(),
+              countNoName > 0
+                  ? Container(
+                      width: 500,
+                      color: Colors.amber,
+                      child: Text(
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent),
+                          '$countNoName người có chấm công nhưng chưa cập nhật tên, msnv .\nLọc "No Emp ID" trên cột Employee ID\nBấm biểu tượng refresh trên mỗi dòng để cập nhật'),
+                    )
+                  : timeBegin.day == timeEnd.day
+                      ? chartPresent(
+                          gValue.employeeIdPresents.length,
+                          gValue.employeeIdMaternityLeaves.length,
+                          gValue.employeeIdPresents.length,
+                          gValue.employeeIdAbsents.length)
+                      : Container(),
             ],
           ),
         ),
@@ -1016,10 +1024,86 @@ class _AttLogUIState extends State<AttLogUI>
           title: 'Finger ID',
           field: 'attFingerId',
           type: PlutoColumnType.number(),
-          width: 120,
+          width: 150,
           renderer: (rendererContext) {
             return Row(
               children: [
+                rendererContext.row.toJson()['empId'] == "No Emp Id"
+                    ? IconButton(
+                        icon: const Icon(
+                          color: Colors.green,
+                          Icons.refresh_outlined,
+                        ),
+                        onPressed: () async {
+                          var row = rendererContext.row.toJson();
+                          refreshDataCancel = true;
+                          print(row);
+                          var style = const TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold);
+                          int fingerId = -1;
+                          int machineNo = 0;
+                          String objectId = '';
+                          String empIdUpdate = '';
+                          String empNameUpdate = '';
+                          DateTime time, timeStamp = DateTime.now();
+                          objectId = row['objectId'].toString();
+                          fingerId = row['attFingerId'];
+                          machineNo = row['machineNo'];
+                          DateFormat dateFormat =
+                              DateFormat("dd-MMM-yyyy HH:mm:ss");
+                          time = dateFormat.parse(row['timeStamp']);
+                          timeStamp = time.appliedFromTimeOfDay(TimeOfDay(
+                            hour: time.hour,
+                            minute: time.minute,
+                          ));
+                          empIdUpdate = gValue.employees
+                              .firstWhere(
+                                  (element) => element.attFingerId == fingerId)
+                              .empId!;
+                          empNameUpdate = gValue.employees
+                              .firstWhere(
+                                  (element) => element.attFingerId == fingerId)
+                              .name!;
+                          print(
+                              'fingerId : $fingerId\nempIdUpdate: $empIdUpdate\nempNameUpdate:$empNameUpdate\ntimeStamp: $timeStamp\nobjectId: $objectId');
+                          await gValue.mongoDb.deleteOneAttLog(
+                              row['objectId'].toString().substring(10, 34));
+                          AttLog attLog = AttLog(
+                              objectId: '',
+                              attFingerId: fingerId,
+                              empId: empIdUpdate,
+                              name: empNameUpdate,
+                              machineNo: machineNo,
+                              timestamp: timeStamp);
+                          await gValue.mongoDb.insertAttLogs([attLog]);
+
+                          refreshDataCancel = false;
+                          refreshData(timeBegin, timeEnd, true);
+
+                          String log =
+                              'UPDATE attendance log : ${row['attFingerId']}  ${row['timeStamp']} : "No Emp Id" to  $empIdUpdate,  "No Name" to   $empNameUpdate   ';
+                          await MyFuntion.insertHistory(log);
+                          toastification.show(
+                            showProgressBar: true,
+                            backgroundColor: Colors.green[200],
+                            alignment: Alignment.center,
+                            context: context,
+                            title: Text(log),
+                            autoCloseDuration: const Duration(seconds: 3),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 16),
+                                spreadRadius: 0,
+                              )
+                            ],
+                          );
+                        },
+                      )
+                    : Container(),
                 IconButton(
                   icon: const Icon(
                     Icons.remove_circle_outlined,
@@ -1143,7 +1227,17 @@ class _AttLogUIState extends State<AttLogUI>
 
   List<PlutoRow> getRows(List<AttLog> data) {
     List<PlutoRow> rows = [];
-    for (var log in data.reversed) {
+    data.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    for (var log in data) {
+      if (log.empId == 'No Emp Id') {
+        setState(() {
+          countNoName++;
+        });
+
+        data.sort((a, b) => a.empId.compareTo(b.empId));
+      }
+    }
+    for (var log in data) {
       rows.add(
         PlutoRow(
           cells: {
@@ -1159,6 +1253,7 @@ class _AttLogUIState extends State<AttLogUI>
         ),
       );
     }
+
     return rows;
   }
 

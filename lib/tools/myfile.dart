@@ -841,7 +841,7 @@ class MyFile {
       if (timeSheet.normalHours >= 7.9 && timeSheet.normalHours < 8) {
         timeSheets[i].normalHours = 7.9;
         sheetDetail.getRangeByName('L$row').setNumber(7.9);
-        sheetDetail.getRangeByName('L$row').setNumber(0.99);
+        sheetDetail.getRangeByName('M$row').setNumber(0.99);
       } else {
         timeSheets[i].normalHours = roundDouble(timeSheet.normalHours, 1);
         sheetDetail
