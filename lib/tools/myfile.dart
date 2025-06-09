@@ -15,6 +15,7 @@ import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/database/timeSheetDate.dart';
 import 'package:tiqn/database/timeSheetMonthYear.dart';
 import 'package:tiqn/gValue.dart';
+import 'package:tiqn/main.dart';
 import 'package:tiqn/tools/myFunction.dart';
 
 class MyFile {
@@ -193,8 +194,8 @@ class MyFile {
     }
   }
 
-  static Future<void> createExcelEmployeeAbsent(
-      List<Employee> emps, List<LeaveRegister> leaves, String fileName) async {
+  static Future<void> createExcelEmployeeAbsent(List<Employee> emps,
+      List<ShiftRegister> shiftRegisters, String fileName) async {
 //Create an Excel document.
 //Creating a workbook.
     final Workbook workbook = Workbook();
@@ -207,6 +208,8 @@ class MyFile {
     final Style styleHeader = workbook.styles.add('Style1');
     styleHeader.bold = true;
     styleHeader.backColorRgb = const Color.fromARGB(255, 174, 210, 239);
+    sheet.getRangeByName('K1').setText(
+        'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
 // Set the text value.
     sheet.getRangeByName('A1').setText('No');
     sheet.getRangeByName('B1').setText('Employee ID');
@@ -216,12 +219,12 @@ class MyFile {
     sheet.getRangeByName('F1').setText('Section');
     sheet.getRangeByName('G1').setText('Group');
     sheet.getRangeByName('H1').setText('Line Team');
-    sheet.getRangeByName('I1').setText('Leave Type');
-    sheet.getRangeByName('J1').setText('Leave Info');
+    sheet.getRangeByName('I1').setText('Shift');
 
-    sheet.getRangeByName('A1:J1').cellStyle = styleHeader;
-    sheet.getRangeByName('J1').columnWidth = 50;
+    sheet.getRangeByName('A1:I1').cellStyle = styleHeader;
     int row = 1;
+    DateTime today =
+        DateTime.now().appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0));
     for (var emp in emps) {
       row++;
       sheet.getRangeByName('A$row').setNumber((row - 1).toDouble());
@@ -232,30 +235,34 @@ class MyFile {
       sheet.getRangeByName('F$row').setText('${emp.section}');
       sheet.getRangeByName('G$row').setText('${emp.group}');
       sheet.getRangeByName('H$row').setText('${emp.lineTeam}');
-      String type = '', note = '';
-      try {
-        var recordLeave =
-            leaves.firstWhere((leave) => leave.empId == emp.empId);
-        type = recordLeave.type;
-        note =
-            '# ${recordLeave.no}: from ${recordLeave.fromTime} to ${recordLeave.toTime}, ${recordLeave.note}';
-      } catch (e) {
-        print(e);
-      }
-      sheet.getRangeByName('I$row').setText(type);
-      sheet.getRangeByName('J$row').setText(note);
+      String shift = 'Day';
+      if (emp.group == 'Canteen') {
+        shift = 'Canteen';
+      } else
+        try {
+          ShiftRegister shiftTemps = shiftRegisters
+              .firstWhere((shift) => shift.empId == emp.empId, orElse: null);
+          if (shiftTemps != null &&
+              (shiftTemps.fromDate.compareTo(today) <= 0 &&
+                  shiftTemps.toDate.compareTo(today) >= 0)) {
+            shift = shiftTemps.shift;
+          }
+        } catch (e) {
+          print(e);
+        }
+      sheet.getRangeByName('I$row').setText(shift);
     }
     // Assigning text to cells
 
 // Auto-Fit column the range
-    range = sheet.getRangeByName('A2:J2');
+    range = sheet.getRangeByName('A2:I2');
     range.autoFitColumns();
     sheet.autoFitColumn(1);
     sheet.autoFitColumn(4);
     sheet.autoFitColumn(8);
     sheet.autoFitColumn(9);
     final ExcelTable tableSummary = sheet.tableCollection
-        .create('table_absent', sheet.getRangeByName('A1:J$row'));
+        .create('table_absent', sheet.getRangeByName('A1:I$row'));
     tableSummary.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 //Save and launch the excel.
     final List<int> bytes = workbook.saveSync();
@@ -302,6 +309,8 @@ class MyFile {
     sheet.getRangeByName('E1').setText('Time');
     sheet.getRangeByName('F1').setText('Machine');
     sheet.getRangeByName('A1:F1').cellStyle = styleHeader;
+    sheet.getRangeByName('I1').setText(
+        'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     int row = 1;
     for (var log in logs) {
       row++;
@@ -707,6 +716,8 @@ class MyFile {
     sheetSummary.getRangeByName('G1').setText('Total Working hours');
     sheetSummary.getRangeByName('H1').setText('Total OT hours');
     sheetSummary.getRangeByName('I1').setText('Total OT hours (approved)');
+    sheetSummary.getRangeByName('L1').setText(
+        'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
     timeSheets.sort((a, b) => b.otHours.round().compareTo(a.otHours.round()));
     int row = 1;
@@ -815,6 +826,8 @@ class MyFile {
     sheetDetail.getRangeByName('P1').setText('OT Final');
     sheetDetail.getRangeByName('Q1').setText('Attendance Note');
     sheetDetail.getRangeByName('R1').setText('Chế độ mang thai/ nuôi con nhỏ');
+    sheetDetail.getRangeByName('U1').setText(
+        'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     int row = 1;
     for (var i = 0; i < timeSheets.length; i++) {
       var timeSheet = timeSheets[i];
@@ -910,6 +923,8 @@ class MyFile {
     sheetSummary.getRangeByName('I1').setText('Total OT Actual (hours)');
     sheetSummary.getRangeByName('J1').setText('Total OT Aproved (hours)');
     sheetSummary.getRangeByName('K1').setText('Total OT Final (hours)');
+    sheetSummary.getRangeByName('N1').setText(
+        'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
     row = 1;
     List<EmployeeWO> employeeWOs = [];

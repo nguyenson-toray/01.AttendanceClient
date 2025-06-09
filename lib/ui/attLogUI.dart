@@ -246,11 +246,11 @@ class _AttLogUIState extends State<AttLogUI>
                         }
                         print('timeBegin : $timeBegin');
                         print('timeEnd : $timeEnd');
-                        var listAbsentInDate = await gValue.mongoDb
-                            .getLeaveRegisterByRangeDate(timeBegin, timeEnd);
+                        // var listAbsentInDate = await gValue.mongoDb
+                        //     .getLeaveRegisterByRangeDate(timeBegin, timeEnd);
                         MyFile.createExcelEmployeeAbsent(
                             absents,
-                            listAbsentInDate,
+                            gValue.shiftRegisters,
                             "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
                         // MyFile.createExcelEmployee(absents, true,
                         //     "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
