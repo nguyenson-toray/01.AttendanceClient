@@ -950,13 +950,13 @@ class _AttLogUIState extends State<AttLogUI>
               countNoName > 0
                   ? Container(
                       width: 500,
-                      color: Colors.amber,
+                      color: Colors.amberAccent,
                       child: Text(
                           style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold,
                               color: Colors.redAccent),
-                          '$countNoName người có chấm công nhưng chưa cập nhật tên, msnv .\nLọc "No Emp ID" trên cột Employee ID\nBấm biểu tượng refresh trên mỗi dòng để cập nhật'),
+                          'Tồn tại Tên & MSNV chưa được cập nhật trong CSDL.\nLọc "No Emp Id" trên cột Employee ID\nBấm biểu tượng refresh trên mỗi dòng để cập nhật'),
                     )
                   : timeBegin.day == timeEnd.day
                       ? chartPresent(
@@ -965,6 +965,74 @@ class _AttLogUIState extends State<AttLogUI>
                           gValue.employeeIdPresents.length,
                           gValue.employeeIdAbsents.length)
                       : Container(),
+            ],
+          ),
+        ),
+        const VerticalDivider(
+          width: 8,
+          color: Colors.transparent,
+        ),
+        Container(
+          width: 130,
+          color: Colors.white,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.greenAccent),
+                  'Total records: ${gValue.attLogs.length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black),
+                  'Manual : ${gValue.attLogs.where((log) => log.machineNo == 0).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 1 : ${gValue.attLogs.where((log) => log.machineNo == 1).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 2 : ${gValue.attLogs.where((log) => log.machineNo == 2).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 3 : ${gValue.attLogs.where((log) => log.machineNo == 3).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 4 : ${gValue.attLogs.where((log) => log.machineNo == 4).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 5 : ${gValue.attLogs.where((log) => log.machineNo == 5).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 6 : ${gValue.attLogs.where((log) => log.machineNo == 6).length}'),
+              Text(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                  'Machine 7 : ${gValue.attLogs.where((log) => log.machineNo == 7).length}'),
             ],
           ),
         ),
@@ -1024,7 +1092,7 @@ class _AttLogUIState extends State<AttLogUI>
           title: 'Finger ID',
           field: 'attFingerId',
           type: PlutoColumnType.number(),
-          width: 150,
+          width: 140,
           renderer: (rendererContext) {
             return Row(
               children: [
@@ -1202,12 +1270,17 @@ class _AttLogUIState extends State<AttLogUI>
           title: 'Employee ID',
           field: 'empId',
           type: PlutoColumnType.text(),
-          width: 150),
+          width: 120),
       PlutoColumn(
         title: 'Name',
         field: 'name',
         type: PlutoColumnType.text(),
       ),
+      PlutoColumn(
+          title: 'Group',
+          field: 'group',
+          type: PlutoColumnType.text(),
+          width: 150),
       PlutoColumn(
         title: 'Time',
         field: 'timeStamp',
@@ -1243,12 +1316,22 @@ class _AttLogUIState extends State<AttLogUI>
       }
     }
     for (var log in data) {
+      String? group = '';
+      try {
+        group = gValue.employees
+            .firstWhere((element) => element.empId == log.empId)
+            .group;
+      } catch (e) {
+        print('Error finding group for empId ${log.empId}: $e');
+      }
+
       rows.add(
         PlutoRow(
           cells: {
             'attFingerId': PlutoCell(value: log.attFingerId),
             'empId': PlutoCell(value: log.empId),
             'name': PlutoCell(value: log.name),
+            'group': PlutoCell(value: group),
             'timeStamp': PlutoCell(
                 value:
                     DateFormat("dd-MMM-yyyy HH:mm:ss").format(log.timestamp)),
