@@ -974,7 +974,7 @@ class MyFile {
           .getRangeByName('G$row')
           .setNumber(roundDouble(element.totalW, 1));
       sheetSummary
-          .getRangeByName('G$row')
+          .getRangeByName('H$row')
           .setNumber(roundDouble(element.totalDay, 2));
       sheetSummary
           .getRangeByName('I$row')
