@@ -125,9 +125,9 @@ class MyFile {
       sheet.getRangeByName('M1').setText('Sewing NonSewing');
       sheet.getRangeByName('N1').setText('Supporting');
       sheet.getRangeByName('O1').setText('DOB');
-      sheet.getRangeByName('P1').setText('Joining date');
+      sheet.getRangeByName('P1').setText('Joining Date');
       sheet.getRangeByName('Q1').setText('Work status');
-      sheet.getRangeByName('R1').setText('Resign date');
+      sheet.getRangeByName('R1').setText('Resign Date');
       sheet.getRangeByName('A1:R1').cellStyle = styleHeader;
     } else {
       sheet.getRangeByName('A1:H1').cellStyle = styleHeader;
@@ -784,6 +784,8 @@ class MyFile {
     final Style styleHeader = workbook.styles.add('styleHeader');
     final Style styleHeaderTime = workbook.styles.add('styleHeaderTime');
     final Style styleHeaderLeave = workbook.styles.add('styleHeaderLeave');
+    final Style styleHeaderDateJoiningResign =
+        workbook.styles.add('styleDateJoiningResign');
     final Style styleAttNote = workbook.styles.add('styleAttNote');
     final Style styleAttNote2 = workbook.styles.add('styleAttNote2');
     styleHeader.bold = true;
@@ -791,10 +793,14 @@ class MyFile {
     styleHeaderTime.bold = true;
     styleHeaderTime.backColorRgb = const Color.fromARGB(255, 73, 183, 77);
     styleHeaderLeave.backColorRgb = const Color.fromARGB(255, 157, 73, 183);
-    styleAttNote.backColorRgb = const Color.fromARGB(255, 241, 39, 73);
+    styleAttNote.backColorRgb = Color.fromARGB(255, 39, 241, 90);
     styleAttNote2.backColorRgb = Color.fromARGB(255, 250, 207, 13);
+    styleHeaderDateJoiningResign.backColorRgb = Color.fromARGB(90, 253, 63, 63);
+    sheetDetail.getRangeByName('A1:H1').cellStyle = styleHeader;
     sheetDetail.getRangeByName('A1:H1').cellStyle = styleHeader;
     sheetDetail.getRangeByName('I1:P1').cellStyle = styleHeaderTime;
+    sheetDetail.getRangeByName('S1:T1').cellStyle =
+        styleHeaderDateJoiningResign;
     sheetDetail.getRangeByName('C1').columnWidth = 10;
     sheetDetail.getRangeByName('D1').columnWidth = 6;
     sheetDetail.getRangeByName('H1').columnWidth = 17;
@@ -826,11 +832,25 @@ class MyFile {
     sheetDetail.getRangeByName('P1').setText('OT Final');
     sheetDetail.getRangeByName('Q1').setText('Attendance Note');
     sheetDetail.getRangeByName('R1').setText('Chế độ mang thai/ nuôi con nhỏ');
+    sheetDetail.getRangeByName('S1').setText('Joining Date');
+    sheetDetail.getRangeByName('T1').setText('Resign Date');
     sheetDetail.getRangeByName('U1').setText(
         'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     int row = 1;
     for (var i = 0; i < timeSheets.length; i++) {
       var timeSheet = timeSheets[i];
+      DateTime joiningDate = gValue.employees
+          .firstWhere((emp) => emp.empId == timeSheet.empId)
+          .joiningDate!;
+      DateTime resignDate;
+      try {
+        resignDate = gValue.employees
+            .firstWhere((emp) => emp.empId == timeSheet.empId)
+            .resignOn!;
+      } catch (e) {
+        resignDate = DateTime(2099, 1, 1);
+      }
+
       row++;
       sheetDetail.getRangeByName('A$row').setNumber((row - 1));
       sheetDetail.getRangeByName('B$row').numberFormat = 'dd-MMM-yyyy';
@@ -888,6 +908,17 @@ class MyFile {
           timeSheet.attNote1.contains('OT trước & sau ca làm việc')) {
         sheetDetail.getRangeByName('Q$row:Q$row').cellStyle = styleAttNote2;
       }
+
+      sheetDetail.getRangeByName('S$row').numberFormat = 'dd-MMM-yyyy';
+      sheetDetail.getRangeByName('S$row').setDateTime(joiningDate);
+      if (resignDate.year < 2099) {
+        sheetDetail.getRangeByName('T$row:T$row').cellStyle =
+            styleHeaderDateJoiningResign;
+        sheetDetail.getRangeByName('T$row').numberFormat = 'dd-MMM-yyyy';
+        sheetDetail.getRangeByName('T$row').setDateTime(resignDate);
+      } else {
+        sheetDetail.getRangeByName('T$row').setText('');
+      }
       if (timeSheet.attNote2 != '') {
         sheetDetail.getRangeByName('R$row').setText('X');
       }
@@ -897,13 +928,17 @@ class MyFile {
     sheetDetail.autoFitColumn(1);
     sheetDetail.autoFitColumn(2);
     sheetDetail.autoFitColumn(5);
+    sheetDetail.autoFitColumn(19);
+    sheetDetail.autoFitColumn(20);
     final ExcelTable tableDetail = sheetDetail.tableCollection
-        .create('tableDetail', sheetDetail.getRangeByName('A1:R$row'));
+        .create('tableDetail', sheetDetail.getRangeByName('A1:T$row'));
     tableDetail.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
     //------------Summary
     sheetSummary.getRangeByName('A1:F1').cellStyle = styleHeader;
     sheetSummary.getRangeByName('G1:K1').cellStyle = styleHeaderTime;
+    sheetSummary.getRangeByName('L1:M1').cellStyle =
+        styleHeaderDateJoiningResign;
     sheetSummary.getRangeByName('C1').columnWidth = 12;
     sheetSummary.getRangeByName('F1').columnWidth = 15;
     sheetSummary.getRangeByName('H1').columnWidth = 10;
@@ -923,6 +958,8 @@ class MyFile {
     sheetSummary.getRangeByName('I1').setText('Total OT Actual (hours)');
     sheetSummary.getRangeByName('J1').setText('Total OT Aproved (hours)');
     sheetSummary.getRangeByName('K1').setText('Total OT Final (hours)');
+    sheetSummary.getRangeByName('L1').setText('Joining Date');
+    sheetSummary.getRangeByName('M1').setText('Resign Date');
     sheetSummary.getRangeByName('N1').setText(
         'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
@@ -930,6 +967,7 @@ class MyFile {
     List<EmployeeWO> employeeWOs = [];
     for (var empId in empIds) {
       EmployeeWO employeeWO = EmployeeWO();
+
       final empInfo =
           gValue.employees.firstWhere((element) => element.empId == empId);
       final double totalNormalHours = timeSheets
@@ -963,6 +1001,17 @@ class MyFile {
     }
     employeeWOs.sort((a, b) => b.totalOt.round().compareTo(a.totalOt.round()));
     for (var element in employeeWOs) {
+      DateTime joiningDate = gValue.employees
+          .firstWhere((emp) => emp.empId == element.empId)
+          .joiningDate!;
+      DateTime resignDate;
+      try {
+        resignDate = gValue.employees
+            .firstWhere((emp) => emp.empId == element.empId)
+            .resignOn!;
+      } catch (e) {
+        resignDate = DateTime(2099, 1, 1);
+      }
       row++;
       sheetSummary.getRangeByName('A$row').setNumber((row - 1));
       sheetSummary.getRangeByName('B$row').setText(element.empId);
@@ -985,14 +1034,26 @@ class MyFile {
       sheetSummary
           .getRangeByName('K$row')
           .setNumber(roundDouble(element.totalOtFinal, 1));
+      sheetSummary.getRangeByName('L$row').numberFormat = 'dd-MMM-yyyy';
+      sheetSummary.getRangeByName('L$row').setDateTime(joiningDate);
+      if (resignDate.year < 2099) {
+        sheetSummary.getRangeByName('M$row:M$row').cellStyle =
+            styleHeaderDateJoiningResign;
+        sheetSummary.getRangeByName('M$row').numberFormat = 'dd-MMM-yyyy';
+        sheetSummary.getRangeByName('M$row').setDateTime(resignDate);
+      } else {
+        sheetSummary.getRangeByName('M$row').setText('');
+      }
     }
 
     sheetSummary.autoFitColumn(1);
     sheetSummary.autoFitColumn(2);
     sheetSummary.autoFitColumn(3);
     sheetSummary.autoFitColumn(4);
+    sheetSummary.autoFitColumn(12);
+    sheetSummary.autoFitColumn(13);
     final ExcelTable tableSummary = sheetSummary.tableCollection
-        .create('tableSummary', sheetSummary.getRangeByName('A1:K$row'));
+        .create('tableSummary', sheetSummary.getRangeByName('A1:M$row'));
     tableSummary.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
 
 //Save and launch the excel.
