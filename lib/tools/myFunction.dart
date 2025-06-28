@@ -655,6 +655,20 @@ class MyFuntion {
                 otRegisterEmpOnDates = otRegistersOnDate
                     .where((otRecord) => otRecord.empId == emp.empId)
                     .toList();
+
+                if (otRegisterEmpOnDates.length > 1) {
+                  // Remove duplicates, keeping record with highest _id
+                  Map<String, OtRegister> uniqueRecords = {};
+                  for (var otRecord in otRegisterEmpOnDates) {
+                    String key = otRecord.uniqueKeyWithoutId;
+                    if (!uniqueRecords.containsKey(key) ||
+                        otRecord.id > uniqueRecords[key]!.id) {
+                      uniqueRecords[key] = otRecord;
+                    }
+                  }
+                  otRegisterEmpOnDates = uniqueRecords.values.toList();
+                }
+
                 if (otRegisterEmpOnDates.length == 1) {
                   otRegisterEmp = otRegisterEmpOnDates.first;
                   beginH = otRegisterEmp.otTimeBegin.split(':')[0];

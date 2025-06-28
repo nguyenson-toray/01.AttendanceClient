@@ -82,4 +82,31 @@ class OtRegister {
         empId.hashCode ^
         name.hashCode;
   }
+
+  // Custom equality check without ID
+  bool equalsWithoutId(OtRegister other) {
+    return requestNo == other.requestNo &&
+        requestDate == other.requestDate &&
+        otDate == other.otDate &&
+        otTimeBegin == other.otTimeBegin &&
+        otTimeEnd == other.otTimeEnd &&
+        empId == other.empId &&
+        name == other.name;
+  }
+
+  // Custom hash code without ID
+  int get hashCodeWithoutId {
+    return requestNo.hashCode ^
+        requestDate.hashCode ^
+        otDate.hashCode ^
+        otTimeBegin.hashCode ^
+        otTimeEnd.hashCode ^
+        empId.hashCode ^
+        name.hashCode;
+  }
+
+  // Create a unique key without ID for deduplication
+  String get uniqueKeyWithoutId {
+    return '${requestNo}_${requestDate}_${otDate}_${otTimeBegin}_${otTimeEnd}_${empId}_${name}';
+  }
 }
