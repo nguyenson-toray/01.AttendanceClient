@@ -511,6 +511,10 @@ class MyFuntion {
         } else if (empIdShift2.contains(emp.empId)) {
           shift = 'Shift 2';
         }
+        // Mặc định ca làm việc là 'Day' cho ngày chủ nhật
+        if (date.weekday == DateTime.sunday) {
+          shift = 'Day';
+        }
         restHour =
             shifts.firstWhere((element) => element.shift == shift).restHour;
         final hourBegin = int.parse(shifts
@@ -636,11 +640,14 @@ class MyFuntion {
               }
             }
             // -> Tính OT
-            // Ca 1 & 2 không tính OT
+            // Ca 1 & 2 không tính OT (T2-T7)
             if (empIdShift1.contains(emp.empId) ||
                 empIdShift2.contains(emp.empId)) {
-              otActual = 0;
-              otApproved = 0;
+              if (date.weekday != DateTime.sunday) {
+                otActual = 0;
+                otApproved = 0;
+                otFinal = 0;
+              }
             } else {
               // Fix lỗi thiếu otActual nếu không có trong ds đăng ký OT
               otActual = lastOut.difference(shiftTimeEnd).inMinutes / 60;
