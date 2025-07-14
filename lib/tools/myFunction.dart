@@ -640,14 +640,13 @@ class MyFuntion {
               }
             }
             // -> Tính OT
-            // Ca 1 & 2 không tính OT (T2-T7)
-            if (empIdShift1.contains(emp.empId) ||
-                empIdShift2.contains(emp.empId)) {
-              if (date.weekday != DateTime.sunday) {
-                otActual = 0;
-                otApproved = 0;
-                otFinal = 0;
-              }
+            // Ca 1 & 2 không tính OT (T2-T7) - Ngày CN tính OT như ca ngày
+            if ((empIdShift1.contains(emp.empId) ||
+                    empIdShift2.contains(emp.empId)) &&
+                date.weekday != DateTime.sunday) {
+              otActual = 0;
+              otApproved = 0;
+              otFinal = 0;
             } else {
               // Fix lỗi thiếu otActual nếu không có trong ds đăng ký OT
               otActual = lastOut.difference(shiftTimeEnd).inMinutes / 60;
