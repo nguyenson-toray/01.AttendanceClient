@@ -30,6 +30,8 @@ class _AttLogUIState extends State<AttLogUI>
   late DateTime timeBegin, timeEnd, dateAddRecord, lastUpdate;
   var listOfEmpIdPresent = [];
   String selectedMonth = '';
+  String labelExportTimesheetsDays = 'Export timesheets - Days - With filtered';
+  String labelExportTimesheetsMonth = 'Export timesheets - Full month';
   List<String> monthYears2025 = [];
   late final PlutoGridStateManager stateManager;
   bool firstBuild = true,
@@ -269,7 +271,23 @@ class _AttLogUIState extends State<AttLogUI>
                     onPressed: () async {
                       List<OtRegister> otRegister = await gValue.mongoDb
                           .getOTRegisterByRangeDate(timeBegin, timeEnd);
-
+                      List<AttLog> attLogsFilter = [];
+                      for (var row in stateManager.refRows) {
+                        var tempJson = row.toJson();
+                        attLogsFilter.add(AttLog(
+                            objectId: tempJson['objectId'],
+                            attFingerId: tempJson['attFingerId'],
+                            empId: tempJson['empId'],
+                            name: tempJson['name'],
+                            timestamp: DateFormat('dd-MMM-yyyy hh:mm:ss')
+                                .parse(tempJson['timeStamp']),
+                            machineNo: tempJson['machineNo']));
+                      }
+                      List<String> employeeIdFilter = [];
+                      for (var row in stateManager.refRows) {
+                        var tempJson = row.toJson();
+                        employeeIdFilter.add(tempJson['empId']);
+                      }
                       MyFile.createExcelTimeSheet(
                           MyFuntion.createTimeSheetsDate(
                               gValue.employees,
@@ -278,20 +296,21 @@ class _AttLogUIState extends State<AttLogUI>
                               otRegister,
                               gValue.leaveRegisters,
                               // gValue.attLogs : remove empId not begin with 'TIQN'
-                              gValue.attLogs
+                              attLogsFilter
                                   .where((element) =>
                                       element.empId.startsWith('TIQN'))
                                   .toList(),
                               // gValue.attLogs,
                               timeBegin,
-                              timeEnd),
+                              timeEnd,
+                              employeeIdFilter),
                           'Timesheets from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)} ${DateFormat('hhmmss').format(DateTime.now())}');
                     },
                     icon: const Icon(
                       Icons.timelapse,
                       color: Colors.blueAccent,
                     ),
-                    label: const Text('Export timesheets - days'),
+                    label: Text(labelExportTimesheetsDays),
                   ),
                 ),
               ]),
@@ -378,22 +397,21 @@ class _AttLogUIState extends State<AttLogUI>
                         print('${attLogs1.length}');
                         MyFile.createExcelTimeSheet(
                             MyFuntion.createTimeSheetsDate(
-                              gValue.employees,
-                              gValue.shifts,
-                              gValue.shiftRegisters,
-                              otRegister1,
-                              gValue.leaveRegisters,
-                              attLogs1,
-                              begin,
-                              end,
-                            ),
+                                gValue.employees,
+                                gValue.shifts,
+                                gValue.shiftRegisters,
+                                otRegister1,
+                                gValue.leaveRegisters,
+                                attLogs1,
+                                begin,
+                                end, []),
                             'Timesheets $selectedMonth ${DateFormat('yyyyMMddhhmmss').format(DateTime.now())}');
                       },
                       icon: const Icon(
                         Icons.timelapse_sharp,
                         color: Colors.greenAccent,
                       ),
-                      label: const Text('Export timesheets - month'))
+                      label: Text(labelExportTimesheetsMonth))
                 ],
               ),
               const Divider(),
@@ -1059,12 +1077,18 @@ class _AttLogUIState extends State<AttLogUI>
               rowColor: Colors.white,
               enableGridBorderShadow: true,
             ),
-            //  columnFilter: PlutoGridColumnFilterConfig(),
+            // columnFilter: PlutoGridColumnFilterConfig(),
           ),
           columns: columns,
           rows: rows,
           onChanged: (PlutoGridOnChangedEvent event) {
             print('onChanged  :$event');
+            // setState(() {
+            //   checkIsFilter()
+            //       ? labelExportTimesheetsDays =
+            //           'Export timesheets - days : Filtered : ${stateManager.refRows.length} records'
+            //       : labelExportTimesheetsDays = 'Export timesheets - days';
+            // });
           },
           onRowDoubleTap: (event) {
             print('onRowDoubleTap');
@@ -1082,6 +1106,7 @@ class _AttLogUIState extends State<AttLogUI>
           onSorted: (event) {
             print('onSorted  :$event');
           },
+          // on filter
         )),
       ],
     )));
@@ -1391,6 +1416,7 @@ class _AttLogUIState extends State<AttLogUI>
             }
           },
         );
+        stateManager.setFilter(null);
       },
     );
 

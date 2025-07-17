@@ -425,7 +425,8 @@ class MyFuntion {
       List<LeaveRegister> leaveRegisters,
       List<AttLog> attLogs,
       DateTime timeBegin,
-      DateTime timeEnd) {
+      DateTime timeEnd,
+      List<String> employeeIdFilter) {
     gValue.timeSheetNoteAttAfterResign = '';
     List<TimeSheetDate> result = [];
     DateTime dateTemp = timeBegin;
@@ -489,7 +490,10 @@ class MyFuntion {
         if (date.isBefore(emp.joiningDate!)) {
           continue;
         }
-
+        if (employeeIdFilter.isNotEmpty &&
+            !employeeIdFilter.contains(emp.empId)) {
+          continue;
+        }
         if (gValue.empsByPass.contains(emp.empId)) {
           // nhung nguoi da nghi viec nhung khong co co theo doi - bom hang
           continue;

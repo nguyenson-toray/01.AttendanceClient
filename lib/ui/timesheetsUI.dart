@@ -626,7 +626,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
         gValue.leaveRegisters,
         attLogs,
         begin,
-        end);
+        end, []);
     List<TimeSheetMonthYear> timeSheetMonth =
         MyFuntion.createTimeSheetsMonth(timeSheetDates, monthName);
     await gValue.mongoDb.updateTimesheetsMonthYear(timeSheetMonth, monthName);
@@ -685,7 +685,7 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
             gValue.leaveRegisters,
             attLogs,
             begin,
-            end),
+            end, []),
         'Timesheets $selectedMonth ${DateFormat('yyyyMMddhhmmss').format(DateTime.now())}');
   }
 }
