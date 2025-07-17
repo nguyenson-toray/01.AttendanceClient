@@ -777,8 +777,11 @@ class MyFile {
     final Worksheet sheetDetail = workbook.worksheets[0];
     workbook.worksheets.add();
     final Worksheet sheetSummary = workbook.worksheets[1];
+    workbook.worksheets.add();
+    final Worksheet sheetImportantNote = workbook.worksheets[2];
     sheetDetail.name = 'Detail';
     sheetSummary.name = 'Summary';
+    sheetImportantNote.name = 'Important Note';
     // Range range = sheetDetail.getRangeByName('A2:N2');
     //Creating a new style for header.
     final Style styleHeader = workbook.styles.add('styleHeader');
@@ -912,8 +915,8 @@ class MyFile {
       sheetDetail.getRangeByName('S$row').numberFormat = 'dd-MMM-yyyy';
       sheetDetail.getRangeByName('S$row').setDateTime(joiningDate);
       if (resignDate.year < 2099) {
-        sheetDetail.getRangeByName('T$row:T$row').cellStyle =
-            styleHeaderDateJoiningResign;
+        // sheetDetail.getRangeByName('T$row:T$row').cellStyle =
+        //     styleHeaderDateJoiningResign;
         sheetDetail.getRangeByName('T$row').numberFormat = 'dd-MMM-yyyy';
         sheetDetail.getRangeByName('T$row').setDateTime(resignDate);
       } else {
@@ -946,7 +949,7 @@ class MyFile {
     sheetSummary.getRangeByName('J1').columnWidth = 10;
     sheetSummary.getRangeByName('K1').columnWidth = 10;
     sheetSummary.getRangeByName('L1').columnWidth = 10;
-    sheetSummary.getRangeByName('A1:K1').cellStyle.wrapText = true;
+    sheetSummary.getRangeByName('A1:N1').cellStyle.wrapText = true;
     sheetSummary.getRangeByName('A1').setText('No');
     sheetSummary.getRangeByName('B1').setText('Employee ID');
     sheetSummary.getRangeByName('C1').setText('Full name');
@@ -960,7 +963,8 @@ class MyFile {
     sheetSummary.getRangeByName('K1').setText('Total OT Final (hours)');
     sheetSummary.getRangeByName('L1').setText('Joining Date');
     sheetSummary.getRangeByName('M1').setText('Resign Date');
-    sheetSummary.getRangeByName('N1').setText(
+    sheetSummary.getRangeByName('N1').setText('Count of late in / early out');
+    sheetSummary.getRangeByName('O1').setText(
         'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     final empIds = timeSheets.map((e) => e.empId).toSet().toList();
     row = 1;
@@ -1044,6 +1048,8 @@ class MyFile {
       } else {
         sheetSummary.getRangeByName('M$row').setText('');
       }
+      sheetSummary.getRangeByName('N$row').setFormula(
+          '=COUNTIFS(Detail!Q:Q,"Vào trễ ; Ra sớm",Detail!C:C,B$row)+COUNTIFS(Detail!Q:Q,"Vào trễ",Detail!C:C,B$row)');
     }
 
     sheetSummary.autoFitColumn(1);
@@ -1053,9 +1059,21 @@ class MyFile {
     sheetSummary.autoFitColumn(12);
     sheetSummary.autoFitColumn(13);
     final ExcelTable tableSummary = sheetSummary.tableCollection
-        .create('tableSummary', sheetSummary.getRangeByName('A1:M$row'));
+        .create('tableSummary', sheetSummary.getRangeByName('A1:N$row'));
     tableSummary.builtInTableStyle = ExcelTableBuiltInStyle.tableStyleLight1;
+    // Sheet Important Note
 
+    sheetImportantNote
+        .getRangeByName('A1')
+        .setText('Chấm công sau khi nghỉ việc');
+    sheetImportantNote.getRangeByName('A1').cellStyle = styleHeader;
+    int line = 2;
+    gValue.timeSheetNoteAttAfterResign.split('\n').forEach((element) {
+      sheetImportantNote.getRangeByName('A$line').setText('$element');
+      line++;
+    });
+
+    sheetImportantNote.autoFitColumn(1);
 //Save and launch the excel.
     final List<int> bytes = workbook.saveSync();
 //Dispose the document.

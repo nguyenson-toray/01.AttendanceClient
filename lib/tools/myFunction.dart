@@ -426,6 +426,7 @@ class MyFuntion {
       List<AttLog> attLogs,
       DateTime timeBegin,
       DateTime timeEnd) {
+    gValue.timeSheetNoteAttAfterResign = '';
     List<TimeSheetDate> result = [];
     DateTime dateTemp = timeBegin;
     List<DateTime> dates = [];
@@ -479,18 +480,16 @@ class MyFuntion {
           .toList()
           .map((e) => e.empId)
           .toList();
-      for (var emp in employees.where((element) =>
-          (!element.workStatus.toString().contains('Resigned') ||
-              (element.workStatus.toString().contains('Resigned') &&
-                  date.isBefore(element.resignOn!))))) {
+      for (var emp in employees) {
         String leaveRegisterType = '',
             leaveRegisterInfo = '',
-            attNote1 = '',
-            attNote2 =
-                ''; //attNote1 = vào trễ, ra sớm, thiếu chấm công //attNote2 = chế độ
+            attNote1 = '', //vào trễ, ra sớm, thiếu chấm công
+            attNote2 = '', //chế độ
+            attNote3 = ''; // chấm công sau ngày nghỉ việc
         if (date.isBefore(emp.joiningDate!)) {
           continue;
         }
+
         if (gValue.empsByPass.contains(emp.empId)) {
           // nhung nguoi da nghi viec nhung khong co co theo doi - bom hang
           continue;
@@ -499,6 +498,18 @@ class MyFuntion {
         List<AttLog> logs =
             dayLogs.where((log) => (log.empId == emp.empId)).toList();
         logsTime = logs.map((e) => e.timestamp).cast<DateTime>().toList();
+        if (logs.isEmpty &&
+            emp.workStatus.toString().contains('Resigned') &&
+            date.isAfter(emp.resignOn!.subtract(Duration(days: 1)))) {
+          continue;
+        }
+        if (emp.workStatus.toString().contains('Resigned') &&
+            date.isAfter(emp.resignOn!.subtract(Duration(days: 1))) &&
+            logs.isNotEmpty) {
+          // nếu đã nghỉ việc và có chấm công sau ngày nghỉ việc
+          gValue.timeSheetNoteAttAfterResign +=
+              '${emp.empId} ${emp.name} ${emp.group} Resign on ${DateFormat('dd-MMM-yyyy').format(emp.resignOn!)}: Chấm công: ${logs.map((e) => DateFormat('dd-MMM-yyyy HH:mm').format(e.timestamp)).join(', ')}\n';
+        }
 
         double normalHours = 8, otActual = 0, otApproved = 0, otFinal = 0;
         String shift = 'Day';
@@ -560,6 +571,7 @@ class MyFuntion {
           otApproved = 0;
           otActual = 0;
           otFinal = 0;
+          attNote1 += 'Chỉ có 1 lần chấm công';
         } else {
           firstIn = logsTime.reduce((a, b) => a.isBefore(b) ? a : b);
           lastOut = logsTime.reduce((a, b) => a.isAfter(b) ? a : b);

@@ -49,6 +49,7 @@ class gValue {
   static List<String> employeeIdWorkings = [];
   static List<String> employeeIdMaternityLeaves = [];
   static List<String> employeeIdPregnantYoungchilds = [];
+  static String timeSheetNoteAttAfterResign = '';
   static String urlUpdateApp = '';
   static String latestVersion = '';
   static String updateBinaryUrl = '';
