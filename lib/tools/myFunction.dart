@@ -413,6 +413,10 @@ class MyFuntion {
     return result;
   }
 
+  static bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   static List<TimeSheetDate> createTimeSheetsDate(
       List<Employee> employees,
       List<Shift> shifts,
@@ -437,7 +441,7 @@ class MyFuntion {
     for (var date in dates) {
       otRegistersOnDate.clear();
       List<AttLog> dayLogs =
-          attLogs.where((log) => (log.timestamp.day == date.day)).toList();
+          attLogs.where((log) => (isSameDay(log.timestamp, date))).toList();
       if (dayLogs.isEmpty) continue;
       List<String> empIdShift1 = [],
           empIdShift2 = [],

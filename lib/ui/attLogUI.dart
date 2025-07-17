@@ -277,7 +277,12 @@ class _AttLogUIState extends State<AttLogUI>
                               gValue.shiftRegisters,
                               otRegister,
                               gValue.leaveRegisters,
-                              gValue.attLogs,
+                              // gValue.attLogs : remove empId not begin with 'TIQN'
+                              gValue.attLogs
+                                  .where((element) =>
+                                      element.empId.startsWith('TIQN'))
+                                  .toList(),
+                              // gValue.attLogs,
                               timeBegin,
                               timeEnd),
                           'Timesheets from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)} ${DateFormat('hhmmss').format(DateTime.now())}');
