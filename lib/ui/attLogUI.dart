@@ -871,7 +871,10 @@ class _AttLogUIState extends State<AttLogUI>
                     TextButton.icon(
                       onPressed: () {
                         print('(gValue.attLogs : ${gValue.attLogs.length}');
-                        MyFile.createExcelAttLog(gValue.attLogs,
+                        MyFile.createExcelAttLog(
+                            gValue.attLogs
+                                .where((log) => log.empId.contains('TIQN'))
+                                .toList(),
                             'Attendance logs from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)}');
                       },
                       icon: const Icon(
@@ -899,7 +902,11 @@ class _AttLogUIState extends State<AttLogUI>
                                 machineNo: tempJson['machineNo']));
                           }
 
-                          MyFile.createExcelAttLog(attLogs, 'Attendance logs');
+                          MyFile.createExcelAttLog(
+                              attLogs
+                                  .where((log) => log.empId.contains('TIQN'))
+                                  .toList(),
+                              'Attendance logs');
                         },
                         label: const Text('Export current filter')),
                     TextButton.icon(
@@ -1202,87 +1209,82 @@ class _AttLogUIState extends State<AttLogUI>
                         },
                       )
                     : Container(),
-                rendererContext.row.toJson()['machineNo'] == 0
-                    ? IconButton(
-                        icon: const Icon(
-                          Icons.remove_circle_outlined,
-                        ),
-                        onPressed: () {
-                          if (gValue.accessMode != 'edit') {
-                            toastification.show(
-                              showProgressBar: true,
-                              backgroundColor: Colors.amber[200],
-                              alignment: Alignment.center,
-                              context: context,
-                              title: const Text(
-                                  'Bạn không có quyền sử dụng chức năng này !'),
-                              autoCloseDuration: const Duration(seconds: 2),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 8,
-                                  offset: Offset(0, 16),
-                                  spreadRadius: 0,
-                                )
-                              ],
-                            );
-                            return;
-                          }
-                          var row = rendererContext.row.toJson();
-                          refreshDataCancel = true;
-                          print(row);
-                          var style = const TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold);
+                IconButton(
+                  icon: const Icon(
+                    Icons.remove_circle_outlined,
+                  ),
+                  onPressed: () {
+                    if (gValue.accessMode != 'edit') {
+                      toastification.show(
+                        showProgressBar: true,
+                        backgroundColor: Colors.amber[200],
+                        alignment: Alignment.center,
+                        context: context,
+                        title: const Text(
+                            'Bạn không có quyền sử dụng chức năng này !'),
+                        autoCloseDuration: const Duration(seconds: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 16),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      );
+                      return;
+                    }
+                    var row = rendererContext.row.toJson();
+                    refreshDataCancel = true;
+                    print(row);
+                    var style = const TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold);
 
-                          String objectId = '';
-                          String deletedEmpId = '';
-                          String deletedEmpName = '';
-                          DateTime timeStamp = DateTime.now();
-                          row.forEach((key, value) {
-                            if (key == 'employeeId') {
-                              objectId = row['objectId'].toString();
-                              deletedEmpId = value;
-                              deletedEmpName = row['name'];
-                              timeStamp =
-                                  DateTime.parse(row['timeStamp'].toString());
-                            }
-                          });
+                    String objectId = '';
+                    String deletedEmpId = '';
+                    String deletedEmpName = '';
+                    DateTime timeStamp = DateTime.now();
+                    row.forEach((key, value) {
+                      if (key == 'employeeId') {
+                        objectId = row['objectId'].toString();
+                        deletedEmpId = value;
+                        deletedEmpName = row['name'];
+                        timeStamp = DateTime.parse(row['timeStamp'].toString());
+                      }
+                    });
 
-                          AwesomeDialog(
-                                  context: context,
-                                  body: Text(
-                                    'DELETE ?\n${row['empId']}  ${row['name']}\nTime: ${row['timeStamp']}',
-                                    style: style,
-                                  ),
-                                  width: 800,
-                                  dialogType: DialogType.question,
-                                  animType: AnimType.rightSlide,
-                                  enableEnterKey: true,
-                                  showCloseIcon: true,
-                                  btnOkOnPress: () async {
-                                    await gValue.mongoDb.deleteOneAttLog(
-                                        row['objectId']
-                                            .toString()
-                                            .substring(10, 34));
-                                    await MyFuntion.insertHistory(
-                                        'DELETE attendance log : ${row['attFingerId']}    ${row['empId']}   ${row['name']}    ${row['timeStamp']}');
-                                    setState(() {
-                                      rendererContext.stateManager
-                                          .removeRows([rendererContext.row]);
-                                    });
-                                    refreshDataCancel = false;
-                                    refreshData(timeBegin, timeEnd, true);
-                                  },
-                                  closeIcon: const Icon(Icons.close))
-                              .show();
-                        },
-                        iconSize: 18,
-                        color: Colors.red,
-                        padding: const EdgeInsets.all(0),
-                      )
-                    : Container(),
+                    AwesomeDialog(
+                            context: context,
+                            body: Text(
+                              'DELETE ?\n${row['empId']}  ${row['name']}\nTime: ${row['timeStamp']}',
+                              style: style,
+                            ),
+                            width: 800,
+                            dialogType: DialogType.question,
+                            animType: AnimType.rightSlide,
+                            enableEnterKey: true,
+                            showCloseIcon: true,
+                            btnOkOnPress: () async {
+                              await gValue.mongoDb.deleteOneAttLog(
+                                  row['objectId'].toString().substring(10, 34));
+                              await MyFuntion.insertHistory(
+                                  'DELETE attendance log : ${row['attFingerId']}    ${row['empId']}   ${row['name']}    ${row['timeStamp']}');
+                              setState(() {
+                                rendererContext.stateManager
+                                    .removeRows([rendererContext.row]);
+                              });
+                              refreshDataCancel = false;
+                              refreshData(timeBegin, timeEnd, true);
+                            },
+                            closeIcon: const Icon(Icons.close))
+                        .show();
+                  },
+                  iconSize: 18,
+                  color: Colors.red,
+                  padding: const EdgeInsets.all(0),
+                ),
                 Expanded(
                   child: Text(
                     rendererContext

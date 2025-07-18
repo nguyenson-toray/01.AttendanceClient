@@ -306,9 +306,10 @@ class MyFile {
     sheet.getRangeByName('B1').setText('Finger ID');
     sheet.getRangeByName('C1').setText('Employee ID');
     sheet.getRangeByName('D1').setText('Name');
-    sheet.getRangeByName('E1').setText('Time');
-    sheet.getRangeByName('F1').setText('Machine');
-    sheet.getRangeByName('A1:F1').cellStyle = styleHeader;
+    sheet.getRangeByName('E1').setText('Group');
+    sheet.getRangeByName('F1').setText('Time');
+    sheet.getRangeByName('G1').setText('Machine');
+    sheet.getRangeByName('A1:G1').cellStyle = styleHeader;
     sheet.getRangeByName('I1').setText(
         'Export at ${DateFormat('dd-MMM-yyyy HH:mm:ss').format(DateTime.now())}');
     int row = 1;
@@ -318,18 +319,29 @@ class MyFile {
       sheet.getRangeByName('B$row').setNumber(log.attFingerId.toDouble());
       sheet.getRangeByName('C$row').setText(log.empId);
       sheet.getRangeByName('D$row').setText(log.name);
-      sheet.getRangeByName('E$row').numberFormat = 'dd-MMM-yyyy hh:mm';
-      sheet.getRangeByName('E$row').setDateTime(log.timestamp);
-      // sheet.getRangeByName('F$row').numberFormat = '0';
-      sheet.getRangeByName('F$row').setNumber(log.machineNo.toDouble());
+      String? group = '';
+      try {
+        group = gValue.employees
+            .firstWhere((element) => element.empId == log.empId)
+            .group;
+      } catch (e) {
+        print('Error finding group for empId ${log.empId}: $e');
+      }
+      sheet.getRangeByName('E$row').setText(group);
+      sheet.getRangeByName('F$row').numberFormat = 'dd-MMM-yyyy hh:mm';
+      sheet.getRangeByName('F$row').setDateTime(log.timestamp);
+
+      sheet.getRangeByName('G$row').setNumber(log.machineNo.toDouble());
     }
     // Assigning text to cells
-    final Range range = sheet.getRangeByName('A2:F2');
+    final Range range = sheet.getRangeByName('A2:G2');
 
 // Auto-Fit column the range
     range.autoFitColumns();
     sheet.autoFitColumn(1);
     sheet.autoFitColumn(4);
+    sheet.autoFitColumn(5);
+    sheet.autoFitColumn(6);
 //Save and launch the excel.
     final List<int> bytes = workbook.saveSync();
 //Dispose the document.
@@ -668,7 +680,7 @@ class MyFile {
           if (row[1] == null ||
               row[2] == null ||
               row[3] == null ||
-              row[4] == null) {
+              row[5] == null) {
             gValue.logs.add('ERROR : Row $rowIndex: is not enought infor\n');
             continue;
           }
@@ -677,8 +689,8 @@ class MyFile {
               attFingerId: int.parse(row[1]!.value.toString()),
               empId: row[2]!.value.toString(),
               name: row[3]!.value.toString(),
-              timestamp: DateTime.parse(row[4]!.value.toString()),
-              machineNo: int.parse(row[5]!.value.toString()));
+              timestamp: DateTime.parse(row[5]!.value.toString()),
+              machineNo: int.parse(row[6]!.value.toString()));
 
           logs.add(log);
           gValue.logs.add(
