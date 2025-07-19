@@ -785,15 +785,16 @@ class MyFile {
   static Future<void> createExcelTimeSheet(
       List<TimeSheetDate> timeSheets, String fileName) async {
     final Workbook workbook = Workbook();
+    // Create sheets in the desired order - Important Note first (will be active)
     workbook.worksheets[0];
-    final Worksheet sheetDetail = workbook.worksheets[0];
+    final Worksheet sheetImportantNote = workbook.worksheets[0];
     workbook.worksheets.add();
-    final Worksheet sheetSummary = workbook.worksheets[1];
+    final Worksheet sheetDetail = workbook.worksheets[1];
     workbook.worksheets.add();
-    final Worksheet sheetImportantNote = workbook.worksheets[2];
+    final Worksheet sheetSummary = workbook.worksheets[2];
+    sheetImportantNote.name = 'Important Note';
     sheetDetail.name = 'Detail';
     sheetSummary.name = 'Summary';
-    sheetImportantNote.name = 'Important Note';
     // Range range = sheetDetail.getRangeByName('A2:N2');
     //Creating a new style for header.
     final Style styleHeader = workbook.styles.add('styleHeader');
