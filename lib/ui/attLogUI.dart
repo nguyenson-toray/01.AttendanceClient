@@ -25,6 +25,7 @@ class AttLogUI extends StatefulWidget {
 
 class _AttLogUIState extends State<AttLogUI>
     with AutomaticKeepAliveClientMixin {
+  bool _isDisposed = false;
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   late DateTime timeBegin, timeEnd, dateAddRecord, lastUpdate;
@@ -83,12 +84,16 @@ class _AttLogUIState extends State<AttLogUI>
 
   Future<void> refreshData(
       DateTime timeBegin, DateTime timeEnd, bool forceLoadData) async {
-    if (refreshDataCancel) return;
+    print(
+        'refreshData : $timeBegin - $timeEnd - forceLoadData:$forceLoadData - isLoaded : $isLoaded - refreshDataCancel : $refreshDataCancel - _isDisposed: $_isDisposed');
+    if (_isDisposed) return;
+    if (refreshDataCancel || !mounted) return;
     if (forceLoadData) {
       gValue.attLogs = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
 
       if (mounted) {
         setState(() {
+          print('setState :11111111111111111111111111111111');
           countNoName = 0;
           rows = getRows(gValue.attLogs);
           stateManager.removeRows(stateManager.rows);
@@ -98,14 +103,33 @@ class _AttLogUIState extends State<AttLogUI>
           exportTimeSheetDaysVisible = true;
           toastification.dismissAll();
           showButtonOKSellectRangeDate = false;
+          isLoaded = true;
           lastUpdate = DateTime.now();
+          stateManager.setFilter(null);
         });
+        toastification.show(
+          showProgressBar: true,
+          backgroundColor: Colors.blue[100],
+          alignment: Alignment.center,
+          context: context,
+          title: const Text('Data is loaded !'),
+          autoCloseDuration: Duration(seconds: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 16),
+              spreadRadius: 0,
+            )
+          ],
+        );
       }
     } else if (isLoaded && !checkIsFilter()) {
       List<AttLog> temp = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
 
       if ((temp.length != gValue.attLogs.length) && mounted) {
         setState(() {
+          print('setState :222222222222222222222222');
           rows = getRows(gValue.attLogs);
           stateManager.removeRows(stateManager.rows);
           stateManager.appendRows(rows);
@@ -114,9 +138,18 @@ class _AttLogUIState extends State<AttLogUI>
           exportTimeSheetDaysVisible = true;
           toastification.dismissAll();
           showButtonOKSellectRangeDate = false;
+          isLoaded = true;
+          lastUpdate = DateTime.now();
+          stateManager.setFilter(null);
         });
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -143,81 +176,58 @@ class _AttLogUIState extends State<AttLogUI>
                 height: 220,
                 width: 500,
                 child: SfDateRangePicker(
-                  enableMultiView: true,
-                  monthViewSettings: const DateRangePickerMonthViewSettings(
-                      enableSwipeSelection: true,
-                      showWeekNumber: false,
-                      firstDayOfWeek: 1,
-                      weekendDays: [7]),
-                  view: DateRangePickerView.month,
-                  showTodayButton: true,
-                  minDate: DateTime.utc(2023, 12, 26),
-                  maxDate: DateTime.now(),
-                  backgroundColor: Colors.blue[100],
-                  todayHighlightColor: Colors.green,
-                  selectionColor: Colors.orange,
-                  headerStyle: DateRangePickerHeaderStyle(
-                    backgroundColor: Colors.blue[200],
-                  ),
-                  onSelectionChanged: onSelectionChanged,
-                  onSubmit: (value) {
-                    refreshDataCancel = false;
-                    setState(() {
-                      if (value is PickerDateRange) {
-                        timeBegin = value.startDate!;
-                        timeEnd = (value.endDate ?? value.startDate)!;
-                      } else if (value is DateTime) {
-                        timeBegin = value;
-                        timeEnd = value;
-                      }
-                      timeBegin =
-                          timeBegin.appliedFromTimeOfDay(const TimeOfDay(
-                        hour: 0,
-                        minute: 0,
-                      ));
-                      timeEnd = timeEnd.appliedFromTimeOfDay(const TimeOfDay(
-                        hour: 23,
-                        minute: 59,
-                      ));
+                    cancelText: 'Cancel',
+                    enableMultiView: true,
+                    monthViewSettings: const DateRangePickerMonthViewSettings(
+                        enableSwipeSelection: true,
+                        showWeekNumber: false,
+                        firstDayOfWeek: 1,
+                        weekendDays: [7]),
+                    view: DateRangePickerView.month,
+                    showTodayButton: false,
+                    minDate: DateTime.utc(2023, 12, 26),
+                    maxDate: DateTime.now(),
+                    backgroundColor: Colors.blue[100],
+                    todayHighlightColor: Colors.green,
+                    selectionColor: Colors.orange,
+                    headerStyle: DateRangePickerHeaderStyle(
+                      backgroundColor: Colors.blue[200],
+                    ),
+                    // onSelectionChanged: onSelectionChanged,
+                    confirmText: 'Press OK to load data',
+                    // toggleDaySelection: true,
+                    onSubmit: (value) {
+                      print('onSubmit : $value');
+                      if (value == null) return;
+                      refreshDataCancel = false;
+                      timeBegin = getDateRangeSimple(value.toString()).first;
+                      timeEnd = getDateRangeSimple(value.toString()).last;
                       isLoaded = false;
                       refreshData(timeBegin, timeEnd, true);
-                      int time =
-                          (timeEnd.difference(timeBegin).inDays / 6).round();
                       exportTimeSheetDaysVisible = false;
-                      if (time > 1) {
-                        toastification.show(
-                          showProgressBar: true,
-                          backgroundColor: Colors.blue[100],
-                          alignment: Alignment.center,
-                          context: context,
-                          title: const Text('Data is loading...!'),
-                          autoCloseDuration: Duration(seconds: time),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 16),
-                              spreadRadius: 0,
-                            )
-                          ],
-                        );
-                      }
-                    });
-                  },
-                  selectionMode: DateRangePickerSelectionMode.range,
-                  initialSelectedRange: PickerDateRange(timeBegin, timeEnd),
-                  showActionButtons: showButtonOKSellectRangeDate,
-                ),
+                      showButtonOKSellectRangeDate = true;
+                    },
+                    selectionMode: DateRangePickerSelectionMode.range,
+                    initialSelectedRange: PickerDateRange(timeBegin, timeEnd),
+                    showActionButtons: true,
+                    onCancel: () {
+                      setState(() {
+                        timeBegin =
+                            DateTime.now().appliedFromTimeOfDay(const TimeOfDay(
+                          hour: 0,
+                          minute: 0,
+                        ));
+                        timeEnd =
+                            DateTime.now().appliedFromTimeOfDay(const TimeOfDay(
+                          hour: 23,
+                          minute: 59,
+                        ));
+                        refreshDataCancel = true;
+                        toastification.dismissAll();
+                        showButtonOKSellectRangeDate = false;
+                      });
+                    }),
               ),
-              showButtonOKSellectRangeDate
-                  ? const Text(
-                      'Press button OK to load data',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                          fontSize: 20),
-                    )
-                  : Container(),
               const Divider(),
               Row(children: [
                 Visibility(
@@ -341,7 +351,6 @@ class _AttLogUIState extends State<AttLogUI>
                           value: selectedMonth,
                           onChanged: (String? value) {
                             setState(() {
-                              print(value);
                               selectedMonth = value!;
                             });
                           },
@@ -1062,7 +1071,7 @@ class _AttLogUIState extends State<AttLogUI>
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue),
-                  'Machine 7 : ${gValue.attLogs.where((log) => log.machineNo == 7).length}'),
+                  'Machine 7 : ${gValue.attLogs.where((log) => log.machineNo == 7).length}')
             ],
           ),
         ),
@@ -1335,6 +1344,45 @@ class _AttLogUIState extends State<AttLogUI>
     return columns;
   }
 
+  List<DateTime> getDateRangeSimple(String dateRange) {
+    // dateRange = 'PickerDateRange#6494f(startDate: 2025-07-18 00:00:00.000, endDate: 2025-07-18 00:00:00.000)'
+    try {
+      // Extract startDate
+      String afterStart = dateRange.split('startDate: ')[1];
+      String startDateStr = afterStart.split(' ')[0]; // Lấy YYYY-MM-DD
+      DateTime startDate = DateTime.parse(startDateStr);
+
+      // Extract endDate (nếu có)
+      DateTime endDate;
+      if (dateRange.contains('endDate:')) {
+        String endDateStr =
+            afterStart.split(', endDate: ')[1].split(')')[0].split(' ')[0];
+        if (endDateStr.isEmpty || endDateStr.toLowerCase() == 'null') {
+          endDate = startDate; // Null endDate -> dùng startDate
+        } else {
+          endDate = DateTime.parse(endDateStr);
+        }
+      } else {
+        endDate = startDate; // Không có endDate -> dùng startDate
+      }
+
+      // Tạo UTC với giờ cố định
+      DateTime startUTC = DateTime.utc(
+          startDate.year, startDate.month, startDate.day, 0, 0, 0, 0);
+      DateTime endUTC = DateTime.utc(
+          endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
+      print('getDateRangeSimple return: startUTC: $startUTC, endUTC: $endUTC');
+      return [startUTC, endUTC];
+    } catch (e) {
+      print('Error: $e');
+      DateTime now = DateTime.now();
+      return [
+        DateTime.utc(now.year, now.month, now.day, 0, 0, 0, 0),
+        DateTime.utc(now.year, now.month, now.day, 23, 59, 59, 999)
+      ];
+    }
+  }
+
   List<PlutoRow> getRows(List<AttLog> data) {
     List<PlutoRow> rows = [];
     data.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -1381,10 +1429,11 @@ class _AttLogUIState extends State<AttLogUI>
   /// called whenever a selection changed on the date picker widget.
   void onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
     print('-----onSelectionChanged : ${args.value}');
-    stateManager.removeAllRows();
-    refreshDataCancel = true;
+
     setState(
       () {
+        // stateManager.removeAllRows();
+        // refreshDataCancel = true;
         if (args.value is PickerDateRange) {
           timeBegin = args.value.startDate;
           timeEnd = args.value.endDate ?? args.value.startDate;

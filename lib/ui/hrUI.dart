@@ -39,8 +39,8 @@ class _HRUIState extends State<HRUI>
               await gValue.mongoDb.checkPermission(gValue.pcName),
           getHrData()
         });
-
-    Timer.periodic(const Duration(seconds: 1), (_) => checkDbState());
+    checkDbState();
+    // Timer.periodic(const Duration(minutes: 1), (_) => checkDbState());
     tabController.index = 0;
     super.initState();
   }
