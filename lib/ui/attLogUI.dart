@@ -998,11 +998,14 @@ class _AttLogUIState extends State<AttLogUI>
                           'Tồn tại Tên & MSNV chưa được cập nhật trong CSDL.\nLọc "No Emp Id" trên cột Employee ID\nBấm biểu tượng refresh trên mỗi dòng để cập nhật'),
                     )
                   : timeBegin.day == timeEnd.day
-                      ? chartPresent(
-                          gValue.employeeIdPresents.length,
-                          gValue.employeeIdMaternityLeaves.length,
-                          gValue.employeeIdPresents.length,
-                          gValue.employeeIdAbsents.length)
+                      ? Text(
+                          'Enrolled: ${gValue.enrolled}\nPresent: ${gValue.employeeIdPresents.length}\nMaternity Leaves: ${gValue.employeeIdMaternityLeaves.length}\nAbsents : ${gValue.employeeIdPresents.length}',
+                        )
+                      // chartPresent(
+                      //     gValue.employeeIdPresents.length,
+                      //     gValue.employeeIdMaternityLeaves.length,
+                      //     gValue.employeeIdPresents.length,
+                      //     gValue.employeeIdAbsents.length)
                       : Container(),
             ],
           ),
