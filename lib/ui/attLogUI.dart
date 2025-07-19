@@ -279,7 +279,7 @@ class _AttLogUIState extends State<AttLogUI>
                             attFingerId: tempJson['attFingerId'],
                             empId: tempJson['empId'],
                             name: tempJson['name'],
-                            timestamp: DateFormat('dd-MMM-yyyy hh:mm:ss')
+                            timestamp: DateFormat('dd-MMM-yyyy HH:mm:ss')
                                 .parse(tempJson['timeStamp']),
                             machineNo: tempJson['machineNo']));
                       }
@@ -1354,7 +1354,7 @@ class _AttLogUIState extends State<AttLogUI>
             .firstWhere((element) => element.empId == log.empId)
             .group;
       } catch (e) {
-        print('Error finding group for empId ${log.empId}: $e');
+        // print('Error finding group for empId ${log.empId}: $e');
       }
 
       rows.add(
