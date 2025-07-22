@@ -404,7 +404,7 @@
 //         ),
 //       );
 //     }
-//     print(
+//     gValue.logger.t(
 //         '######### getRows(RealmResults<AttReport> data) ==>>>>> ${rows.length}');
 //     return rows;
 //   }
@@ -514,7 +514,7 @@
 //       hour: 23,
 //       minute: 59,
 //     ));
-//     print('onSelectionChanged : timeBegin : $timeBegin');
-//     print('onSelectionChanged : timeEnd : $timeEnd');
+//     gValue.logger.t('onSelectionChanged : timeBegin : $timeBegin');
+//     gValue.logger.t('onSelectionChanged : timeEnd : $timeEnd');
 //   }
 // }

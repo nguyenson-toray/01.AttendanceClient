@@ -33,7 +33,7 @@ class _EmployeeUIState extends State<EmployeeUI>
   @override
   void initState() {
     // TODO: implement initState
-    print('initState EmployeeUI ');
+    gValue.logger.t('initState EmployeeUI ');
     lastUpdate = DateTime.now();
     Future.delayed(Durations.long2).then((value) =>
         Timer.periodic(const Duration(minutes: 30), (_) => refreshData()));
@@ -84,13 +84,13 @@ class _EmployeeUIState extends State<EmployeeUI>
     if (newList.isEmpty) {
       return false;
     } else if (oldList.length != newList.length) {
-      print('checkDiff Employees: TRUE : Diff length');
+      gValue.logger.t('checkDiff Employees: TRUE : Diff length');
       diff = true;
     } else {
       for (int i = 0; i < oldList.length; i++) {
         if (oldList[i] != newList[i]) {
           diff = true;
-          print('checkDiff Employees : TRUE : Diff element');
+          gValue.logger.t('checkDiff Employees : TRUE : Diff element');
           break;
         }
       }
@@ -186,13 +186,13 @@ class _EmployeeUIState extends State<EmployeeUI>
               columns: columns,
               rows: rows,
               onChanged: (PlutoGridOnChangedEvent event) {
-                print('onChanged  :$event');
+                gValue.logger.t('onChanged  :$event');
               },
               onRowDoubleTap: (event) {
-                print('onRowDoubleTap');
+                gValue.logger.t('onRowDoubleTap');
               },
               onLoaded: (PlutoGridOnLoadedEvent event) {
-                print('onLoaded : rows.length: ${rows.length}');
+                gValue.logger.t('onLoaded : rows.length: ${rows.length}');
                 firstBuild = false;
                 stateManager = event.stateManager;
                 stateManager.setShowColumnFilter(true);
@@ -200,10 +200,10 @@ class _EmployeeUIState extends State<EmployeeUI>
                 // context.read<EmployeeSummary>().summaryAll(results);
               },
               onSelected: (event) {
-                print('onSelected  :$event');
+                gValue.logger.t('onSelected  :$event');
               },
               onSorted: (event) {
-                print('onSorted  :$event');
+                gValue.logger.t('onSorted  :$event');
               },
               rowColorCallback: (rowColorContext) {
                 if (rowColorContext.row.cells.entries
@@ -489,7 +489,7 @@ class _EmployeeUIState extends State<EmployeeUI>
         ),
       );
     }
-    // print(' getRows(List<Employee>) => length : ${rows.length}');
+    // gValue.logger.t(' getRows(List<Employee>) => length : ${rows.length}');
     return rows;
   }
 

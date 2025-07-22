@@ -71,7 +71,7 @@
 //   //   gValue.attLogs =
 //   //       await getAttLogByRangeDate(gValue.timeBegin, gValue.timeEnd);
 //   //   gValue.attReports = getAllAttReport();
-//   //   print(
+//   //   gValue.logger.t(
 //   //       'initOfflineHrData: dateBegin: ${gValue.timeBegin}   to  dateEnd: ${gValue.timeEnd} \ngValue.employeeBasics.length: ${gValue.employeeBasics.length}\ngValue.attLogs.length: ${gValue.attLogs.length}\ngValue.attReports.length: ${gValue.attReports.length}');
 //   // }
 
@@ -126,7 +126,7 @@
 //   void addUpdateEmployeeBasic(List<EmployeeBasic> emps) {
 //     for (var emp in emps) {
 //       final objectId = getIdObjectEmployeeBasic(emp);
-//       print(objectId);
+//       gValue.logger.t(objectId);
 //       if (objectId == gValue.defaultObjectId) // not exits
 //       {
 //         realm.write<EmployeeBasic>(() => realm.add<EmployeeBasic>(emp));
@@ -156,13 +156,13 @@
 //     // Query for the object with matching ID
 
 //     final results = realm.query<AttLog>('_id == oid($attLogDeleteObjectId)');
-//     print('---------------------${results.first}');
+//     gValue.logger.t('---------------------${results.first}');
 //     // Check if any objects were found
 //     if (results.isNotEmpty) {
 //       // Delete the first object (assuming unique IDs)
 //       realm.write(() => realm.delete(results.first));
 //     } else {
-//       print('No object found with ID: $attLogDeleteObjectId');
+//       gValue.logger.t('No object found with ID: $attLogDeleteObjectId');
 //     }
 //     notifyListeners();
 //   }
@@ -189,7 +189,7 @@
 //           timestamp: log.timestamp?.toLocal());
 //       result.add(temp);
 //     }
-//       print(
+//       gValue.logger.t(
 //         'getAttLogByRangeDate : $timeBegin  to $timeEnd  => lenght == ${result.length}');
 //     return result;
 //   }
@@ -203,7 +203,7 @@
 
 //   void addAttLogs(List<AttLog> logs) {
 //     for (var log in logs) {
-//       print('addAttLogs : $logs ');
+//       gValue.logger.t('addAttLogs : $logs ');
 //       realm.write<AttLog>(() => realm.add<AttLog>(log));
 //     }
 //   }
@@ -244,7 +244,7 @@
 
 //   void addAttReport(List<AttReport> reports) {
 //     for (var report in reports) {
-//       print('addAttReport : $report ');
+//       gValue.logger.t('addAttReport : $report ');
 //       final id = getIdObjectAttReport(report);
 //       if (id == gValue.defaultObjectId) {
 //         realm.write(() => realm.add<AttReport>(report));

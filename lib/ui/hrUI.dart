@@ -30,7 +30,7 @@ class _HRUIState extends State<HRUI>
     Timer(const Duration(milliseconds: 200), () async {
       gValue.screenWidth = MediaQuery.of(context).size.width;
       gValue.screenHeight = MediaQuery.of(context).size.height;
-      print('screen size : ${gValue.screenWidth} x ${gValue.screenHeight}');
+      gValue.logger.t('screen size : ${gValue.screenWidth} x ${gValue.screenHeight}');
     });
     tabController = TabController(length: 7, vsync: this);
     // final department = jsonDecode(gValue.departmentJson);
@@ -54,7 +54,7 @@ class _HRUIState extends State<HRUI>
         gValue.isConectedDb = gValue.mongoDb.db.isConnected;
       });
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 

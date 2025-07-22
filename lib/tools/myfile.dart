@@ -37,7 +37,7 @@ class MyFile {
   }
 
   // static Future<List<Employee>> readExcelEmployee() async {
-  //   print('readExcelEmployee'); //sheet Name
+  //   gValue.logger.t('readExcelEmployee'); //sheet Name
   //   gValue.logs.clear();
   //   List<Employee> emps = [];
   //   try {
@@ -46,9 +46,9 @@ class MyFile {
   //     var excel = Excel.decodeBytes(bytes);
   //     gValue.logs.add('File : ${file.path}');
   //     for (var table in excel.tables.keys) {
-  //       print('Sheet Name: $table'); //sheet Name
-  //       print('maxColumns: ${excel.tables[table]?.maxColumns}');
-  //       print('maxRows: ${excel.tables[table]?.maxRows}');
+  //       gValue.logger.t('Sheet Name: $table'); //sheet Name
+  //       gValue.logger.t('maxColumns: ${excel.tables[table]?.maxColumns}');
+  //       gValue.logger.t('maxRows: ${excel.tables[table]?.maxRows}');
   //       gValue.logs.add(
   //           'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
   //       for (int rowIndex = 1;
@@ -248,7 +248,7 @@ class MyFile {
             shift = shiftTemps.shift;
           }
         } catch (e) {
-          print(e);
+          gValue.logger.t(e);
         }
       sheet.getRangeByName('I$row').setText(shift);
     }
@@ -325,7 +325,7 @@ class MyFile {
             .firstWhere((element) => element.empId == log.empId)
             .group;
       } catch (e) {
-        print('Error finding group for empId ${log.empId}: $e');
+        gValue.logger.t('Error finding group for empId ${log.empId}: $e');
       }
       sheet.getRangeByName('E$row').setText(group);
       sheet.getRangeByName('F$row').numberFormat = 'dd-MMM-yyyy hh:mm';
@@ -367,7 +367,7 @@ class MyFile {
 /*
   static Future<void> createExcelAttReport(
       List<AttReport> attReportsInput) async {
-    print('createExcelAttReport');
+    gValue.logger.t('createExcelAttReport');
     Iterable<AttReport> attReports = attReportsInput.reversed;
     String fileName =
         'Attendance report ${DateFormat('MMM-yyyy hhmmss').format(DateTime.now())}';
@@ -659,7 +659,7 @@ class MyFile {
 */
   static Future<List<AttLog>> readExcelAttLog() async {
     List<AttLog> logs = [];
-    print('readExcelAttLog'); //sheet Name
+    gValue.logger.t('readExcelAttLog'); //sheet Name
     gValue.logs.clear();
     List<Employee> emps = [];
     try {
@@ -668,9 +668,9 @@ class MyFile {
       var excel = Excel.decodeBytes(bytes);
       gValue.logs.add('File : ${file.path}');
       for (var table in excel.tables.keys) {
-        print('Sheet Name: $table'); //sheet Name
-        print('maxColumns: ${excel.tables[table]?.maxColumns}');
-        print('maxRows: ${excel.tables[table]?.maxRows}');
+        gValue.logger.t('Sheet Name: $table'); //sheet Name
+        gValue.logger.t('maxColumns: ${excel.tables[table]?.maxColumns}');
+        gValue.logger.t('maxRows: ${excel.tables[table]?.maxRows}');
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         for (int rowIndex = 1;
@@ -1170,7 +1170,7 @@ class MyFile {
 
   static Future<List<ShiftRegister>> readExcelShiftRegister() async {
     List<ShiftRegister> shiftRegisters = [];
-    print('readExcelAttLog'); //sheet Name
+    gValue.logger.t('readExcelAttLog'); //sheet Name
     gValue.logs.clear();
     List<Employee> emps = [];
     try {
@@ -1179,9 +1179,9 @@ class MyFile {
       var excel = Excel.decodeBytes(bytes);
       gValue.logs.add('File : ${file.path}');
       for (var table in excel.tables.keys) {
-        print('Sheet Name: $table'); //sheet Name
-        print('maxColumns: ${excel.tables[table]?.maxColumns}');
-        print('maxRows: ${excel.tables[table]?.maxRows}');
+        gValue.logger.t('Sheet Name: $table'); //sheet Name
+        gValue.logger.t('maxColumns: ${excel.tables[table]?.maxColumns}');
+        gValue.logger.t('maxRows: ${excel.tables[table]?.maxRows}');
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         for (int rowIndex = 1;
@@ -1299,7 +1299,7 @@ class MyFile {
 
   static Future<List<OtRegister>> readExcelOtRegister() async {
     List<OtRegister> otRegisters = [];
-    print('readExcelOtRegister'); //sheet Name
+    gValue.logger.t('readExcelOtRegister'); //sheet Name
     gValue.logs.clear();
     try {
       File file = await getFile();
@@ -1309,25 +1309,25 @@ class MyFile {
       var sheet = excel.tables.keys.first;
 
       for (var table in excel.tables.keys) {
-        print('Sheet Name: $table'); //sheet Name
+        gValue.logger.t('Sheet Name: $table'); //sheet Name
 
-        print('maxColumns: ${excel.tables[table]?.maxColumns}');
-        print('maxRows: ${excel.tables[table]?.maxRows}');
+        gValue.logger.t('maxColumns: ${excel.tables[table]?.maxColumns}');
+        gValue.logger.t('maxRows: ${excel.tables[table]?.maxRows}');
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         if (table == 'OT Registers') {
-          print('get data in sheet : $table');
+          gValue.logger.t('get data in sheet : $table');
           for (int rowIndex = 1;
               rowIndex < excel.tables[table]!.maxRows;
               rowIndex++) {
             var row = [];
             row = excel.tables[table]!.rows[rowIndex];
-            print('row[1] : ${row[1].value.toString()}');
-            print('row[2] : ${row[2].value.toString()}');
-            print('row[3] : ${row[3].value.toString()}');
-            print('row[4] : ${row[4].value.toString()}');
-            print('row[5] : ${row[5].value.toString()}');
-            print('row[6] : ${row[6].value.toString()}');
+            gValue.logger.t('row[1] : ${row[1].value.toString()}');
+            gValue.logger.t('row[2] : ${row[2].value.toString()}');
+            gValue.logger.t('row[3] : ${row[3].value.toString()}');
+            gValue.logger.t('row[4] : ${row[4].value.toString()}');
+            gValue.logger.t('row[5] : ${row[5].value.toString()}');
+            gValue.logger.t('row[6] : ${row[6].value.toString()}');
             if (row[1] == null ||
                 row[2] == null ||
                 row[3] == null ||
@@ -1462,27 +1462,27 @@ class MyFile {
       var sheet = excel.tables.keys.first;
 
       for (var table in excel.tables.keys) {
-        print('Sheet Name: $table'); //sheet Name
-        print('maxColumns: ${excel.tables[table]?.maxColumns}');
-        print('maxRows: ${excel.tables[table]?.maxRows}');
+        gValue.logger.t('Sheet Name: $table'); //sheet Name
+        gValue.logger.t('maxColumns: ${excel.tables[table]?.maxColumns}');
+        gValue.logger.t('maxRows: ${excel.tables[table]?.maxRows}');
         gValue.logs.add(
             'Sheet Name: $table   Columns: ${excel.tables[table]?.maxColumns}   Rows: ${excel.tables[table]?.maxRows}\n');
         if (table == 'Leave Registers') {
-          print('get data in sheet : $table');
+          gValue.logger.t('get data in sheet : $table');
           for (int rowIndex = 1;
               rowIndex < excel.tables[table]!.maxRows;
               rowIndex++) {
             var row = [];
             row = excel.tables[table]!.rows[rowIndex];
-            // print('row[0] : ${row[0].value.toString()}');
-            // print('row[1] : ${row[1].value.toString()}');
-            // print('row[2] : ${row[2].value.toString()}');
-            // print('row[3] : ${row[3].value.toString()}');
-            // print('row[4] : ${row[4].value.toString()}');
-            // print('row[5] : ${row[5].value.toString()}');
-            // print('row[6] : ${row[6].value.toString()}');
-            // print('row[7] : ${row[7].value.toString()}');
-            // print('row[8] : ${row[8].value.toString()}');
+            // gValue.logger.t('row[0] : ${row[0].value.toString()}');
+            // gValue.logger.t('row[1] : ${row[1].value.toString()}');
+            // gValue.logger.t('row[2] : ${row[2].value.toString()}');
+            // gValue.logger.t('row[3] : ${row[3].value.toString()}');
+            // gValue.logger.t('row[4] : ${row[4].value.toString()}');
+            // gValue.logger.t('row[5] : ${row[5].value.toString()}');
+            // gValue.logger.t('row[6] : ${row[6].value.toString()}');
+            // gValue.logger.t('row[7] : ${row[7].value.toString()}');
+            // gValue.logger.t('row[8] : ${row[8].value.toString()}');
 
             if (row[1] == null ||
                 row[2] == null ||
@@ -1505,7 +1505,7 @@ class MyFile {
               type: row[7].value.toString(),
               note: row[8].value.toString(),
             );
-            // print('leaveRegister : $leaveRegister');
+            // gValue.logger.t('leaveRegister : $leaveRegister');
             leaveRegisters.add(leaveRegister);
             gValue.logs
                 .add('OK : Row $rowIndex: ${leaveRegister.toString()}\n');
@@ -1513,7 +1513,7 @@ class MyFile {
         }
       }
     } catch (e) {
-      print('readExcelLeaveRegister : $e');
+      gValue.logger.t('readExcelLeaveRegister : $e');
     }
     return leaveRegisters;
   }

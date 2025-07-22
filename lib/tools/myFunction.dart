@@ -50,9 +50,9 @@ class MyFuntion {
       listEmpIdpresent.add(log.empId!);
     }
     listEmpIdpresent = listEmpIdpresent.toSet().toList();
-    print(
+    gValue.logger.t(
         'createAttGeneralReport -dateInput: $dateInput    Total att record : ${attLogs.length}');
-    print('present : ${listEmpIdpresent.length}');
+    gValue.logger.t('present : ${listEmpIdpresent.length}');
     //--
     late int newlyJoinedD = 0,
         newlyJoinedI = 0,
@@ -293,7 +293,7 @@ class MyFuntion {
         .difference(gValue.employeeIdPresents.toSet())
         .toList();
 
-    print(
+    gValue.logger.t(
         'calculateAttendanceStatus :employeeIdPresents.length: ${gValue.employeeIdPresents.length}     \nemployeeIdAbsents.length: ${gValue.employeeIdAbsents.length}');
   }
 
@@ -318,7 +318,7 @@ class MyFuntion {
         }
       }
     }
-    print(
+    gValue.logger.t(
         'calculateEmployeeStatus : employeeIdNames.length: ${gValue.employeeIdNames.length}     employeeIdWorkings.length: ${gValue.employeeIdWorkings.length} employeeIdMaternityLeaves.length: ${gValue.employeeIdMaternityLeaves.length}  employeeIdPregnantYoungchilds.length: ${gValue.employeeIdPregnantYoungchilds.length}');
   }
 

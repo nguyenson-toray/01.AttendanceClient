@@ -14,7 +14,7 @@ Future<void> main() async {
     WindowManager.instance.setTitle('TIQN Attendance - Dev by: Sơn.NT');
   }
   await initPackageInfo();
-  print(gValue.packageInfo.toString());
+  gValue.logger.t(gValue.packageInfo.toString());
   gValue.pcName = Platform.localHostname;
   WidgetsFlutterBinding.ensureInitialized();
   // await gValue.realmService.initRealm();

@@ -101,10 +101,10 @@ class _HistoryUIState extends State<HistoryUI> {
           columns: columns,
           rows: rows,
           onChanged: (PlutoGridOnChangedEvent event) {
-            print('onChanged  :$event');
+            gValue.logger.t('onChanged  :$event');
           },
           onRowDoubleTap: (event) {
-            print('onRowDoubleTap');
+            gValue.logger.t('onRowDoubleTap');
           },
           onLoaded: (PlutoGridOnLoadedEvent event) {
             firstBuild = false;
@@ -112,10 +112,10 @@ class _HistoryUIState extends State<HistoryUI> {
             stateManager.setShowColumnFilter(true);
           },
           onSelected: (event) {
-            print('onSelected  :$event');
+            gValue.logger.t('onSelected  :$event');
           },
           onSorted: (event) {
-            print('onSorted  :$event');
+            gValue.logger.t('onSorted  :$event');
           },
         )),
       ],

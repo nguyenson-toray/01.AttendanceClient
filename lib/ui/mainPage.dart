@@ -219,7 +219,7 @@ class _MainPageState extends State<MainPage> {
             Expanded(
               child: PageView(
                 onPageChanged: (value) {
-                  print('Page index:$value');
+                  gValue.logger.t('Page index:$value');
                 },
                 controller: pageController,
                 children: const [

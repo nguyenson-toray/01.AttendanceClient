@@ -263,13 +263,13 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                   columns: getColumns(),
                                   rows: getRows(yearData),
                                   onChanged: (PlutoGridOnChangedEvent event) {
-                                    print('onChanged  :$event');
+                                    gValue.logger.t('onChanged  :$event');
                                   },
                                   onRowDoubleTap: (event) {
-                                    print('onRowDoubleTap');
+                                    gValue.logger.t('onRowDoubleTap');
                                   },
                                   onLoaded: (PlutoGridOnLoadedEvent event) {
-                                    print(' Timesheets - onLoaded');
+                                    gValue.logger.t(' Timesheets - onLoaded');
                                     // firstBuild = false;
                                     stateManager = event.stateManager;
                                     stateManager.setShowColumnFilter(true);
@@ -279,10 +279,10 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                         type: PlutoColumnType.number()));
                                   },
                                   onSelected: (event) {
-                                    print('onSelected  :$event');
+                                    gValue.logger.t('onSelected  :$event');
                                   },
                                   onSorted: (event) {
-                                    print('onSorted  :$event');
+                                    gValue.logger.t('onSorted  :$event');
                                   },
                                   rowColorCallback: (rowColorContext) {
                                     var value = rowColorContext
@@ -363,9 +363,9 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                       ? 'Minimize window'
                                       : 'Open window '),
                                   onPressed: () {
-                                    print(
+                                    gValue.logger.t(
                                         ' onPressed-isLoading: $isLoading monthName=$monthName');
-                                    print(gValue.timeSheetMonthYears[monthName]
+                                    gValue.logger.t(gValue.timeSheetMonthYears[monthName]
                                         ?.length);
                                     setState(() {
                                       expandYear = false;
@@ -439,13 +439,13 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                       rows: getRows(dataMonth),
                                       onChanged:
                                           (PlutoGridOnChangedEvent event) {
-                                        print('onChanged  :$event');
+                                        gValue.logger.t('onChanged  :$event');
                                       },
                                       onRowDoubleTap: (event) {
-                                        print('onRowDoubleTap');
+                                        gValue.logger.t('onRowDoubleTap');
                                       },
                                       onLoaded: (PlutoGridOnLoadedEvent event) {
-                                        print(' Timesheets - onLoaded');
+                                        gValue.logger.t(' Timesheets - onLoaded');
                                         stateManager = event.stateManager;
                                         stateManager.setShowColumnFilter(true);
                                         stateManager.sortDescending(PlutoColumn(
@@ -454,10 +454,10 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                             type: PlutoColumnType.number()));
                                       },
                                       onSelected: (event) {
-                                        print('onSelected  :$event');
+                                        gValue.logger.t('onSelected  :$event');
                                       },
                                       onSorted: (event) {
-                                        print('onSorted  :$event');
+                                        gValue.logger.t('onSorted  :$event');
                                       },
                                       rowColorCallback: (rowColorContext) {
                                         var value = rowColorContext

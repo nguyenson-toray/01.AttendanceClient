@@ -79,7 +79,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
       isDataChanged = false;
       return false;
     } else if (oldList.length != newList.length) {
-      print('checkDiff OtRegister : TRUE : Diff length');
+      gValue.logger.t('checkDiff OtRegister : TRUE : Diff length');
       diff = true;
       isDataChanged = true;
     } else {
@@ -87,7 +87,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
         if (oldList[i] != newList[i]) {
           isDataChanged = true;
           diff = true;
-          print('checkDiff OtRegister: TRUE : Diff element');
+          gValue.logger.t('checkDiff OtRegister: TRUE : Diff element');
           break;
         }
       }
@@ -97,7 +97,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
 
   Future<void> refreshData() async {
     if (refreshDataCancel) {
-      print('refreshData- refreshDataCancel = true');
+      gValue.logger.t('refreshData- refreshDataCancel = true');
       return;
     }
     List<OtRegister> newList = [];
@@ -157,7 +157,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
       lastUpdate = DateTime.now();
     });
     if (checkDiff(gValue.otRegisters, newList) && mounted) {
-      print(
+      gValue.logger.t(
           'OtRegisterUI Data changed : ${gValue.otRegisters.length} => ${newList.length} records');
       gValue.otRegisters = newList;
       setState(() {
@@ -416,14 +416,14 @@ class _OtRegisterUIState extends State<OtRegisterUI>
               columns: columns,
               rows: rows,
               onChanged: (event) {
-                print('onChanged : $event');
+                gValue.logger.t('onChanged : $event');
 
                 setState(() {
                   if (newOrEdit == '') newOrEdit = 'edit';
                   rowIdChanged = event.rowIdx;
                   colIdChange = event.columnIdx;
                   rowChangedJson = stateManager.currentRow!.toJson();
-                  print(
+                  gValue.logger.t(
                       '=>>> rowIdChanged: $rowIdChanged     colIdChange: $colIdChange  rowChangedJson: $rowChangedJson ');
 
                   if (colIdChange == 2) {
@@ -436,7 +436,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                 });
               },
               onLoaded: (PlutoGridOnLoadedEvent event) {
-                print('onLoaded');
+                gValue.logger.t('onLoaded');
                 firstBuild = false;
                 stateManager = event.stateManager;
                 stateManager.setShowColumnFilter(true);
@@ -477,7 +477,7 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                 ),
                 onPressed: () {
                   var row = rendererContext.row.toJson();
-                  print(row);
+                  gValue.logger.t(row);
                   var style = const TextStyle(
                       color: Colors.redAccent,
                       fontSize: 16,
@@ -684,8 +684,8 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                     }
                     refreshDataCancel = true;
                     var row = rendererContext.row.toJson();
-                    print(row);
-                    print(row);
+                    gValue.logger.t(row);
+                    gValue.logger.t(row);
                     var style = const TextStyle(
                         color: Colors.redAccent,
                         fontSize: 16,

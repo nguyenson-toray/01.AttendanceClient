@@ -19,25 +19,25 @@
 
 //   setTotal(int count) {
 //     total = count;
-//     print('EmployeeSummary setTotal : $total');
+//     gValue.logger.t('EmployeeSummary setTotal : $total');
 //     notifyListeners();
 //   }
 
 //   setWorking(int count) {
 //     working = count;
-//     print('EmployeeSummary setWorking : $working');
+//     gValue.logger.t('EmployeeSummary setWorking : $working');
 //     notifyListeners();
 //   }
 
 //   setMaternity(int count) {
 //     maternity = count;
-//     print('EmployeeSummary setMaternity : $maternity');
+//     gValue.logger.t('EmployeeSummary setMaternity : $maternity');
 //     notifyListeners();
 //   }
 
 //   setResigned(int count) {
 //     resigned = count;
-//     print('EmployeeSummary setMaternity : $resigned');
+//     gValue.logger.t('EmployeeSummary setMaternity : $resigned');
 //     notifyListeners();
 //   }
 

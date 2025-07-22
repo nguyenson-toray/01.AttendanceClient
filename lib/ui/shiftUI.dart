@@ -34,7 +34,7 @@ class _ShiftUIState extends State<ShiftUI> with AutomaticKeepAliveClientMixin {
       gValue.shifts = newList;
       setState(() {
         if (!firstBuild) {
-          print('ShiftUI Data changed => ${newList.length}');
+          gValue.logger.t('ShiftUI Data changed => ${newList.length}');
           rows = getRows(gValue.shifts);
 
           stateManager.removeRows(stateManager.rows);
@@ -65,7 +65,7 @@ class _ShiftUIState extends State<ShiftUI> with AutomaticKeepAliveClientMixin {
         columns: columns,
         rows: rows,
         onLoaded: (PlutoGridOnLoadedEvent event) {
-          print('onLoaded');
+          gValue.logger.t('onLoaded');
           firstBuild = false;
           stateManager = event.stateManager;
           stateManager.setShowColumnFilter(false);

@@ -82,7 +82,7 @@ class _AttLogUIState extends State<AttLogUI>
   }
 
   Future<void> refreshData(DateTime timeBegin, DateTime timeEnd) async {
-    print(
+    gValue.logger.t(
         'refreshData : $timeBegin - $timeEnd - updateMode:$updateMode - isLoaded : $isLoaded   - _isDisposed: $_isDisposed - isFilter: ${checkIsFilter()}');
 
     if (_isDisposed || !mounted) return;
@@ -251,8 +251,8 @@ class _AttLogUIState extends State<AttLogUI>
                             absents.add(gValue.employees.firstWhere(
                                 (element) => element.empId == empId));
                           }
-                          print('timeBegin : $timeBegin');
-                          print('timeEnd : $timeEnd');
+                          gValue.logger.t('timeBegin : $timeBegin');
+                          gValue.logger.t('timeEnd : $timeEnd');
                           // var listAbsentInDate = await gValue.mongoDb
                           //     .getLeaveRegisterByRangeDate(timeBegin, timeEnd);
                           MyFile.createExcelEmployeeAbsent(
@@ -406,8 +406,8 @@ class _AttLogUIState extends State<AttLogUI>
 
                         List<AttLog> attLogs1 =
                             await gValue.mongoDb.getAttLogs(begin, end);
-                        print('${otRegister1.length}');
-                        print('${attLogs1.length}');
+                        gValue.logger.t('${otRegister1.length}');
+                        gValue.logger.t('${attLogs1.length}');
                         MyFile.createExcelTimeSheet(
                             MyFuntion.createTimeSheetsDate(
                                 gValue.employees,
@@ -541,7 +541,7 @@ class _AttLogUIState extends State<AttLogUI>
                                                           .split('   ')[0];
                                                       empName = employeeIdName
                                                           .split('   ')[1];
-                                                      print(
+                                                      gValue.logger.t(
                                                           'select: $empId   $empName');
                                                     });
                                                   },
@@ -886,7 +886,7 @@ class _AttLogUIState extends State<AttLogUI>
                     ),
                     TextButton.icon(
                       onPressed: () {
-                        print('(gValue.attLogs : ${gValue.attLogs.length}');
+                        gValue.logger.t('(gValue.attLogs : ${gValue.attLogs.length}');
                         MyFile.createExcelAttLog(
                             gValue.attLogs
                                 .where((log) => log.empId.contains('TIQN'))
@@ -1109,7 +1109,7 @@ class _AttLogUIState extends State<AttLogUI>
           columns: columns,
           rows: rows,
           onChanged: (PlutoGridOnChangedEvent event) {
-            print('onChanged  :$event');
+            gValue.logger.t('onChanged  :$event');
             // setState(() {
             //   checkIsFilter()
             //       ? labelExportTimesheetsDays =
@@ -1118,20 +1118,20 @@ class _AttLogUIState extends State<AttLogUI>
             // });
           },
           onRowDoubleTap: (event) {
-            print('onRowDoubleTap');
+            gValue.logger.t('onRowDoubleTap');
           },
           onLoaded: (PlutoGridOnLoadedEvent event) {
-            print('onLoaded');
+            gValue.logger.t('onLoaded');
             firstBuild = false;
             stateManager = event.stateManager;
             stateManager.setShowColumnFilter(true);
-            print('rows lenght : ${rows.length}');
+            gValue.logger.t('rows lenght : ${rows.length}');
           },
           onSelected: (event) {
-            print('onSelected  :$event');
+            gValue.logger.t('onSelected  :$event');
           },
           onSorted: (event) {
-            print('onSorted  :$event');
+            gValue.logger.t('onSorted  :$event');
           },
           // on filter
         )),
@@ -1161,7 +1161,7 @@ class _AttLogUIState extends State<AttLogUI>
                         ),
                         onPressed: () async {
                           var row = rendererContext.row.toJson();
-                          print('onPressed: $row');
+                          gValue.logger.t('onPressed: $row');
                           var style = const TextStyle(
                               color: Colors.redAccent,
                               fontSize: 16,
@@ -1190,7 +1190,7 @@ class _AttLogUIState extends State<AttLogUI>
                               .firstWhere(
                                   (element) => element.attFingerId == fingerId)
                               .name!;
-                          print(
+                          gValue.logger.t(
                               'fingerId : $fingerId\nempIdUpdate: $empIdUpdate\nempNameUpdate:$empNameUpdate\ntimeStamp: $timeStamp\nobjectId: $objectId');
                           await gValue.mongoDb.deleteOneAttLog(
                               row['objectId'].toString().substring(10, 34));
@@ -1253,7 +1253,7 @@ class _AttLogUIState extends State<AttLogUI>
                       return;
                     }
                     var row = rendererContext.row.toJson();
-                    print(row);
+                    gValue.logger.t(row);
                     var style = const TextStyle(
                         color: Colors.redAccent,
                         fontSize: 16,
@@ -1353,7 +1353,7 @@ class _AttLogUIState extends State<AttLogUI>
   }
 
   List<DateTime> getDateRangeSimple(String dateRangeString) {
-    print('getDateRangeSimple : $dateRangeString');
+    gValue.logger.t('getDateRangeSimple : $dateRangeString');
     // dateRange = 'PickerDateRange#6494f(startDate: 2025-07-18 00:00:00.000, endDate: 2025-07-18 00:00:00.000)'
     List<DateTime> result = [];
 
@@ -1389,7 +1389,7 @@ class _AttLogUIState extends State<AttLogUI>
         result.add(endDate);
       }
     } catch (e) {
-      print('Error parsing date range string: $e');
+      gValue.logger.t('Error parsing date range string: $e');
     }
 
     return result;
@@ -1414,7 +1414,7 @@ class _AttLogUIState extends State<AttLogUI>
             .firstWhere((element) => element.empId == log.empId)
             .group;
       } catch (e) {
-        // print('Error finding group for empId ${log.empId}: $e');
+        // gValue.logger.t('Error finding group for empId ${log.empId}: $e');
       }
 
       rows.add(
@@ -1500,7 +1500,7 @@ class _AttLogUIState extends State<AttLogUI>
     setState(() {
       exportTimeSheetDaysVisible = false;
     });
-    print(
+    gValue.logger.t(
         'onSelectionChanged :\n Input ${args.value}\n Output timeBegin: $timeBegin, timeEnd: $timeEnd  ');
   }
 
@@ -1518,7 +1518,7 @@ class _AttLogUIState extends State<AttLogUI>
         minute: 59,
       ));
     });
-    print('onSelectionChangedAddRecord : dateAddRecord: $dateAddRecord  ');
+    gValue.logger.t('onSelectionChangedAddRecord : dateAddRecord: $dateAddRecord  ');
   }
 
   chartPresent(int workingNormal, int maternityLeave, int present, int absent) {

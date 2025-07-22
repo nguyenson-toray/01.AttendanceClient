@@ -44,13 +44,13 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
     bool diff = false;
     if (newList.isEmpty) return false;
     if (oldList.length != newList.length) {
-      print('checkDiff ShiftRegister : TRUE : Diff length');
+      gValue.logger.t('checkDiff ShiftRegister : TRUE : Diff length');
       diff = true;
     } else {
       for (int i = 0; i < oldList.length; i++) {
         if (oldList[i] != newList[i]) {
           diff = true;
-          print('checkDiff ShiftRegister: TRUE : Diff element');
+          gValue.logger.t('checkDiff ShiftRegister: TRUE : Diff element');
           break;
         }
       }
@@ -66,7 +66,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
     List<ShiftRegister> newList =
         await gValue.mongoDb.getShiftRegisterByYear(yearNo);
     if (checkDiff(gValue.shiftRegisters, newList)) {
-      print(
+      gValue.logger.t(
           'ShistRegisterUI Data changed : ${gValue.shiftRegisters.length} => ${newList.length} records');
       gValue.shiftRegisters = newList;
       setState(() {
@@ -304,13 +304,13 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
               columns: columns,
               rows: rows,
               onChanged: (event) {
-                print('onChanged : $event');
+                gValue.logger.t('onChanged : $event');
                 setState(() {
                   if (newOrEdit == '') newOrEdit = 'edit';
                   rowIdChanged = event.rowIdx;
                   colIdChange = event.columnIdx;
                   rowChangedJson = stateManager.currentRow!.toJson();
-                  print(
+                  gValue.logger.t(
                       '=>>> rowIdChanged: $rowIdChanged     colIdChange: $colIdChange  rowChangedJson: $rowChangedJson ');
 
                   if (colIdChange == 2) {
@@ -323,13 +323,13 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                 });
               },
               onSelected: (event) {
-                print('onSelected $event');
+                gValue.logger.t('onSelected $event');
               },
               onRowChecked: (event) {
-                print('onRowChecked $event');
+                gValue.logger.t('onRowChecked $event');
               },
               onLoaded: (PlutoGridOnLoadedEvent event) {
-                print('onLoaded');
+                gValue.logger.t('onLoaded');
                 firstBuild = false;
                 stateManager = event.stateManager;
                 stateManager.setShowColumnFilter(true);
@@ -395,7 +395,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                     return;
                   }
                   var row = rendererContext.row.toJson();
-                  print(row);
+                  gValue.logger.t(row);
                   var style = const TextStyle(
                       color: Colors.redAccent,
                       fontSize: 16,

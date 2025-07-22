@@ -76,7 +76,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
       isDataChanged = false;
       return false;
     } else if (oldList.length != newList.length) {
-      print('checkDiff OtRegister : TRUE : Diff length');
+      gValue.logger.t('checkDiff OtRegister : TRUE : Diff length');
       diff = true;
       isDataChanged = true;
     } else {
@@ -84,7 +84,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
         if (oldList[i] != newList[i]) {
           isDataChanged = true;
           diff = true;
-          print('checkDiff OtRegister: TRUE : Diff element');
+          gValue.logger.t('checkDiff OtRegister: TRUE : Diff element');
           break;
         }
       }
@@ -94,7 +94,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
 
   Future<void> refreshData() async {
     if (refreshDataCancel) {
-      print('refreshData- refreshDataCancel = true');
+      gValue.logger.t('refreshData- refreshDataCancel = true');
       return;
     }
     List<LeaveRegister> newList = [];
@@ -105,7 +105,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
       newList = await gValue.mongoDb.getLeaveRegister();
     }
     if (checkDiff(gValue.leaveRegisters, newList) && mounted) {
-      print(
+      gValue.logger.t(
           'LeaveRegisterUI Data changed : ${gValue.leaveRegisters.length} => ${newList.length} records');
       gValue.leaveRegisters = newList;
       setState(() {
@@ -305,14 +305,14 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
               columns: columns,
               rows: rows,
               onChanged: (event) {
-                print('onChanged : $event');
+                gValue.logger.t('onChanged : $event');
 
                 setState(() {
                   if (newOrEdit == '') newOrEdit = 'edit';
                   rowIdChanged = event.rowIdx;
                   colIdChange = event.columnIdx;
                   rowChangedJson = stateManager.currentRow!.toJson();
-                  print(
+                  gValue.logger.t(
                       '=>>> rowIdChanged: $rowIdChanged     colIdChange: $colIdChange  rowChangedJson: $rowChangedJson ');
 
                   if (colIdChange == 2) {
@@ -325,7 +325,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                 });
               },
               onLoaded: (PlutoGridOnLoadedEvent event) {
-                print('onLoaded');
+                gValue.logger.t('onLoaded');
                 firstBuild = false;
                 stateManager = event.stateManager;
                 stateManager.setShowColumnFilter(true);
@@ -387,7 +387,7 @@ class _LeaveRegisterUIState extends State<LeaveRegisterUI>
                     }
                     refreshDataCancel = true;
                     var row = rendererContext.row.toJson();
-                    print(row);
+                    gValue.logger.t(row);
                     var style = const TextStyle(
                         color: Colors.redAccent,
                         fontSize: 16,
