@@ -31,7 +31,7 @@ class MongoDb {
       ipServer = '10.0.1.4';
     } else {
       ipServer = 'localhost';
-      // ipServer = '10.0.1.4';
+      ipServer = '10.0.1.4';
     }
     db = Db("mongodb://$ipServer:27017/tiqn");
     try {
@@ -48,7 +48,7 @@ class MongoDb {
       colLeaveRegister = db.collection('LeaveRegister');
       gValue.isConectedDb = true;
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
       gValue.isConectedDb = false;
     }
   }
@@ -58,13 +58,13 @@ class MongoDb {
     String permission = 'no';
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       await colListPc.find().forEach((item) => {allowEdit = item['allowEdit']});
       await colListPc.find().forEach((item) => {allowRead = item['allowRead']});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     if (allowEdit.contains(pcName)) {
       return 'edit';
@@ -78,14 +78,14 @@ class MongoDb {
   getConfig() async {
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       List<Map<String, dynamic>> result = [];
       result = await colConfig.find().toList();
       gValue.showObjectId = result.first['showObjectId'];
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
@@ -93,14 +93,14 @@ class MongoDb {
     List<Shift> result = [];
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       await colShift
           .find(where.sortBy('shift', descending: false))
           .forEach((shift) => {result.add(Shift.fromMap(shift))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
 
     return result;
@@ -110,14 +110,14 @@ class MongoDb {
     List<Employee> result = [];
     try {
       if (!db.isConnected) {
-        print('getEmployees - DB not connected, try connect again');
+        gValue.logger.t('getEmployees - DB not connected, try connect again');
         await initDB();
       }
       await colEmployee
           .find(where.sortBy('empId', descending: true))
           .forEach((emp) => {result.add(Employee.fromMap(emp))});
     } catch (e) {
-      print('getEmployees: $e');
+      gValue.logger.t('getEmployees: $e');
     }
 
     return result;
@@ -126,19 +126,20 @@ class MongoDb {
   Future<void> removeEmployee(String empId) async {
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       await colEmployee.deleteOne({"empId": empId});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> insertManyEmployees(List<Employee> inputEmps) async {
     try {
       if (!db.isConnected) {
-        print('insertManyEmployees - DB not connected, try connect again');
+        gValue.logger
+            .t('insertManyEmployees - DB not connected, try connect again');
         await initDB();
       }
       List<Employee> allEmps = await getEmployees();
@@ -162,7 +163,7 @@ class MongoDb {
         });
       }
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
@@ -170,7 +171,7 @@ class MongoDb {
     List<AttLog> result = [];
     try {
       if (!db.isConnected) {
-        print('getAttLogs DB not connected, try connect again');
+        gValue.logger.t('getAttLogs DB not connected, try connect again');
         await initDB();
       }
       await colAttLog
@@ -181,10 +182,10 @@ class MongoDb {
               )
           .forEach((log) => {result.add(AttLog.fromMap(log))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
-    // print(
-    //     'getAttLogs ${timneBegin}  to ${timeEnd} => ${result.length} records');
+    gValue.logger.t(
+        'getAttLogs ${timneBegin}  to ${timeEnd} => ${result.length} records');
     return result;
   }
 
@@ -192,15 +193,16 @@ class MongoDb {
     if (objectIdString.isNotEmpty) {
       try {
         if (!db.isConnected) {
-          print('deleteOneAttLog DB not connected, try connect again');
+          gValue.logger
+              .t('deleteOneAttLog DB not connected, try connect again');
           await initDB();
         }
 
-        print('deleteOneAttLog :$objectIdString');
+        gValue.logger.t('deleteOneAttLog :$objectIdString');
         var myObjectId = ObjectId.parse(objectIdString);
         await colAttLog.deleteOne({"_id": myObjectId});
       } catch (e) {
-        print(e);
+        gValue.logger.t(e);
       }
     }
   }
@@ -209,17 +211,17 @@ class MongoDb {
     if (logs.isNotEmpty) {
       try {
         if (!db.isConnected) {
-          print('insertAttLogs DB not connected, try connect again');
+          gValue.logger.t('insertAttLogs DB not connected, try connect again');
           await initDB();
         }
         List<Map<String, dynamic>> maps = [];
         for (var element in logs) {
-          print('insertAttLogs element : $element');
+          gValue.logger.t('insertAttLogs element : $element');
           maps.add(element.toMap());
         }
         await colAttLog.insertMany(maps);
       } catch (e) {
-        print(e);
+        gValue.logger.t(e);
       }
     }
   }
@@ -228,7 +230,7 @@ class MongoDb {
     List<ShiftRegister> result = [];
     try {
       if (!db.isConnected) {
-        print('getShiftRegister DB not connected, try connect again');
+        gValue.logger.t('getShiftRegister DB not connected, try connect again');
         await initDB();
       }
       await colShiftRegister
@@ -236,7 +238,7 @@ class MongoDb {
           .find()
           .forEach((e) => {result.add(ShiftRegister.fromMap(e))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }
@@ -265,7 +267,7 @@ class MongoDb {
     }
     try {
       if (!db.isConnected) {
-        print('getShiftRegister DB not connected, try connect again');
+        gValue.logger.t('getShiftRegister DB not connected, try connect again');
         await initDB();
       }
       await colShiftRegister
@@ -273,7 +275,7 @@ class MongoDb {
               where.gte('toDate', timeBegin).and(where.lte('toDate', timeEnd)))
           .forEach((e) => {result.add(ShiftRegister.fromMap(e))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }
@@ -282,14 +284,15 @@ class MongoDb {
     if (objectIdString.isNotEmpty) {
       try {
         if (!db.isConnected) {
-          print('deleteOneShiftRegister DB not connected, try connect again');
+          gValue.logger
+              .t('deleteOneShiftRegister DB not connected, try connect again');
           await initDB();
         }
-        print('deleteOneShiftRegister :$objectIdString');
+        gValue.logger.t('deleteOneShiftRegister :$objectIdString');
         var myObjectId = ObjectId.parse(objectIdString);
         await colShiftRegister.deleteOne({"_id": myObjectId});
       } catch (e) {
-        print(e);
+        gValue.logger.t(e);
       }
     }
   }
@@ -297,33 +300,35 @@ class MongoDb {
   Future<void> addOneShiftRegister(ShiftRegister shiftRegister) async {
     try {
       if (!db.isConnected) {
-        print('addOneShiftRegister DB not connected, try connect again');
+        gValue.logger
+            .t('addOneShiftRegister DB not connected, try connect again');
         await initDB();
       }
       await colShiftRegister.insertOne(shiftRegister.toMap());
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> addOneShiftRegisterFromMap(Map shiftRegister) async {
     try {
       if (!db.isConnected) {
-        print('addOneShiftRegisterFromMap DB not connected, try connect again');
+        gValue.logger.t(
+            'addOneShiftRegisterFromMap DB not connected, try connect again');
         await initDB();
       }
       await colShiftRegister.insertOne(shiftRegister);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> updateOneShiftRegisterByObjectId(
       String objectIdString, String key, dynamic value) async {
-    print('updateOneShiftRegisterByObjectId');
+    gValue.logger.t('updateOneShiftRegisterByObjectId');
     try {
       if (!db.isConnected) {
-        print(
+        gValue.logger.t(
             'updateOneShiftRegisterByObjectId DB not connected, try connect again');
         await initDB();
       }
@@ -331,14 +336,14 @@ class MongoDb {
       await colShiftRegister.updateOne(
           where.eq('_id', myObjectId), modify.set(key, value));
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> insertShiftRegisters(List<ShiftRegister> shiftRegisters) async {
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       List<Map<String, dynamic>> maps = [];
@@ -349,29 +354,29 @@ class MongoDb {
       }
       await colShiftRegister.insertMany(maps);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<List<History>> getHistoryAll() async {
-    print('getHistoryAll');
+    gValue.logger.t('getHistoryAll');
     List<History> result = [];
     try {
       if (!db.isConnected) {
-        print('getHistoryAll DB not connected, try connect again');
+        gValue.logger.t('getHistoryAll DB not connected, try connect again');
         await initDB();
       }
       await colHistory
           .find(where.sortBy('time', descending: false))
           .forEach((history) => {result.add(History.fromMap(history))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }
 
   Future<List<History>> getHistoryByYear(int year) async {
-    print('getHistoryAll');
+    gValue.logger.t('getHistoryAll');
     late DateTime timeBegin, timeEnd;
     if (year == 2024) {
       timeBegin = DateTime(2023, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
@@ -395,7 +400,7 @@ class MongoDb {
     List<History> result = [];
     try {
       if (!db.isConnected) {
-        print('getHistoryAll DB not connected, try connect again');
+        gValue.logger.t('getHistoryAll DB not connected, try connect again');
         await initDB();
       }
       await colHistory
@@ -405,26 +410,26 @@ class MongoDb {
               .sortBy('time', descending: false))
           .forEach((history) => {result.add(History.fromMap(history))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }
 
   Future<void> insertHistory(List<History> histories) async {
-    // print('insertHistory : $histories');
+    // gValue.logger.t('insertHistory : $histories');
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       List<Map<String, dynamic>> maps = [];
       for (var history in histories) {
-        print(history);
+        gValue.logger.t(history);
         maps.add(history.toMap());
       }
       await colHistory.insertMany(maps);
     } catch (e) {
-      print('insertHistory: $e');
+      gValue.logger.t('insertHistory: $e');
     }
   }
 
@@ -433,7 +438,8 @@ class MongoDb {
     List<OtRegister> result = [];
     try {
       if (!db.isConnected) {
-        print('getOTRegisterByRangeDate DB not connected, try connect again');
+        gValue.logger
+            .t('getOTRegisterByRangeDate DB not connected, try connect again');
         await initDB();
       }
 
@@ -444,21 +450,21 @@ class MongoDb {
               .sortBy('otDate', descending: true))
           .forEach((ot) => {result.add(OtRegister.fromMap(ot))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
-    // print('getOTRegisterByRangeDate: timeBegin: $timeBegin timeEnd:$timeEnd');
-    // print('====> ${result.length}');
+    // gValue.logger.t('getOTRegisterByRangeDate: timeBegin: $timeBegin timeEnd:$timeEnd');
+    // gValue.logger.t('====> ${result.length}');
     return result;
   }
 
   Future<List<OtRegister>> getOTRegisterAll() async {
-    print('--------------getOTRegisterAll');
+    gValue.logger.t('--------------getOTRegisterAll');
     List<OtRegister> result = [];
     DateTime date = DateTime.utc(2024, 12, 25, 0, 0, 0);
     try {
       // Kiểm tra kết nối DB
       if (!db.isConnected) {
-        print('getOTRegisterAll DB not connected, try connect again');
+        gValue.logger.t('getOTRegisterAll DB not connected, try connect again');
         await initDB();
       }
 
@@ -467,18 +473,18 @@ class MongoDb {
 
       // Thực hiện query và chuyển đổi kết quả
       await colOtRegister.find(query).forEach((ot) {
-        print('--------------ot: $ot');
+        gValue.logger.t('--------------ot: $ot');
         try {
           result.add(OtRegister.fromMap(ot));
         } catch (e) {
-          print('Error parsing OT record: $e');
-          // Có thể log thêm data gốc để debug: print('Raw data: $ot');
+          gValue.logger.t('Error parsing OT record: $e');
+          // Có thể log thêm data gốc để debug: gValue.logger.t('Raw data: $ot');
         }
       });
 
       return result;
     } catch (e) {
-      print('Error in getOTRegisterAll: $e');
+      gValue.logger.t('Error in getOTRegisterAll: $e');
       // Có thể throw exception để caller xử lý
       // throw Exception('Failed to fetch OT registers: $e');
       return result;
@@ -489,45 +495,47 @@ class MongoDb {
     if (id <= 0) return;
     try {
       if (!db.isConnected) {
-        print('deleteOneOtRegister DB not connected, try connect again');
+        gValue.logger
+            .t('deleteOneOtRegister DB not connected, try connect again');
         await initDB();
       }
-      print('deleteOneOtRegister :$id');
+      gValue.logger.t('deleteOneOtRegister :$id');
 
       await colOtRegister.deleteOne({"_id": id});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> addOneOtRegister(OtRegister otRegister) async {
     try {
       if (!db.isConnected) {
-        print('addOneOtRegister DB not connected, try connect again');
+        gValue.logger.t('addOneOtRegister DB not connected, try connect again');
         await initDB();
       }
       await colOtRegister.insertOne(otRegister.toMap());
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> addOneOtRegisterFromMap(Map otRegister) async {
     try {
       if (!db.isConnected) {
-        print('addOneOtRegisterFromMap DB not connected, try connect again');
+        gValue.logger
+            .t('addOneOtRegisterFromMap DB not connected, try connect again');
         await initDB();
       }
       await colOtRegister.insertOne(otRegister);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> updateOneOtRegisterByObjectId(
       String objectIdString, String key, dynamic value) async {
     if (!db.isConnected) {
-      print('DB not connected, try connect again');
+      gValue.logger.t('DB not connected, try connect again');
       initDB();
     }
     if (!db.isConnected) return;
@@ -539,7 +547,8 @@ class MongoDb {
   Future<void> insertOtRegisters(List<OtRegister> otRegisters) async {
     try {
       if (!db.isConnected) {
-        print('insertOtRegisters DB not connected, try connect again');
+        gValue.logger
+            .t('insertOtRegisters DB not connected, try connect again');
         await initDB();
       }
       List<Map<String, dynamic>> maps = [];
@@ -547,12 +556,12 @@ class MongoDb {
       for (var element in otRegisters) {
         maxId++;
         element.id = maxId;
-        print(element);
+        gValue.logger.t(element);
         maps.add(element.toMap());
       }
       await colOtRegister.insertMany(maps);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
@@ -560,16 +569,17 @@ class MongoDb {
     int max = -1;
     try {
       if (!db.isConnected) {
-        print('insertOtRegisters DB not connected, try connect again');
+        gValue.logger
+            .t('insertOtRegisters DB not connected, try connect again');
         await initDB();
       }
 
       var temp = await colOtRegister
           .find(where.sortBy('_id', descending: true).limit(1))
           .forEach((ot) => {max = ot['_id']});
-      print('getMaxIdOtRegisters: max id = $max');
+      gValue.logger.t('getMaxIdOtRegisters: max id = $max');
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return max;
   }
@@ -579,7 +589,8 @@ class MongoDb {
     List<TimeSheetMonthYear> result = [];
     try {
       if (!db.isConnected) {
-        print('getTimesheetsMonthYear - DB not connected, try connect again');
+        gValue.logger
+            .t('getTimesheetsMonthYear - DB not connected, try connect again');
         await initDB();
       }
 
@@ -588,21 +599,23 @@ class MongoDb {
               // .sortBy('monthYear', descending: true)
               )
           .forEach((ts) => {result.add(TimeSheetMonthYear.fromMap(ts))});
-      // print('getAllEmployee => ${result.length} records');
+      // gValue.logger.t('getAllEmployee => ${result.length} records');
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
-    print('getTimesheetsMonthYear : -$monthYear--------> ${result.length}');
+    gValue.logger
+        .t('getTimesheetsMonthYear : -$monthYear--------> ${result.length}');
     return result;
   }
 
   Future<void> updateTimesheetsMonthYear(
       List<TimeSheetMonthYear> timeSheetMonthYear, String monthYear) async {
-    print(
+    gValue.logger.t(
         'updateTimesheetsMonthYear updateTimesheetsMonthYear: ${timeSheetMonthYear.length} monthYear: $monthYear ');
     try {
       if (!db.isConnected) {
-        print('insertOtRegisters DB not connected, try connect again');
+        gValue.logger
+            .t('insertOtRegisters DB not connected, try connect again');
         await initDB();
       }
       await colTimesheetsMonthYear.deleteMany({"monthYear": monthYear});
@@ -612,23 +625,23 @@ class MongoDb {
       }
       await colTimesheetsMonthYear.insertMany(maps);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<List<LeaveRegister>> getLeaveRegister() async {
-    // print('getLeaveRegister');
+    // gValue.logger.t('getLeaveRegister');
     List<LeaveRegister> result = [];
     try {
       if (!db.isConnected) {
-        print('getLeaveRegister DB not connected, try connect again');
+        gValue.logger.t('getLeaveRegister DB not connected, try connect again');
         await initDB();
       }
       await colLeaveRegister
           .find(where.sortBy('no', descending: true))
           .forEach((leave) => {result.add(LeaveRegister.fromMap(leave))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }
@@ -636,7 +649,7 @@ class MongoDb {
   Future<void> insertLeaveRegister(List<LeaveRegister> leaveRegister) async {
     try {
       if (!db.isConnected) {
-        print('DB not connected, try connect again');
+        gValue.logger.t('DB not connected, try connect again');
         await initDB();
       }
       List<Map<String, dynamic>> maps = [];
@@ -645,32 +658,34 @@ class MongoDb {
       }
       await colLeaveRegister.insertMany(maps);
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> deleteOneLeaveRegister(String no) async {
     try {
       if (!db.isConnected) {
-        print('deleteOneLeaveRegister DB not connected, try connect again');
+        gValue.logger
+            .t('deleteOneLeaveRegister DB not connected, try connect again');
         await initDB();
       }
-      print('deleteOneLeaveRegister :$no');
+      gValue.logger.t('deleteOneLeaveRegister :$no');
       await colLeaveRegister.deleteOne({"no": no});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
   Future<void> addOneleaveRegister(LeaveRegister leaveRegister) async {
     try {
       if (!db.isConnected) {
-        print('addOneleaveRegister DB not connected, try connect again');
+        gValue.logger
+            .t('addOneleaveRegister DB not connected, try connect again');
         await initDB();
       }
       await colLeaveRegister.insertOne(leaveRegister.toMap());
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
   }
 
@@ -682,7 +697,7 @@ class MongoDb {
 
     try {
       if (!db.isConnected) {
-        print(
+        gValue.logger.t(
             'getLeaveRegisterByRangeDate DB not connected, try connect again');
         await initDB();
       }
@@ -697,7 +712,7 @@ class MongoDb {
               .sortBy('no', descending: true))
           .forEach((record) => {result.add(LeaveRegister.fromMap(record))});
     } catch (e) {
-      print(e);
+      gValue.logger.t(e);
     }
     return result;
   }

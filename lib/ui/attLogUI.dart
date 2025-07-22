@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:tiqn/database/attLog.dart';
 import 'package:tiqn/database/employee.dart';
@@ -28,25 +28,21 @@ class _AttLogUIState extends State<AttLogUI>
   bool _isDisposed = false;
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
-  late DateTime timeBegin, timeEnd, dateAddRecord, lastUpdate;
+  late DateTime timeBegin, timeEnd, dateAddRecord;
   var listOfEmpIdPresent = [];
   String selectedMonth = '';
   String labelExportTimesheetsDays = 'Export timesheets - Days - With filtered';
   String labelExportTimesheetsMonth = 'Export timesheets - Full month';
+  String status = '';
   List<String> monthYears2025 = [];
   late final PlutoGridStateManager stateManager;
-  bool firstBuild = true,
-      showButtonOKSellectRangeDate = false,
-      isLoaded = true,
-      exportTimeSheetDaysVisible = true,
-      pauseLoad = false,
-      refreshDataCancel = false;
+  bool firstBuild = true, isLoaded = true, exportTimeSheetDaysVisible = true;
   int countNoName = 0;
+  String updateMode = 'manual'; // manual, auto
 
   @override
   void initState() {
     // TODO: implement initState
-    lastUpdate = DateTime.now();
     monthYears2025 = MyFuntion.getMonthYearList('2025');
     selectedMonth = monthYears2025.first;
     timeBegin = DateTime.now().appliedFromTimeOfDay(const TimeOfDay(
@@ -60,13 +56,16 @@ class _AttLogUIState extends State<AttLogUI>
     dateAddRecord = timeBegin;
     Future.delayed(Durations.long2).then(
       (value) {
-        Timer.periodic(const Duration(minutes: 1),
-            (_) => refreshData(timeBegin, timeEnd, false));
+        Timer.periodic(const Duration(seconds: 10),
+            (_) => refreshData(timeBegin, timeEnd));
       },
     );
 
     columns = getColumns();
     rows = getRows(gValue.attLogs);
+    status =
+        'Last update: ${DateFormat('HH:mm:ss').format(DateTime.now())}   Range Date : ${DateFormat('dd/MM/yyyy').format(timeBegin)} - ${DateFormat('dd/MM/yyyy').format(timeEnd)}';
+
     super.initState();
   }
 
@@ -82,68 +81,64 @@ class _AttLogUIState extends State<AttLogUI>
     return isFilter;
   }
 
-  Future<void> refreshData(
-      DateTime timeBegin, DateTime timeEnd, bool forceLoadData) async {
+  Future<void> refreshData(DateTime timeBegin, DateTime timeEnd) async {
     print(
-        'refreshData : $timeBegin - $timeEnd - forceLoadData:$forceLoadData - isLoaded : $isLoaded - refreshDataCancel : $refreshDataCancel - _isDisposed: $_isDisposed');
-    if (_isDisposed) return;
-    if (refreshDataCancel || !mounted) return;
-    if (forceLoadData) {
-      gValue.attLogs = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
+        'refreshData : $timeBegin - $timeEnd - updateMode:$updateMode - isLoaded : $isLoaded   - _isDisposed: $_isDisposed - isFilter: ${checkIsFilter()}');
 
-      if (mounted) {
-        setState(() {
-          print('setState :11111111111111111111111111111111');
-          countNoName = 0;
-          rows = getRows(gValue.attLogs);
-          stateManager.removeRows(stateManager.rows);
-          stateManager.appendRows(rows);
-          MyFuntion.calculateAttendanceStatus();
-          isLoaded = true;
-          exportTimeSheetDaysVisible = true;
-          toastification.dismissAll();
-          showButtonOKSellectRangeDate = false;
-          isLoaded = true;
-          lastUpdate = DateTime.now();
-          stateManager.setFilter(null);
-        });
-        toastification.show(
-          showProgressBar: true,
-          backgroundColor: Colors.blue[100],
-          alignment: Alignment.center,
-          context: context,
-          title: const Text('Data is loaded !'),
-          autoCloseDuration: Duration(seconds: 2),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: Offset(0, 16),
-              spreadRadius: 0,
-            )
-          ],
-        );
-      }
-    } else if (isLoaded && !checkIsFilter()) {
+    if (_isDisposed || !mounted) return;
+    int timeLoading = timeEnd.difference(timeBegin).inDays + 1;
+    if (updateMode == 'manual') {
+      toastification.show(
+        showProgressBar: true,
+        backgroundColor: Colors.blue[100],
+        alignment: Alignment.center,
+        context: context,
+        title: const Text('Data is loading ...'),
+        autoCloseDuration: Duration(seconds: timeLoading),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 16),
+            spreadRadius: 0,
+          )
+        ],
+      );
+      gValue.attLogs = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
+      setState(() {
+        countNoName = 0;
+        MyFuntion.calculateAttendanceStatus();
+        rows = getRows(gValue.attLogs);
+        stateManager.removeAllRows();
+        stateManager.appendRows(rows);
+        exportTimeSheetDaysVisible = true;
+        stateManager.setFilter(null);
+        updateMode = 'auto';
+        status =
+            'Last update: ${DateFormat('HH:mm:ss').format(DateTime.now())}   Range Date : ${DateFormat('dd/MM/yyyy').format(timeBegin)} - ${DateFormat('dd/MM/yyyy').format(timeEnd)}';
+      });
+    } else if (updateMode == 'auto' &&
+        isLoaded &&
+        !checkIsFilter() &&
+        timeBegin.day == DateTime.now().day) {
+      // auto update when selected date range contain today
       List<AttLog> temp = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
 
-      if ((temp.length != gValue.attLogs.length) && mounted) {
+      if ((temp.length != gValue.attLogs.length)) {
         setState(() {
-          print('setState :222222222222222222222222');
           rows = getRows(gValue.attLogs);
-          stateManager.removeRows(stateManager.rows);
+          stateManager.removeAllRows;
           stateManager.appendRows(rows);
           MyFuntion.calculateAttendanceStatus();
           isLoaded = true;
           exportTimeSheetDaysVisible = true;
-          toastification.dismissAll();
-          showButtonOKSellectRangeDate = false;
-          isLoaded = true;
-          lastUpdate = DateTime.now();
-          stateManager.setFilter(null);
+          status =
+              'Last update: ${DateFormat('HH:mm:ss').format(DateTime.now())}   Range Date : ${DateFormat('dd/MM/yyyy').format(timeBegin)} - ${DateFormat('dd/MM/yyyy').format(timeEnd)}';
         });
       }
     }
+    isLoaded = true;
+    toastification.dismissAll();
   }
 
   @override
@@ -168,12 +163,19 @@ class _AttLogUIState extends State<AttLogUI>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text("Data load every 1 minute"),
-                  Text('Last update at $lastUpdate')
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        status,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                      )),
                 ],
               ),
               SizedBox(
-                height: 220,
+                height: 200,
                 width: 500,
                 child: SfDateRangePicker(
                     cancelText: 'Cancel',
@@ -193,19 +195,11 @@ class _AttLogUIState extends State<AttLogUI>
                     headerStyle: DateRangePickerHeaderStyle(
                       backgroundColor: Colors.blue[200],
                     ),
-                    // onSelectionChanged: onSelectionChanged,
-                    confirmText: 'Press OK to load data',
-                    // toggleDaySelection: true,
+                    onSelectionChanged: onSelectionChangedSfDateRangePicker,
                     onSubmit: (value) {
-                      print('onSubmit : $value');
-                      if (value == null) return;
-                      refreshDataCancel = false;
-                      timeBegin = getDateRangeSimple(value.toString()).first;
-                      timeEnd = getDateRangeSimple(value.toString()).last;
-                      isLoaded = false;
-                      refreshData(timeBegin, timeEnd, true);
-                      exportTimeSheetDaysVisible = false;
-                      showButtonOKSellectRangeDate = true;
+                      toastification.dismissAll();
+                      updateMode = 'manual';
+                      refreshData(timeBegin, timeEnd);
                     },
                     selectionMode: DateRangePickerSelectionMode.range,
                     initialSelectedRange: PickerDateRange(timeBegin, timeEnd),
@@ -222,108 +216,118 @@ class _AttLogUIState extends State<AttLogUI>
                           hour: 23,
                           minute: 59,
                         ));
-                        refreshDataCancel = true;
                         toastification.dismissAll();
-                        showButtonOKSellectRangeDate = false;
                       });
                     }),
               ),
               const Divider(),
-              Row(children: [
-                Visibility(
-                  visible: timeEnd.difference(timeBegin).inHours <= 24,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      if (gValue.attLogs.isEmpty) {
+              SizedBox(
+                height: 40,
+                child: Row(children: [
+                  Visibility(
+                    visible: timeEnd.difference(timeBegin).inHours <= 24,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        if (gValue.attLogs.isEmpty) {
+                          toastification.show(
+                            backgroundColor: Colors.orange,
+                            alignment: Alignment.center,
+                            context: context,
+                            title:
+                                const Text('Data not yet loaded, try again!'),
+                            autoCloseDuration: const Duration(seconds: 3),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x07000000),
+                                blurRadius: 16,
+                                offset: Offset(0, 16),
+                                spreadRadius: 0,
+                              )
+                            ],
+                          );
+                        } else {
+                          List<Employee> absents = [];
+                          for (var empId in gValue.employeeIdAbsents) {
+                            absents.add(gValue.employees.firstWhere(
+                                (element) => element.empId == empId));
+                          }
+                          print('timeBegin : $timeBegin');
+                          print('timeEnd : $timeEnd');
+                          // var listAbsentInDate = await gValue.mongoDb
+                          //     .getLeaveRegisterByRangeDate(timeBegin, timeEnd);
+                          MyFile.createExcelEmployeeAbsent(
+                              absents,
+                              gValue.shiftRegisters,
+                              "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
+                          // MyFile.createExcelEmployee(absents, true,
+                          //     "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.supervised_user_circle,
+                        color: Colors.orangeAccent,
+                      ),
+                      label: const Text('Export absent list'),
+                    ),
+                  ),
+                  Visibility(
+                    visible: exportTimeSheetDaysVisible,
+                    child: TextButton.icon(
+                      onPressed: () async {
                         toastification.show(
-                          backgroundColor: Colors.orange,
+                          showProgressBar: true,
+                          backgroundColor: Colors.blue[100],
                           alignment: Alignment.center,
                           context: context,
-                          title: const Text('Data not yet loaded, try again!'),
-                          autoCloseDuration: const Duration(seconds: 3),
+                          title: const Text('Data is loading ...'),
+                          autoCloseDuration: Duration(seconds: 5),
                           boxShadow: const [
                             BoxShadow(
-                              color: Color(0x07000000),
-                              blurRadius: 16,
+                              color: Colors.black12,
+                              blurRadius: 8,
                               offset: Offset(0, 16),
                               spreadRadius: 0,
                             )
                           ],
                         );
-                      } else {
-                        List<Employee> absents = [];
-                        for (var empId in gValue.employeeIdAbsents) {
-                          absents.add(gValue.employees
-                              .firstWhere((element) => element.empId == empId));
+                        List<OtRegister> otRegister = await gValue.mongoDb
+                            .getOTRegisterByRangeDate(timeBegin, timeEnd);
+
+                        List<String> employeeIdFilter = [];
+                        for (var row in stateManager.refRows) {
+                          var tempJson = row.toJson();
+                          employeeIdFilter.add(tempJson['empId']);
                         }
-                        print('timeBegin : $timeBegin');
-                        print('timeEnd : $timeEnd');
-                        // var listAbsentInDate = await gValue.mongoDb
-                        //     .getLeaveRegisterByRangeDate(timeBegin, timeEnd);
-                        MyFile.createExcelEmployeeAbsent(
-                            absents,
-                            gValue.shiftRegisters,
-                            "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
-                        // MyFile.createExcelEmployee(absents, true,
-                        //     "Absents ${DateFormat('dd-MMM-yyyy').format(timeBegin)}");
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.supervised_user_circle,
-                      color: Colors.orangeAccent,
+                        employeeIdFilter = employeeIdFilter.toSet().toList();
+                        MyFile.createExcelTimeSheet(
+                            MyFuntion.createTimeSheetsDate(
+                                gValue.employees,
+                                gValue.shifts,
+                                gValue.shiftRegisters,
+                                otRegister,
+                                gValue.leaveRegisters,
+                                // gValue.attLogs : remove empId not begin with 'TIQN'
+                                gValue.attLogs
+                                    .where((element) =>
+                                        element.empId.startsWith('TIQN'))
+                                    .toList(),
+                                timeBegin,
+                                timeEnd,
+                                employeeIdFilter
+                                    .toSet()
+                                    .toList()), //remove duplicate empId
+                            'Timesheets from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)} ${DateFormat('hhmmss').format(DateTime.now())}');
+                        toastification.dismissAll();
+                      },
+                      icon: const Icon(
+                        Icons.timelapse,
+                        color: Colors.blueAccent,
+                      ),
+                      label: Text(labelExportTimesheetsDays),
                     ),
-                    label: const Text('Export absent list'),
                   ),
-                ),
-                Visibility(
-                  visible: exportTimeSheetDaysVisible,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      List<OtRegister> otRegister = await gValue.mongoDb
-                          .getOTRegisterByRangeDate(timeBegin, timeEnd);
-                      List<AttLog> attLogsFilter = [];
-                      for (var row in stateManager.refRows) {
-                        var tempJson = row.toJson();
-                        attLogsFilter.add(AttLog(
-                            objectId: tempJson['objectId'],
-                            attFingerId: tempJson['attFingerId'],
-                            empId: tempJson['empId'],
-                            name: tempJson['name'],
-                            timestamp: DateFormat('dd-MMM-yyyy HH:mm:ss')
-                                .parse(tempJson['timeStamp']),
-                            machineNo: tempJson['machineNo']));
-                      }
-                      List<String> employeeIdFilter = [];
-                      for (var row in stateManager.refRows) {
-                        var tempJson = row.toJson();
-                        employeeIdFilter.add(tempJson['empId']);
-                      }
-                      MyFile.createExcelTimeSheet(
-                          MyFuntion.createTimeSheetsDate(
-                              gValue.employees,
-                              gValue.shifts,
-                              gValue.shiftRegisters,
-                              otRegister,
-                              gValue.leaveRegisters,
-                              // gValue.attLogs : remove empId not begin with 'TIQN'
-                              attLogsFilter
-                                  .where((element) =>
-                                      element.empId.startsWith('TIQN'))
-                                  .toList(),
-                              // gValue.attLogs,
-                              timeBegin,
-                              timeEnd,
-                              employeeIdFilter),
-                          'Timesheets from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)} ${DateFormat('hhmmss').format(DateTime.now())}');
-                    },
-                    icon: const Icon(
-                      Icons.timelapse,
-                      color: Colors.blueAccent,
-                    ),
-                    label: Text(labelExportTimesheetsDays),
-                  ),
-                ),
-              ]),
+                ]),
+              ),
               const Divider(),
               Row(
                 children: [
@@ -387,7 +391,7 @@ class _AttLogUIState extends State<AttLogUI>
                           alignment: Alignment.center,
                           context: context,
                           title: const Text('Data is loading...!'),
-                          autoCloseDuration: const Duration(seconds: 5),
+                          autoCloseDuration: const Duration(seconds: 10),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black12,
@@ -415,6 +419,7 @@ class _AttLogUIState extends State<AttLogUI>
                                 begin,
                                 end, []),
                             'Timesheets $selectedMonth ${DateFormat('yyyyMMddhhmmss').format(DateTime.now())}');
+                        toastification.dismissAll();
                       },
                       icon: const Icon(
                         Icons.timelapse_sharp,
@@ -799,7 +804,8 @@ class _AttLogUIState extends State<AttLogUI>
                                           .insertAttLogs([attLog]);
                                       await MyFuntion.insertHistory(
                                           'ADD attendance log : ${attLog.attFingerId}   ${attLog.empId}   ${attLog.name}   ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(attLog.timestamp)}');
-                                      refreshData(timeBegin, timeEnd, true);
+                                      updateMode = 'manual';
+                                      refreshData(timeBegin, timeEnd);
 
                                       toastification.show(
                                         showProgressBar: true,
@@ -846,7 +852,8 @@ class _AttLogUIState extends State<AttLogUI>
                                         .insertAttLogs([attLog]);
                                     await MyFuntion.insertHistory(
                                         'ADD attendance log : ${attLog.attFingerId}   ${attLog.empId}   ${attLog.name}   ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(attLog.timestamp)}');
-                                    refreshData(timeBegin, timeEnd, true);
+                                    updateMode = 'manual';
+                                    refreshData(timeBegin, timeEnd);
 
                                     toastification.show(
                                       showProgressBar: true,
@@ -998,14 +1005,15 @@ class _AttLogUIState extends State<AttLogUI>
                           'Tồn tại Tên & MSNV chưa được cập nhật trong CSDL.\nLọc "No Emp Id" trên cột Employee ID\nBấm biểu tượng refresh trên mỗi dòng để cập nhật'),
                     )
                   : timeBegin.day == timeEnd.day
-                      ? Text(
-                          'Enrolled: ${gValue.enrolled}\nPresent: ${gValue.employeeIdPresents.length}\nMaternity Leaves: ${gValue.employeeIdMaternityLeaves.length}\nAbsents : ${gValue.employeeIdPresents.length}',
-                        )
-                      // chartPresent(
-                      //     gValue.employeeIdPresents.length,
-                      //     gValue.employeeIdMaternityLeaves.length,
-                      //     gValue.employeeIdPresents.length,
-                      //     gValue.employeeIdAbsents.length)
+                      ?
+                      // Text(
+                      //     'Enrolled: ${gValue.enrolled}\nPresent: ${gValue.employeeIdPresents.length}\nMaternity Leaves: ${gValue.employeeIdMaternityLeaves.length}\nAbsents : ${gValue.employeeIdAbsents.length}',
+                      //   )
+                      chartPresent(
+                          gValue.employeeIdPresents.length,
+                          gValue.employeeIdMaternityLeaves.length,
+                          gValue.employeeIdPresents.length,
+                          gValue.employeeIdAbsents.length)
                       : Container(),
             ],
           ),
@@ -1153,8 +1161,7 @@ class _AttLogUIState extends State<AttLogUI>
                         ),
                         onPressed: () async {
                           var row = rendererContext.row.toJson();
-                          refreshDataCancel = true;
-                          print(row);
+                          print('onPressed: $row');
                           var style = const TextStyle(
                               color: Colors.redAccent,
                               fontSize: 16,
@@ -1195,9 +1202,8 @@ class _AttLogUIState extends State<AttLogUI>
                               machineNo: machineNo,
                               timestamp: timeStamp);
                           await gValue.mongoDb.insertAttLogs([attLog]);
-
-                          refreshDataCancel = false;
-                          refreshData(timeBegin, timeEnd, true);
+                          updateMode = 'manual';
+                          refreshData(timeBegin, timeEnd);
 
                           String log =
                               'UPDATE attendance log : ${row['attFingerId']}  ${row['timeStamp']} : "No Emp Id" to  $empIdUpdate,  "No Name" to   $empNameUpdate   ';
@@ -1247,7 +1253,6 @@ class _AttLogUIState extends State<AttLogUI>
                       return;
                     }
                     var row = rendererContext.row.toJson();
-                    refreshDataCancel = true;
                     print(row);
                     var style = const TextStyle(
                         color: Colors.redAccent,
@@ -1287,8 +1292,8 @@ class _AttLogUIState extends State<AttLogUI>
                                 rendererContext.stateManager
                                     .removeRows([rendererContext.row]);
                               });
-                              refreshDataCancel = false;
-                              refreshData(timeBegin, timeEnd, true);
+                              updateMode = 'manual';
+                              refreshData(timeBegin, timeEnd);
                             },
                             closeIcon: const Icon(Icons.close))
                         .show();
@@ -1347,43 +1352,47 @@ class _AttLogUIState extends State<AttLogUI>
     return columns;
   }
 
-  List<DateTime> getDateRangeSimple(String dateRange) {
+  List<DateTime> getDateRangeSimple(String dateRangeString) {
+    print('getDateRangeSimple : $dateRangeString');
     // dateRange = 'PickerDateRange#6494f(startDate: 2025-07-18 00:00:00.000, endDate: 2025-07-18 00:00:00.000)'
-    try {
-      // Extract startDate
-      String afterStart = dateRange.split('startDate: ')[1];
-      String startDateStr = afterStart.split(' ')[0]; // Lấy YYYY-MM-DD
-      DateTime startDate = DateTime.parse(startDateStr);
+    List<DateTime> result = [];
 
-      // Extract endDate (nếu có)
-      DateTime endDate;
-      if (dateRange.contains('endDate:')) {
-        String endDateStr =
-            afterStart.split(', endDate: ')[1].split(')')[0].split(' ')[0];
-        if (endDateStr.isEmpty || endDateStr.toLowerCase() == 'null') {
-          endDate = startDate; // Null endDate -> dùng startDate
-        } else {
-          endDate = DateTime.parse(endDateStr);
-        }
-      } else {
-        endDate = startDate; // Không có endDate -> dùng startDate
+    try {
+      // Tìm vị trí của startDate và endDate
+      int startIndex = dateRangeString.indexOf('startDate:');
+      int endIndex = dateRangeString.indexOf('endDate:');
+
+      if (startIndex == -1 || endIndex == -1) {
+        throw Exception('Invalid date range format');
       }
 
-      // Tạo UTC với giờ cố định
-      DateTime startUTC = DateTime.utc(
-          startDate.year, startDate.month, startDate.day, 0, 0, 0, 0);
-      DateTime endUTC = DateTime.utc(
-          endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
-      print('getDateRangeSimple return: startUTC: $startUTC, endUTC: $endUTC');
-      return [startUTC, endUTC];
+      // Extract startDate
+      String startDatePart = dateRangeString
+          .substring(startIndex + 'startDate:'.length, endIndex)
+          .trim();
+
+      // Remove dấu phẩy cuối nếu có
+      startDatePart = startDatePart.replaceAll(',', '').trim();
+
+      DateTime startDate = DateTime.parse(startDatePart);
+      result.add(startDate);
+
+      // Extract endDate
+      String endDatePart =
+          dateRangeString.substring(endIndex + 'endDate:'.length).trim();
+
+      // Remove dấu ngoặc đóng và khoảng trắng
+      endDatePart = endDatePart.replaceAll(')', '').trim();
+
+      if (endDatePart != 'null') {
+        DateTime endDate = DateTime.parse(endDatePart);
+        result.add(endDate);
+      }
     } catch (e) {
-      print('Error: $e');
-      DateTime now = DateTime.now();
-      return [
-        DateTime.utc(now.year, now.month, now.day, 0, 0, 0, 0),
-        DateTime.utc(now.year, now.month, now.day, 23, 59, 59, 999)
-      ];
+      print('Error parsing date range string: $e');
     }
+
+    return result;
   }
 
   List<PlutoRow> getRows(List<AttLog> data) {
@@ -1424,58 +1433,75 @@ class _AttLogUIState extends State<AttLogUI>
         ),
       );
     }
-
     return rows;
   }
 
-  /// The method for [DateRangePickerSelectionChanged] callback, which will be
-  /// called whenever a selection changed on the date picker widget.
-  void onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    print('-----onSelectionChanged : ${args.value}');
+  // The method for [DateRangePickerSelectionChanged] callback, which will be
+  // called whenever a selection changed on the date picker widget.
+  void onSelectionChangedSfDateRangePicker(
+      DateRangePickerSelectionChangedArgs args) {
+    try {
+      // Convert args.value thành string
+      String dateRangeString = args.value.toString();
 
-    setState(
-      () {
-        // stateManager.removeAllRows();
-        // refreshDataCancel = true;
-        if (args.value is PickerDateRange) {
-          timeBegin = args.value.startDate;
-          timeEnd = args.value.endDate ?? args.value.startDate;
+      // Parse string để lấy startDate và endDate
+      List<DateTime> dates = [];
 
-          showButtonOKSellectRangeDate = true;
-          exportTimeSheetDaysVisible = false;
-        } else if (args.value is DateTime) {
-          exportTimeSheetDaysVisible = false;
-          timeBegin = args.value;
-          timeEnd = args.value;
-          showButtonOKSellectRangeDate = false;
+      // RegExp để extract startDate và endDate
+      final RegExp regExp = RegExp(
+          r'startDate:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}),\s*endDate:\s*(null|\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})');
+
+      final match = regExp.firstMatch(dateRangeString);
+
+      if (match != null) {
+        // Extract startDate
+        String startDateStr = match.group(1)!;
+        DateTime startDate = DateTime.parse(startDateStr);
+        dates.add(startDate);
+
+        // Extract endDate nếu không phải null
+        String? endDateStr = match.group(2);
+        if (endDateStr != null && endDateStr != 'null') {
+          DateTime endDate = DateTime.parse(endDateStr);
+          dates.add(endDate);
         }
-        timeBegin = timeBegin.appliedFromTimeOfDay(const TimeOfDay(
-          hour: 0,
-          minute: 0,
-        ));
-        timeEnd = timeEnd.appliedFromTimeOfDay(const TimeOfDay(
-          hour: 23,
-          minute: 59,
-        ));
+      }
 
-        Future.delayed(Durations.short1).then(
-          (value) {
-            if (timeBegin.day == timeEnd.day) {
-              setState(() {
-                showButtonOKSellectRangeDate = false;
-                isLoaded = false;
-                refreshDataCancel = false;
-                refreshData(timeBegin, timeEnd, true);
-              });
-            }
-          },
-        );
-        stateManager.setFilter(null);
-      },
-    );
+      // Gán giá trị cho timeBegin và timeEnd
+      if (dates.isNotEmpty) {
+        timeBegin = dates[0];
 
-    // print(
-    //     'onSelectionChanged : timeBegin: $timeBegin       timeEnd: $timeEnd ');
+        if (dates.length > 1) {
+          timeEnd = dates[1];
+        } else {
+          timeEnd = dates[0]; // Nếu chỉ có startDate thì timeEnd = timeBegin
+        }
+      } else {
+        // Nếu không parse được thì set về today
+        DateTime today = DateTime.now();
+        timeBegin = today;
+        timeEnd = today;
+      }
+    } catch (e) {
+      // Nếu có lỗi thì set cả hai về today
+      DateTime today = DateTime.now();
+      timeBegin = today;
+      timeEnd = today;
+    }
+    timeBegin = timeBegin.appliedFromTimeOfDay(const TimeOfDay(
+      hour: 0,
+      minute: 0,
+    ));
+    timeEnd = timeEnd.appliedFromTimeOfDay(const TimeOfDay(
+      hour: 23,
+      minute: 59,
+    ));
+
+    setState(() {
+      exportTimeSheetDaysVisible = false;
+    });
+    print(
+        'onSelectionChanged :\n Input ${args.value}\n Output timeBegin: $timeBegin, timeEnd: $timeEnd  ');
   }
 
   void onSelectionChangedAddRecord(DateRangePickerSelectionChangedArgs args) {
@@ -1496,46 +1522,47 @@ class _AttLogUIState extends State<AttLogUI>
   }
 
   chartPresent(int workingNormal, int maternityLeave, int present, int absent) {
-    final List<ChartPresent> chartData = [
-      ChartPresent(
-          'Maternity leave', maternityLeave.toDouble(), Colors.purpleAccent),
-      ChartPresent('Present', present.toDouble(), Colors.green[400]),
-      ChartPresent('Absent', absent.toDouble(), Colors.orange),
+    Map<String, double> dataMap = {
+      "Maternity leave": maternityLeave.toDouble(),
+      "Present": present.toDouble(),
+      "Absent": absent.toDouble(),
+    };
+    List<Color> colorList = [
+      Colors.purpleAccent,
+      Colors.green[400]!,
+      Colors.orange,
     ];
-    return SizedBox(
-      width: 500,
-      height: 250,
-      child: SfCircularChart(
-          annotations: <CircularChartAnnotation>[
-            CircularChartAnnotation(
-                widget: Container(
-                    child: Text('Enrolled\n    ${gValue.enrolled}',
-                        style: const TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold))))
-          ],
-          tooltipBehavior: TooltipBehavior(enable: true),
-          legend: const Legend(
-              position: LegendPosition.bottom,
-              // height: '50%',
-              overflowMode: LegendItemOverflowMode.wrap,
-              isVisible: true,
-              textStyle: TextStyle(fontSize: 15)),
-          series: <CircularSeries<ChartPresent, String>>[
-            DoughnutSeries<ChartPresent, String>(
-              dataLabelSettings: const DataLabelSettings(isVisible: true),
-              dataSource: chartData,
-              xValueMapper: (ChartPresent data, _) => data.x,
-              yValueMapper: (ChartPresent data, _) => data.y,
-              pointColorMapper: (ChartPresent data, _) => data.color,
-            )
-          ]),
-    );
+    return Container(
+        margin: const EdgeInsets.all(8),
+        width: 500,
+        height: 250,
+        padding: const EdgeInsets.all(8),
+        child: PieChart(
+          dataMap: dataMap,
+          animationDuration: Duration(milliseconds: 800),
+          chartLegendSpacing: 32,
+          chartRadius: MediaQuery.of(context).size.width / 3.2,
+          colorList: colorList,
+          initialAngleInDegree: 0,
+          chartType: ChartType.disc,
+          ringStrokeWidth: 32,
+          centerText: "Enrolled: ${workingNormal + maternityLeave}",
+          legendOptions: LegendOptions(
+            showLegendsInRow: false,
+            legendPosition: LegendPosition.right,
+            showLegends: true,
+            // legendShape: _BoxShape.circle,
+            legendTextStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          chartValuesOptions: ChartValuesOptions(
+            showChartValueBackground: true,
+            showChartValues: true,
+            showChartValuesInPercentage: false,
+            showChartValuesOutside: true,
+            decimalPlaces: 0,
+          ),
+        ));
   }
-}
-
-class ChartPresent {
-  ChartPresent(this.x, this.y, [this.color]);
-  final String x;
-  final double y;
-  final Color? color;
 }

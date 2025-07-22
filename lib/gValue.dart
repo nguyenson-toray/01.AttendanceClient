@@ -10,8 +10,10 @@ import 'package:tiqn/database/shift.dart';
 import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/database/timeSheet.dart';
 import 'package:tiqn/database/timeSheetMonthYear.dart';
+import 'package:logger/logger.dart';
 
 class gValue {
+  static var logger = Logger();
   // static _Config config = _Config(mainFuntion: "mainFuntion");
   static String accessMode = 'no'; //'no', 'read', 'edit'
   static String alertOTByActualFinal = 'Actual';
