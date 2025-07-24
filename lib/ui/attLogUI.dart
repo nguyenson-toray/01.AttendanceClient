@@ -307,11 +307,14 @@ class _AttLogUIState extends State<AttLogUI>
                             .getOTRegisterByRangeDate(timeBegin, timeEnd);
 
                         List<String> employeeIdFilter = [];
-                        for (var row in stateManager.refRows) {
-                          var tempJson = row.toJson();
-                          employeeIdFilter.add(tempJson['empId']);
+
+                        if (checkIsFilter()) {
+                          for (var row in stateManager.refRows) {
+                            var tempJson = row.toJson();
+                            employeeIdFilter.add(tempJson['empId']);
+                          }
+                          employeeIdFilter = employeeIdFilter.toSet().toList();
                         }
-                        employeeIdFilter = employeeIdFilter.toSet().toList();
                         MyFile.createExcelTimeSheet(
                             MyFuntion.createTimeSheetsDate(
                                 gValue.employees,

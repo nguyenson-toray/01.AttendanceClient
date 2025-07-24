@@ -497,7 +497,11 @@ class MyFuntion {
             attNote1 = '', //vào trễ, ra sớm, thiếu chấm công
             attNote2 = '', //chế độ
             attNote3 = ''; // chấm công sau ngày nghỉ việc
-        if (date.isBefore(emp.joiningDate!)) {
+        if (date.appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0)).isBefore(
+            emp.joiningDate!
+                .appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0)))) {
+          gValue.logger.t(
+              ' ${emp.empId}  : date : $date  isBefore joiningDate: ${emp.joiningDate} ==> RETURN');
           continue;
         }
 
@@ -509,6 +513,7 @@ class MyFuntion {
         List<AttLog> logs =
             dayLogs.where((log) => (log.empId == emp.empId)).toList();
         logsTime = logs.map((e) => e.timestamp).cast<DateTime>().toList();
+
         if (logs.isEmpty &&
             emp.workStatus.toString().contains('Resigned') &&
             date.isAfter(emp.resignOn!.subtract(Duration(days: 1)))) {

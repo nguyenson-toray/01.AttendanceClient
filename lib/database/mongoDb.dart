@@ -31,7 +31,7 @@ class MongoDb {
       ipServer = '10.0.1.4';
     } else {
       ipServer = 'localhost';
-      // ipServer = '10.0.1.4';
+      ipServer = '10.0.1.4';
     }
     db = Db("mongodb://$ipServer:27017/tiqn");
     try {
