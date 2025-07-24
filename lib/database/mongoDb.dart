@@ -169,6 +169,10 @@ class MongoDb {
 
   Future<List<AttLog>> getAttLogs(DateTime timneBegin, DateTime timeEnd) async {
     List<AttLog> result = [];
+    timneBegin =
+        timneBegin.appliedFromTimeOfDay(const TimeOfDay(hour: 00, minute: 00));
+    timeEnd =
+        timeEnd.appliedFromTimeOfDay(const TimeOfDay(hour: 23, minute: 59));
     try {
       if (!db.isConnected) {
         gValue.logger.t('getAttLogs DB not connected, try connect again');
@@ -185,7 +189,7 @@ class MongoDb {
       gValue.logger.t(e);
     }
     gValue.logger.t(
-        'getAttLogs ${timneBegin}  to ${timeEnd} => ${result.length} records');
+        '========> getAttLogs ${timneBegin}  to ${timeEnd} => ${result.length} records');
     return result;
   }
 
@@ -436,6 +440,10 @@ class MongoDb {
   Future<List<OtRegister>> getOTRegisterByRangeDate(
       DateTime timeBegin, DateTime timeEnd) async {
     List<OtRegister> result = [];
+    timeBegin =
+        timeBegin.appliedFromTimeOfDay(const TimeOfDay(hour: 00, minute: 00));
+    timeEnd =
+        timeEnd.appliedFromTimeOfDay(const TimeOfDay(hour: 23, minute: 59));
     try {
       if (!db.isConnected) {
         gValue.logger

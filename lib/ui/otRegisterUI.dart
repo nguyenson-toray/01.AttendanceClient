@@ -321,22 +321,24 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                   onPressed: () async {
                     if (gValue.accessMode != 'edit') {
                       toastification.show(
-                        showProgressBar: true,
-                        backgroundColor: Colors.amber[200],
-                        alignment: Alignment.center,
                         context: context,
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.flatColored,
+                        autoCloseDuration: Duration(seconds: 2),
                         title: const Text(
-                            'Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: const Duration(seconds: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 16),
-                            spreadRadius: 0,
-                          )
-                        ],
+                          'Warning',
+                        ),
+                        showProgressBar: true,
+                        progressBarTheme:
+                            ProgressIndicatorThemeData(color: Colors.green),
+                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                        showIcon: true,
+                        description:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(3),
                       );
+
                       return;
                     }
                     gValue.mongoDb
@@ -664,21 +666,22 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                   onPressed: () {
                     if (gValue.accessMode != 'edit') {
                       toastification.show(
-                        showProgressBar: true,
-                        backgroundColor: Colors.amber[200],
-                        alignment: Alignment.center,
                         context: context,
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.flatColored,
+                        autoCloseDuration: Duration(seconds: 2),
                         title: const Text(
-                            'Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: const Duration(seconds: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 16),
-                            spreadRadius: 0,
-                          )
-                        ],
+                          'Warning',
+                        ),
+                        showProgressBar: true,
+                        progressBarTheme:
+                            ProgressIndicatorThemeData(color: Colors.green),
+                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                        showIcon: true,
+                        description:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(3),
                       );
                       return;
                     }

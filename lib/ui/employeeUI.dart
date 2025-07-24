@@ -61,20 +61,22 @@ class _EmployeeUIState extends State<EmployeeUI>
       setState(() {
         lastUpdate = DateTime.now();
       });
+
       toastification.show(
-        backgroundColor: Colors.greenAccent,
-        alignment: Alignment.center,
         context: context,
-        title: const Text('Data loaded !'),
-        autoCloseDuration: const Duration(seconds: 2),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromARGB(6, 93, 250, 87),
-            blurRadius: 16,
-            offset: Offset(0, 16),
-            spreadRadius: 0,
-          )
-        ],
+        type: ToastificationType.info,
+        style: ToastificationStyle.flatColored,
+        autoCloseDuration: Duration(seconds: 2),
+        title: const Text(
+          'Employee loaded',
+        ),
+        showProgressBar: true,
+        progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+        showIcon: true,
+        description: Text('Data loaded !'),
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(3),
       );
     }
   }

@@ -56,8 +56,8 @@ class _AttLogUIState extends State<AttLogUI>
     dateAddRecord = timeBegin;
     Future.delayed(Durations.long2).then(
       (value) {
-        Timer.periodic(const Duration(seconds: 10),
-            (_) => refreshData(timeBegin, timeEnd));
+        Timer.periodic(const Duration(seconds: 30),
+            (_) => refreshData(timeBegin, timeEnd, 'auto'));
       },
     );
 
@@ -81,7 +81,8 @@ class _AttLogUIState extends State<AttLogUI>
     return isFilter;
   }
 
-  Future<void> refreshData(DateTime timeBegin, DateTime timeEnd) async {
+  Future<void> refreshData(
+      DateTime timeBegin, DateTime timeEnd, String updateMode) async {
     gValue.logger.t(
         'refreshData : $timeBegin - $timeEnd - updateMode:$updateMode - isLoaded : $isLoaded   - _isDisposed: $_isDisposed - isFilter: ${checkIsFilter()}');
 
@@ -89,20 +90,20 @@ class _AttLogUIState extends State<AttLogUI>
     int timeLoading = timeEnd.difference(timeBegin).inDays + 1;
     if (updateMode == 'manual') {
       toastification.show(
-        showProgressBar: true,
-        backgroundColor: Colors.blue[100],
-        alignment: Alignment.center,
         context: context,
-        title: const Text('Data is loading ...'),
+        type: ToastificationType.info,
+        style: ToastificationStyle.flatColored,
         autoCloseDuration: Duration(seconds: timeLoading),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 16),
-            spreadRadius: 0,
-          )
-        ],
+        title: const Text(
+          'Data is loading ...',
+        ),
+        showProgressBar: true,
+        progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+        showIcon: true,
+        description: Text('From $timeBegin to $timeEnd'),
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(3),
       );
       gValue.attLogs = await gValue.mongoDb.getAttLogs(timeBegin, timeEnd);
       setState(() {
@@ -111,7 +112,6 @@ class _AttLogUIState extends State<AttLogUI>
         rows = getRows(gValue.attLogs);
         stateManager.removeAllRows();
         stateManager.appendRows(rows);
-        exportTimeSheetDaysVisible = true;
         stateManager.setFilter(null);
         updateMode = 'auto';
         status =
@@ -130,8 +130,6 @@ class _AttLogUIState extends State<AttLogUI>
           stateManager.removeAllRows;
           stateManager.appendRows(rows);
           MyFuntion.calculateAttendanceStatus();
-          isLoaded = true;
-          exportTimeSheetDaysVisible = true;
           status =
               'Last update: ${DateFormat('HH:mm:ss').format(DateTime.now())}   Range Date : ${DateFormat('dd/MM/yyyy').format(timeBegin)} - ${DateFormat('dd/MM/yyyy').format(timeEnd)}';
         });
@@ -139,6 +137,9 @@ class _AttLogUIState extends State<AttLogUI>
     }
     isLoaded = true;
     toastification.dismissAll();
+    setState(() {
+      exportTimeSheetDaysVisible = true;
+    });
   }
 
   @override
@@ -195,11 +196,19 @@ class _AttLogUIState extends State<AttLogUI>
                     headerStyle: DateRangePickerHeaderStyle(
                       backgroundColor: Colors.blue[200],
                     ),
-                    onSelectionChanged: onSelectionChangedSfDateRangePicker,
-                    onSubmit: (value) {
-                      toastification.dismissAll();
+                    onSelectionChanged: (args) {
+                      setState(() {
+                        exportTimeSheetDaysVisible = false;
+                      });
                       updateMode = 'manual';
-                      refreshData(timeBegin, timeEnd);
+                      timeBegin = args.value.startDate;
+                      timeEnd = args.value.endDate ?? args.value.startDate;
+
+                      gValue.logger.t(
+                          'onSelectionChanged :\n Input ${args.value}\n Output timeBegin: $timeBegin, timeEnd: $timeEnd  ');
+                    },
+                    onSubmit: (value) {
+                      refreshData(timeBegin, timeEnd, updateMode);
                     },
                     selectionMode: DateRangePickerSelectionMode.range,
                     initialSelectedRange: PickerDateRange(timeBegin, timeEnd),
@@ -225,25 +234,27 @@ class _AttLogUIState extends State<AttLogUI>
                 height: 40,
                 child: Row(children: [
                   Visibility(
-                    visible: timeEnd.difference(timeBegin).inHours <= 24,
+                    visible: timeBegin.day == DateTime.now().day,
                     child: TextButton.icon(
                       onPressed: () async {
                         if (gValue.attLogs.isEmpty) {
                           toastification.show(
-                            backgroundColor: Colors.orange,
-                            alignment: Alignment.center,
                             context: context,
-                            title:
-                                const Text('Data not yet loaded, try again!'),
-                            autoCloseDuration: const Duration(seconds: 3),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x07000000),
-                                blurRadius: 16,
-                                offset: Offset(0, 16),
-                                spreadRadius: 0,
-                              )
-                            ],
+                            type: ToastificationType.warning,
+                            style: ToastificationStyle.flatColored,
+                            autoCloseDuration: Duration(seconds: 2),
+                            title: const Text(
+                              'Data is loading ...',
+                            ),
+                            showProgressBar: true,
+                            progressBarTheme:
+                                ProgressIndicatorThemeData(color: Colors.green),
+                            // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                            showIcon: true,
+                            description:
+                                Text('Data not yet loaded, try again!'),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(3),
                           );
                         } else {
                           List<Employee> absents = [];
@@ -275,21 +286,23 @@ class _AttLogUIState extends State<AttLogUI>
                     child: TextButton.icon(
                       onPressed: () async {
                         toastification.show(
-                          showProgressBar: true,
-                          backgroundColor: Colors.blue[100],
-                          alignment: Alignment.center,
                           context: context,
-                          title: const Text('Data is loading ...'),
+                          type: ToastificationType.info,
+                          style: ToastificationStyle.flatColored,
                           autoCloseDuration: Duration(seconds: 5),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 16),
-                              spreadRadius: 0,
-                            )
-                          ],
+                          title: const Text(
+                            'Data is loading ...',
+                          ),
+                          showProgressBar: true,
+                          progressBarTheme:
+                              ProgressIndicatorThemeData(color: Colors.green),
+                          // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                          showIcon: true,
+                          description: Text('From $timeBegin to $timeEnd'),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(3),
                         );
+
                         List<OtRegister> otRegister = await gValue.mongoDb
                             .getOTRegisterByRangeDate(timeBegin, timeEnd);
 
@@ -307,15 +320,10 @@ class _AttLogUIState extends State<AttLogUI>
                                 otRegister,
                                 gValue.leaveRegisters,
                                 // gValue.attLogs : remove empId not begin with 'TIQN'
-                                gValue.attLogs
-                                    .where((element) =>
-                                        element.empId.startsWith('TIQN'))
-                                    .toList(),
+                                gValue.attLogs,
                                 timeBegin,
                                 timeEnd,
-                                employeeIdFilter
-                                    .toSet()
-                                    .toList()), //remove duplicate empId
+                                employeeIdFilter),
                             'Timesheets from ${DateFormat('dd-MMM-yyyy').format(timeBegin)} to ${DateFormat('dd-MMM-yyyy').format(timeEnd)} ${DateFormat('hhmmss').format(DateTime.now())}');
                         toastification.dismissAll();
                       },
@@ -387,19 +395,21 @@ class _AttLogUIState extends State<AttLogUI>
                         var begin =
                             DateTime.utc(yearBegin, monBegin, dateBegin);
                         toastification.show(
-                          backgroundColor: Colors.blue[200],
-                          alignment: Alignment.center,
                           context: context,
-                          title: const Text('Data is loading...!'),
-                          autoCloseDuration: const Duration(seconds: 10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 16),
-                              spreadRadius: 0,
-                            )
-                          ],
+                          type: ToastificationType.info,
+                          style: ToastificationStyle.flatColored,
+                          autoCloseDuration: Duration(seconds: 10),
+                          title: const Text(
+                            'Data is loading ...',
+                          ),
+                          showProgressBar: true,
+                          progressBarTheme:
+                              ProgressIndicatorThemeData(color: Colors.green),
+                          // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                          showIcon: true,
+                          description: Text('From $timeBegin to $timeEnd'),
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(3),
                         );
                         List<OtRegister> otRegister1 = await gValue.mongoDb
                             .getOTRegisterByRangeDate(begin, end);
@@ -442,22 +452,24 @@ class _AttLogUIState extends State<AttLogUI>
                       onPressed: () {
                         if (gValue.accessMode != 'edit') {
                           toastification.show(
-                            showProgressBar: true,
-                            backgroundColor: Colors.amber[200],
-                            alignment: Alignment.center,
                             context: context,
+                            type: ToastificationType.warning,
+                            style: ToastificationStyle.flatColored,
+                            autoCloseDuration: Duration(seconds: 2),
                             title: const Text(
+                              'Waring',
+                            ),
+                            showProgressBar: true,
+                            progressBarTheme:
+                                ProgressIndicatorThemeData(color: Colors.red),
+                            // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                            showIcon: true,
+                            description: Text(
                                 'Bạn không có quyền sử dụng chức năng này !'),
-                            autoCloseDuration: const Duration(seconds: 2),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: Offset(0, 16),
-                                spreadRadius: 0,
-                              )
-                            ],
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(3),
                           );
+
                           return;
                         }
                         final TextEditingController textEditingController =
@@ -805,25 +817,26 @@ class _AttLogUIState extends State<AttLogUI>
                                       await MyFuntion.insertHistory(
                                           'ADD attendance log : ${attLog.attFingerId}   ${attLog.empId}   ${attLog.name}   ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(attLog.timestamp)}');
                                       updateMode = 'manual';
-                                      refreshData(timeBegin, timeEnd);
-
+                                      refreshData(
+                                          timeBegin, timeEnd, updateMode);
                                       toastification.show(
-                                        showProgressBar: true,
-                                        backgroundColor: Colors.blue[100],
-                                        alignment: Alignment.center,
                                         context: context,
-                                        title: Text(
-                                            'Adding:  $empId   $empName: time: $time'),
-                                        autoCloseDuration:
-                                            const Duration(seconds: 1),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 8,
-                                            offset: Offset(0, 16),
-                                            spreadRadius: 0,
-                                          )
-                                        ],
+                                        type: ToastificationType.info,
+                                        style: ToastificationStyle.flatColored,
+                                        autoCloseDuration: Duration(seconds: 2),
+                                        title: const Text(
+                                          'Adding attendance log',
+                                        ),
+                                        showProgressBar: true,
+                                        progressBarTheme:
+                                            ProgressIndicatorThemeData(
+                                                color: Colors.green),
+                                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                                        showIcon: true,
+                                        description: Text(
+                                            '$empId   $empName: time: $time'),
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.all(3),
                                       );
                                     }
                                   },
@@ -853,25 +866,25 @@ class _AttLogUIState extends State<AttLogUI>
                                     await MyFuntion.insertHistory(
                                         'ADD attendance log : ${attLog.attFingerId}   ${attLog.empId}   ${attLog.name}   ${DateFormat('dd-MMM-yyyy hh:mm:ss').format(attLog.timestamp)}');
                                     updateMode = 'manual';
-                                    refreshData(timeBegin, timeEnd);
-
+                                    refreshData(timeBegin, timeEnd, updateMode);
                                     toastification.show(
-                                      showProgressBar: true,
-                                      backgroundColor: Colors.blue[100],
-                                      alignment: Alignment.center,
                                       context: context,
-                                      title: Text(
-                                          'Adding:  $empId   $empName: time: $time'),
-                                      autoCloseDuration:
-                                          const Duration(seconds: 1),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 8,
-                                          offset: Offset(0, 16),
-                                          spreadRadius: 0,
-                                        )
-                                      ],
+                                      type: ToastificationType.info,
+                                      style: ToastificationStyle.flatColored,
+                                      autoCloseDuration: Duration(seconds: 2),
+                                      title: const Text(
+                                        'Adding attendance log',
+                                      ),
+                                      showProgressBar: true,
+                                      progressBarTheme:
+                                          ProgressIndicatorThemeData(
+                                              color: Colors.green),
+                                      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                                      showIcon: true,
+                                      description: Text(
+                                          '$empId   $empName: time: $time'),
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.all(3),
                                     );
                                   }
                                 },
@@ -886,7 +899,8 @@ class _AttLogUIState extends State<AttLogUI>
                     ),
                     TextButton.icon(
                       onPressed: () {
-                        gValue.logger.t('(gValue.attLogs : ${gValue.attLogs.length}');
+                        gValue.logger
+                            .t('(gValue.attLogs : ${gValue.attLogs.length}');
                         MyFile.createExcelAttLog(
                             gValue.attLogs
                                 .where((log) => log.empId.contains('TIQN'))
@@ -929,22 +943,24 @@ class _AttLogUIState extends State<AttLogUI>
                       onPressed: () async {
                         if (gValue.accessMode != 'edit') {
                           toastification.show(
-                            showProgressBar: true,
-                            backgroundColor: Colors.amber[200],
-                            alignment: Alignment.center,
                             context: context,
+                            type: ToastificationType.warning,
+                            style: ToastificationStyle.flatColored,
+                            autoCloseDuration: Duration(seconds: 2),
                             title: const Text(
+                              'Waring',
+                            ),
+                            showProgressBar: true,
+                            progressBarTheme:
+                                ProgressIndicatorThemeData(color: Colors.red),
+                            // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                            showIcon: true,
+                            description: Text(
                                 'Bạn không có quyền sử dụng chức năng này !'),
-                            autoCloseDuration: const Duration(seconds: 2),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: Offset(0, 16),
-                                spreadRadius: 0,
-                              )
-                            ],
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(3),
                           );
+
                           return;
                         }
                         List<Text> logs = [];
@@ -1203,26 +1219,27 @@ class _AttLogUIState extends State<AttLogUI>
                               timestamp: timeStamp);
                           await gValue.mongoDb.insertAttLogs([attLog]);
                           updateMode = 'manual';
-                          refreshData(timeBegin, timeEnd);
+                          refreshData(timeBegin, timeEnd, updateMode);
 
                           String log =
                               'UPDATE attendance log : ${row['attFingerId']}  ${row['timeStamp']} : "No Emp Id" to  $empIdUpdate,  "No Name" to   $empNameUpdate   ';
                           await MyFuntion.insertHistory(log);
                           toastification.show(
-                            showProgressBar: true,
-                            backgroundColor: Colors.green[200],
-                            alignment: Alignment.center,
                             context: context,
-                            title: Text(log),
-                            autoCloseDuration: const Duration(seconds: 3),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: Offset(0, 16),
-                                spreadRadius: 0,
-                              )
-                            ],
+                            type: ToastificationType.info,
+                            style: ToastificationStyle.flatColored,
+                            autoCloseDuration: Duration(seconds: 4),
+                            title: const Text(
+                              'Info',
+                            ),
+                            showProgressBar: true,
+                            progressBarTheme:
+                                ProgressIndicatorThemeData(color: Colors.green),
+                            // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                            showIcon: true,
+                            description: Text(log),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(3),
                           );
                         },
                       )
@@ -1234,21 +1251,22 @@ class _AttLogUIState extends State<AttLogUI>
                   onPressed: () {
                     if (gValue.accessMode != 'edit') {
                       toastification.show(
-                        showProgressBar: true,
-                        backgroundColor: Colors.amber[200],
-                        alignment: Alignment.center,
                         context: context,
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.flatColored,
+                        autoCloseDuration: Duration(seconds: 2),
                         title: const Text(
-                            'Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: const Duration(seconds: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 16),
-                            spreadRadius: 0,
-                          )
-                        ],
+                          'Info',
+                        ),
+                        showProgressBar: true,
+                        progressBarTheme:
+                            ProgressIndicatorThemeData(color: Colors.red),
+                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                        showIcon: true,
+                        description:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(3),
                       );
                       return;
                     }
@@ -1293,7 +1311,7 @@ class _AttLogUIState extends State<AttLogUI>
                                     .removeRows([rendererContext.row]);
                               });
                               updateMode = 'manual';
-                              refreshData(timeBegin, timeEnd);
+                              refreshData(timeBegin, timeEnd, updateMode);
                             },
                             closeIcon: const Icon(Icons.close))
                         .show();
@@ -1436,74 +1454,6 @@ class _AttLogUIState extends State<AttLogUI>
     return rows;
   }
 
-  // The method for [DateRangePickerSelectionChanged] callback, which will be
-  // called whenever a selection changed on the date picker widget.
-  void onSelectionChangedSfDateRangePicker(
-      DateRangePickerSelectionChangedArgs args) {
-    try {
-      // Convert args.value thành string
-      String dateRangeString = args.value.toString();
-
-      // Parse string để lấy startDate và endDate
-      List<DateTime> dates = [];
-
-      // RegExp để extract startDate và endDate
-      final RegExp regExp = RegExp(
-          r'startDate:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}),\s*endDate:\s*(null|\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})');
-
-      final match = regExp.firstMatch(dateRangeString);
-
-      if (match != null) {
-        // Extract startDate
-        String startDateStr = match.group(1)!;
-        DateTime startDate = DateTime.parse(startDateStr);
-        dates.add(startDate);
-
-        // Extract endDate nếu không phải null
-        String? endDateStr = match.group(2);
-        if (endDateStr != null && endDateStr != 'null') {
-          DateTime endDate = DateTime.parse(endDateStr);
-          dates.add(endDate);
-        }
-      }
-
-      // Gán giá trị cho timeBegin và timeEnd
-      if (dates.isNotEmpty) {
-        timeBegin = dates[0];
-
-        if (dates.length > 1) {
-          timeEnd = dates[1];
-        } else {
-          timeEnd = dates[0]; // Nếu chỉ có startDate thì timeEnd = timeBegin
-        }
-      } else {
-        // Nếu không parse được thì set về today
-        DateTime today = DateTime.now();
-        timeBegin = today;
-        timeEnd = today;
-      }
-    } catch (e) {
-      // Nếu có lỗi thì set cả hai về today
-      DateTime today = DateTime.now();
-      timeBegin = today;
-      timeEnd = today;
-    }
-    timeBegin = timeBegin.appliedFromTimeOfDay(const TimeOfDay(
-      hour: 0,
-      minute: 0,
-    ));
-    timeEnd = timeEnd.appliedFromTimeOfDay(const TimeOfDay(
-      hour: 23,
-      minute: 59,
-    ));
-
-    setState(() {
-      exportTimeSheetDaysVisible = false;
-    });
-    gValue.logger.t(
-        'onSelectionChanged :\n Input ${args.value}\n Output timeBegin: $timeBegin, timeEnd: $timeEnd  ');
-  }
-
   void onSelectionChangedAddRecord(DateRangePickerSelectionChangedArgs args) {
     setState(() {
       if (args.value is PickerDateRange) {
@@ -1518,7 +1468,8 @@ class _AttLogUIState extends State<AttLogUI>
         minute: 59,
       ));
     });
-    gValue.logger.t('onSelectionChangedAddRecord : dateAddRecord: $dateAddRecord  ');
+    gValue.logger
+        .t('onSelectionChangedAddRecord : dateAddRecord: $dateAddRecord  ');
   }
 
   chartPresent(int workingNormal, int maternityLeave, int present, int absent) {
@@ -1564,5 +1515,78 @@ class _AttLogUIState extends State<AttLogUI>
             decimalPlaces: 0,
           ),
         ));
+  }
+
+  void parseDateRangeString(String dateRangeString) {
+    try {
+      gValue.logger.t('parseDateRangeString Input: $dateRangeString');
+
+      // Parse string để lấy startDate và endDate
+      List<DateTime> dates = [];
+
+      // RegExp để extract startDate và endDate
+      final RegExp regExp = RegExp(
+          r'startDate:\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}),\s*endDate:\s*(null|\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})');
+
+      final match = regExp.firstMatch(dateRangeString);
+
+      if (match != null) {
+        // Extract startDate
+        String startDateStr = match.group(1)!;
+        DateTime startDate = DateTime.parse(startDateStr);
+        dates.add(startDate);
+
+        gValue.logger.t('Parsed startDate: $startDate');
+
+        // Extract endDate nếu không phải null
+        String? endDateStr = match.group(2);
+        if (endDateStr != null && endDateStr != 'null') {
+          DateTime endDate = DateTime.parse(endDateStr);
+          dates.add(endDate);
+          gValue.logger.t('Parsed endDate: $endDate');
+        } else {
+          gValue.logger.t('endDate is null');
+        }
+      } else {
+        gValue.logger.w('RegExp không match với input string');
+      }
+
+      // Gán giá trị cho timeBegin và timeEnd
+      if (dates.isNotEmpty) {
+        timeBegin = dates[0];
+
+        if (dates.length > 1) {
+          timeEnd = dates[1];
+        } else {
+          timeEnd = dates[0]; // Nếu chỉ có startDate thì timeEnd = timeBegin
+        }
+      } else {
+        // Nếu không parse được thì set về today
+        DateTime today = DateTime.now();
+        timeBegin = today;
+        timeEnd = today;
+        gValue.logger.w('Không parse được dates, fallback to today');
+      }
+    } catch (e) {
+      // Nếu có lỗi thì set cả hai về today
+      DateTime today = DateTime.now();
+      timeBegin = today;
+      timeEnd = today;
+      gValue.logger.e('Error parsing date range: $e');
+    }
+
+    // Apply time of day
+    timeBegin = timeBegin!.appliedFromTimeOfDay(const TimeOfDay(
+      hour: 0,
+      minute: 0,
+    ));
+    timeEnd = timeEnd!.appliedFromTimeOfDay(const TimeOfDay(
+      hour: 23,
+      minute: 59,
+    ));
+
+    // Log kết quả
+    gValue.logger.t(
+        'parseDateRangeString Output - timeBegin: $timeBegin, timeEnd: $timeEnd');
   }
 }

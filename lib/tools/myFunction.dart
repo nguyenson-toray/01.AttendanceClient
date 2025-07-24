@@ -13,6 +13,7 @@ import 'package:tiqn/database/shiftRegister.dart';
 import 'package:tiqn/database/timeSheetDate.dart';
 import 'package:tiqn/database/timeSheetMonthYear.dart';
 import 'package:tiqn/gValue.dart';
+import 'package:tiqn/main.dart';
 
 class MyFuntion {
   // static void calculateLastId(RealmResults<Employee> employees) {
@@ -431,10 +432,19 @@ class MyFuntion {
     List<TimeSheetDate> result = [];
     DateTime dateTemp = timeBegin;
     List<DateTime> dates = [];
+    gValue.logger.t(
+        'createTimeSheetsDate: attLogs: ${attLogs.length}     -   employeeIdFilter: ${employeeIdFilter.length}    timeBegin:$timeBegin timeEnd:$timeEnd \notRegisters: ${otRegisters.length}');
     if (employees.isEmpty || attLogs.isEmpty) {
       return result;
     }
-    while (dateTemp.isBefore(timeEnd)) {
+    if (employeeIdFilter.isNotEmpty) {
+      employees = employees
+          .where((element) => employeeIdFilter.contains(element.empId))
+          .toList();
+    }
+    // gValue.empsByPass.addAll(employeeIdFilter);
+    while (dateTemp.isBefore(
+        timeEnd.appliedFromTimeOfDay(TimeOfDay(hour: 23, minute: 59)))) {
       dates.add(dateTemp);
       dateTemp = dateTemp.add(const Duration(days: 1));
     }
@@ -490,10 +500,7 @@ class MyFuntion {
         if (date.isBefore(emp.joiningDate!)) {
           continue;
         }
-        if (employeeIdFilter.isNotEmpty &&
-            !employeeIdFilter.contains(emp.empId)) {
-          continue;
-        }
+
         if (gValue.empsByPass.contains(emp.empId)) {
           // nhung nguoi da nghi viec nhung khong co co theo doi - bom hang
           continue;
@@ -715,6 +722,7 @@ class MyFuntion {
                           .difference(beginTimeOTRegister)
                           .inMinutes /
                       60;
+
                   if (date.weekday == DateTime.sunday &&
                       int.parse(beginH) < restBegin.hour &&
                       int.parse(endH) > restEnd.hour) {

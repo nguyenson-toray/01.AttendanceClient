@@ -81,19 +81,20 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
       lastUpdate = DateTime.now();
     });
     toastification.show(
-      backgroundColor: Colors.blue[200],
-      alignment: Alignment.center,
       context: context,
-      title: Text('Data loaded !'),
-      autoCloseDuration: const Duration(seconds: 2),
-      boxShadow: const [
-        BoxShadow(
-          color: Colors.black12,
-          blurRadius: 8,
-          offset: Offset(0, 16),
-          spreadRadius: 0,
-        )
-      ],
+      type: ToastificationType.info,
+      style: ToastificationStyle.flatColored,
+      autoCloseDuration: Duration(seconds: 1),
+      title: const Text(
+        'Shift',
+      ),
+      showProgressBar: true,
+      progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+      showIcon: true,
+      description: Text('Data loaded !'),
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(3),
     );
   }
 
@@ -174,21 +175,22 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                   onPressed: () {
                     if (gValue.accessMode != 'edit') {
                       toastification.show(
-                        showProgressBar: true,
-                        backgroundColor: Colors.amber[200],
-                        alignment: Alignment.center,
                         context: context,
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.flatColored,
+                        autoCloseDuration: Duration(seconds: 2),
                         title: const Text(
-                            'Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: const Duration(seconds: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 16),
-                            spreadRadius: 0,
-                          )
-                        ],
+                          'Shift',
+                        ),
+                        showProgressBar: true,
+                        progressBarTheme:
+                            ProgressIndicatorThemeData(color: Colors.red),
+                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                        showIcon: true,
+                        description:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(3),
                       );
                       return;
                     }
@@ -209,21 +211,22 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                   onPressed: () async {
                     if (gValue.accessMode != 'edit') {
                       toastification.show(
-                        showProgressBar: true,
-                        backgroundColor: Colors.amber[200],
-                        alignment: Alignment.center,
                         context: context,
+                        type: ToastificationType.warning,
+                        style: ToastificationStyle.flatColored,
+                        autoCloseDuration: Duration(seconds: 2),
                         title: const Text(
-                            'Bạn không có quyền sử dụng chức năng này !'),
-                        autoCloseDuration: const Duration(seconds: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 16),
-                            spreadRadius: 0,
-                          )
-                        ],
+                          'Shift',
+                        ),
+                        showProgressBar: true,
+                        progressBarTheme:
+                            ProgressIndicatorThemeData(color: Colors.red),
+                        // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                        showIcon: true,
+                        description:
+                            Text('Bạn không có quyền sử dụng chức năng này !'),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(3),
                       );
                       return;
                     }
@@ -376,21 +379,22 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                 onPressed: () {
                   if (gValue.accessMode != 'edit') {
                     toastification.show(
-                      showProgressBar: true,
-                      backgroundColor: Colors.amber[200],
-                      alignment: Alignment.center,
                       context: context,
+                      type: ToastificationType.warning,
+                      style: ToastificationStyle.flatColored,
+                      autoCloseDuration: Duration(seconds: 2),
                       title: const Text(
-                          'Bạn không có quyền sử dụng chức năng này !'),
-                      autoCloseDuration: const Duration(seconds: 2),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 16),
-                          spreadRadius: 0,
-                        )
-                      ],
+                        'Shift',
+                      ),
+                      showProgressBar: true,
+                      progressBarTheme:
+                          ProgressIndicatorThemeData(color: Colors.red),
+                      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                      showIcon: true,
+                      description:
+                          Text('Bạn không có quyền sử dụng chức năng này !'),
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(3),
                     );
                     return;
                   }
@@ -494,22 +498,23 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                                     0)
                                   {
                                     toastification.show(
-                                      showProgressBar: true,
-                                      backgroundColor: Colors.red[200],
-                                      alignment: Alignment.center,
                                       context: context,
+                                      type: ToastificationType.warning,
+                                      style: ToastificationStyle.flatColored,
+                                      autoCloseDuration: Duration(seconds: 3),
                                       title: const Text(
+                                        'Waring',
+                                      ),
+                                      showProgressBar: true,
+                                      progressBarTheme:
+                                          ProgressIndicatorThemeData(
+                                              color: Colors.red),
+                                      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+                                      showIcon: true,
+                                      description: Text(
                                           'Ngày không hợp lệ\nHãy chọn lại ngày !'),
-                                      autoCloseDuration:
-                                          const Duration(seconds: 3),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 8,
-                                          offset: Offset(0, 16),
-                                          spreadRadius: 0,
-                                        )
-                                      ],
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.all(3),
                                     )
                                   }
                                 else

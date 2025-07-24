@@ -54,20 +54,22 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
     }
     maxOtYear = yearData.fold<double>(
         0, (max, e) => e.otHoursApproved > max ? e.otHoursApproved : max);
+
     toastification.show(
-      backgroundColor: Colors.greenAccent,
-      alignment: Alignment.center,
       context: context,
-      title: const Text('Data updating ...'),
-      autoCloseDuration: const Duration(seconds: 2),
-      boxShadow: const [
-        BoxShadow(
-          color: Colors.green,
-          blurRadius: 16,
-          offset: Offset(0, 16),
-          spreadRadius: 0,
-        )
-      ],
+      type: ToastificationType.info,
+      style: ToastificationStyle.flatColored,
+      autoCloseDuration: Duration(seconds: 3),
+      title: const Text(
+        'Info',
+      ),
+      showProgressBar: true,
+      progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+      showIcon: true,
+      description: Text('Data updating ...'),
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(3),
     );
     gValue.mongoDb.getTimesheetsMonthYear('2025').then(
       (value2025) {
@@ -365,7 +367,8 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                   onPressed: () {
                                     gValue.logger.t(
                                         ' onPressed-isLoading: $isLoading monthName=$monthName');
-                                    gValue.logger.t(gValue.timeSheetMonthYears[monthName]
+                                    gValue.logger.t(gValue
+                                        .timeSheetMonthYears[monthName]
                                         ?.length);
                                     setState(() {
                                       expandYear = false;
@@ -445,7 +448,8 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
                                         gValue.logger.t('onRowDoubleTap');
                                       },
                                       onLoaded: (PlutoGridOnLoadedEvent event) {
-                                        gValue.logger.t(' Timesheets - onLoaded');
+                                        gValue.logger
+                                            .t(' Timesheets - onLoaded');
                                         stateManager = event.stateManager;
                                         stateManager.setShowColumnFilter(true);
                                         stateManager.sortDescending(PlutoColumn(
@@ -600,19 +604,20 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
     }
     var begin = DateTime.utc(yearBegin, monBegin, dateBegin);
     toastification.show(
-      backgroundColor: Colors.greenAccent,
-      alignment: Alignment.center,
       context: context,
-      title: const Text('Data is loading...'),
-      autoCloseDuration: const Duration(seconds: 5),
-      boxShadow: const [
-        BoxShadow(
-          color: Color.fromARGB(6, 93, 250, 87),
-          blurRadius: 16,
-          offset: Offset(0, 16),
-          spreadRadius: 0,
-        )
-      ],
+      type: ToastificationType.info,
+      style: ToastificationStyle.flatColored,
+      autoCloseDuration: Duration(seconds: 3),
+      title: const Text(
+        'Info',
+      ),
+      showProgressBar: true,
+      progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+      showIcon: true,
+      description: Text('Data loading ...'),
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(3),
     );
     List<OtRegister> otRegisters =
         await gValue.mongoDb.getOTRegisterByRangeDate(begin, end);
@@ -658,19 +663,20 @@ class _TimesheetsUIState extends State<TimesheetsUI> {
     }
     var begin = DateTime.utc(yearBegin, monBegin, dateBegin);
     toastification.show(
-      backgroundColor: Colors.greenAccent,
-      alignment: Alignment.center,
       context: context,
-      title: const Text('Data is loading...'),
-      autoCloseDuration: const Duration(seconds: 2),
-      boxShadow: const [
-        BoxShadow(
-          color: Color.fromARGB(6, 93, 250, 87),
-          blurRadius: 16,
-          offset: Offset(0, 16),
-          spreadRadius: 0,
-        )
-      ],
+      type: ToastificationType.info,
+      style: ToastificationStyle.flatColored,
+      autoCloseDuration: Duration(seconds: 3),
+      title: const Text(
+        'Info',
+      ),
+      showProgressBar: true,
+      progressBarTheme: ProgressIndicatorThemeData(color: Colors.green),
+      // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
+      showIcon: true,
+      description: Text('Data loading ...'),
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(3),
     );
     List<OtRegister> otRegister =
         await gValue.mongoDb.getOTRegisterByRangeDate(begin, end);
