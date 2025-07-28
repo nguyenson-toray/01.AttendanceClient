@@ -322,7 +322,6 @@ class _AttLogUIState extends State<AttLogUI>
                                 gValue.shiftRegisters,
                                 otRegister,
                                 gValue.leaveRegisters,
-                                // gValue.attLogs : remove empId not begin with 'TIQN'
                                 gValue.attLogs,
                                 timeBegin,
                                 timeEnd,
@@ -384,8 +383,8 @@ class _AttLogUIState extends State<AttLogUI>
                             DateFormat.yMMMM().parse(selectedMonth).year;
                         var monthEnd =
                             DateFormat.yMMMM().parse(selectedMonth).month;
-                        var dateEnd = 26;
                         var dateBegin = 26;
+                        var dateEnd = 25;
                         int monBegin, yearBegin;
                         var end = DateTime.utc(yearEnd, monthEnd, dateEnd);
                         if (monthEnd == 1) {
@@ -410,7 +409,7 @@ class _AttLogUIState extends State<AttLogUI>
                               ProgressIndicatorThemeData(color: Colors.green),
                           // icon: Icon(Icons.error_sharp, color: Colors.redAccent),
                           showIcon: true,
-                          description: Text('From $timeBegin to $timeEnd'),
+                          description: Text('From $begin to $end'),
                           alignment: Alignment.center,
                           padding: EdgeInsets.all(3),
                         );

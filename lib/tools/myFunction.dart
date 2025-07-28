@@ -445,7 +445,7 @@ class MyFuntion {
     // gValue.empsByPass.addAll(employeeIdFilter);
     while (dateTemp.isBefore(
         timeEnd.appliedFromTimeOfDay(TimeOfDay(hour: 23, minute: 59)))) {
-      dates.add(dateTemp);
+      dates.add(dateTemp.appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0)));
       dateTemp = dateTemp.add(const Duration(days: 1));
     }
     List<OtRegister> otRegistersOnDate = [];
@@ -500,8 +500,6 @@ class MyFuntion {
         if (date.appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0)).isBefore(
             emp.joiningDate!
                 .appliedFromTimeOfDay(TimeOfDay(hour: 0, minute: 0)))) {
-          gValue.logger.t(
-              ' ${emp.empId}  : date : $date  isBefore joiningDate: ${emp.joiningDate} ==> RETURN');
           continue;
         }
 
@@ -596,7 +594,8 @@ class MyFuntion {
               emp.maternityEnd != null &&
               date.compareTo(emp.maternityEnd!) <= 0) {
             shiftTimeEnd = shiftTimeEnd.subtract(const Duration(hours: 1));
-            attNote2 += 'Chế độ mang thai/ nuôi con nhỏ';
+            attNote2 +=
+                'Chế độ mang thai/ nuôi con nhỏ ${emp.maternityBegin} ${emp.maternityEnd}';
           }
           if (firstIn.isBefore(shiftTimeBegin) &&
               lastOut.isBefore(shiftTimeBegin)) {
