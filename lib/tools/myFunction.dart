@@ -562,7 +562,7 @@ class MyFuntion {
             .firstWhere((element) => element.shift == shift)
             .end
             .split(':')[1]);
-
+        bool isOTRestHour = false;
         shiftTimeBegin = DateTime.utc(
             date.year, date.month, date.day, hourBegin, minuteBegin);
         shiftTimeEnd =
@@ -705,7 +705,17 @@ class MyFuntion {
                   }
                   otRegisterEmpOnDates = uniqueRecords.values.toList();
                 }
-
+                // kiểm tra OT có trùng giờ nghỉ trưa không, nếu có thì xóa bản ghi OT đó, otActual +=1, otApproved +=1, attNote1 += OT  giờ nghỉ trưa
+                for (var ot in otRegisterEmpOnDates) {
+                  if (int.parse(ot.otTimeBegin.split(':').first) <=
+                          restBegin.hour &&
+                      int.parse(ot.otTimeEnd.split(':').first) >=
+                          restEnd.hour) {
+                    isOTRestHour = true;
+                    otRegisterEmpOnDates.remove(ot);
+                    break;
+                  }
+                }
                 if (otRegisterEmpOnDates.length == 1) {
                   otRegisterEmp = otRegisterEmpOnDates.first;
                   beginH = otRegisterEmp.otTimeBegin.split(':')[0];
@@ -771,6 +781,7 @@ class MyFuntion {
                     }
                   }
                 } else if (otRegisterEmpOnDates.length == 2) {
+                  print('@@@@@@@@@@@@@@@@ otRegisterEmpOnDates.length == 2)');
                   // max 2 bản ghi OT / ngày
                   otRegisterEmpOnDates
                       .sort((a, b) => a.otTimeEnd.compareTo(b.otTimeEnd));
@@ -778,6 +789,7 @@ class MyFuntion {
                   beginM = otRegisterEmpOnDates.first.otTimeBegin.split(':')[1];
                   endH = otRegisterEmpOnDates.last.otTimeEnd.split(':')[0];
                   endM = otRegisterEmpOnDates.last.otTimeEnd.split(':')[1];
+
                   if (int.parse(beginH) >= shiftTimeBegin.hour &&
                       int.parse(endH) >= shiftTimeBegin.hour) {
                     // Cả 2 bản ghi sau ca làm việc => cộng dồn 2 bản ghi
@@ -851,6 +863,12 @@ class MyFuntion {
                   }
                 }
               }
+            }
+            if (isOTRestHour) {
+              otActual += restHour;
+              otApproved += restHour;
+              attNote1 += "OT giờ nghỉ trưa ; ";
+              isOTRestHour = false;
             }
             otFinal = (otActual <= otApproved) ? otActual : otApproved;
             // <- Tính OT
