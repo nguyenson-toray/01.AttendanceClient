@@ -1,6 +1,7 @@
 // import 'package:realm/realm.dart';
 import 'dart:math';
 
+import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tiqn/database/history.dart';
@@ -744,7 +745,7 @@ class MyFuntion {
                     otApproved -= 1;
 
                     if (beginTimeOTRegister.isBefore(shiftTimeBegin) &&
-                        firstIn.hour < shiftTimeBegin.hour) {
+                        firstIn.hour <= shiftTimeBegin.hour) {
                       // OT truoc 8h
                       otActual =
                           shiftTimeBegin.difference(firstIn).inMinutes / 60;
@@ -762,7 +763,7 @@ class MyFuntion {
                       otActual =
                           shiftTimeBegin.difference(firstIn).inMinutes / 60;
                     }
-                    otFinal = otActual >= otApproved ? otApproved : otActual;
+                    otFinal = min(otActual, otApproved);
                     attNote1 += "OT trước ca làm việc ; ";
                   } else if (int.parse(beginH) >= shiftTimeEnd.hour) {
                     // đăng ký OT sau ca làm việc (sau 16h hoặc 17h)
@@ -892,12 +893,64 @@ class MyFuntion {
           }
         }
         if (date.weekday == DateTime.sunday) {
-          var ot = normalHours + otActual;
+          bool isOTSundayApprove = false;
+          double otSunDayBefore8h = 0;
+          double otApprovedSunday = 0;
+          if (otRegistersOnDate
+              .where((ot) => ot.empId == emp.empId)
+              .toList()
+              .isNotEmpty) {
+            isOTSundayApprove = true;
+
+            var empOTSunday = otRegistersOnDate
+                .where((ot) => ot.empId == emp.empId)
+                .toList()
+                .firstOrNull;
+            int shiftBeginH =
+                int.parse(empOTSunday!.otTimeBegin.split(":").first);
+            int shiftBeginM =
+                int.parse(empOTSunday!.otTimeBegin.split(":").last);
+            DateTime shiftBeginSunday = DateTime.utc(
+                date.year, date.month, date.day, shiftBeginH, shiftBeginM);
+            int shiftEndH = int.parse(empOTSunday!.otTimeEnd.split(":").first);
+            int shiftEndM = int.parse(empOTSunday!.otTimeEnd.split(":").last);
+            DateTime shiftEndSunday = DateTime.utc(
+                date.year, date.month, date.day, shiftEndH, shiftEndM);
+            otApprovedSunday =
+                shiftBeginSunday.difference(shiftEndSunday).inMinutes / 60;
+
+            otApprovedSunday =
+                int.parse(empOTSunday!.otTimeEnd.split(":").first) -
+                    int.parse(empOTSunday!.otTimeBegin.split(":").first)
+                        .toDouble();
+            if (firstIn.isBefore(shiftBeginSunday)) {
+              // OT truoc 8h
+              otSunDayBefore8h =
+                  DateTime.utc(date.year, date.month, date.day, 8, 0)
+                          .difference(shiftBeginSunday)
+                          .inMinutes /
+                      60;
+            } else {
+              otSunDayBefore8h =
+                  shiftBeginSunday.difference(firstIn).inMinutes / 60;
+            }
+            if (shiftBeginSunday.hour < 12 && shiftEndSunday.hour > 13)
+              otApprovedSunday -= 1; // tru gio nghi trua
+          }
+
+          otApproved = otApprovedSunday;
+          var ot = normalHours + otActual + otSunDayBefore8h;
           otActual = ot;
           normalHours = 0;
+          if (firstIn.hour < 12 && lastOut.hour > 13 && otApprovedSunday > 0) {
+            otActual -= 1; // tru gio nghi trua
+          }
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
           if (otActual > 0) {
             attNote1 = 'OT ngày CN ; ';
+            if (!isOTSundayApprove)
+              attNote1 =
+                  'Chưa đăng ký OT ngày CN (tạm tính như ca ngày bình thường); ';
             if (otActual > 4 &&
                 lastOut.isAfter(restEnd) &&
                 firstIn.isBefore(restBegin)) {
