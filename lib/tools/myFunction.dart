@@ -756,7 +756,7 @@ class MyFuntion {
                   else if (int.parse(beginH) < shiftTimeBegin.hour &&
                       int.parse(endH) <= shiftTimeBegin.hour) {
                     var beginOTAllow = shiftTimeBegin
-                        .subtract(Duration(minutes: otApproved.toInt()));
+                        .subtract(Duration(minutes: otApproved.toInt() * 60));
                     if (firstIn.isBefore(beginOTAllow)) {
                       otActual = otApproved;
                     } else {
