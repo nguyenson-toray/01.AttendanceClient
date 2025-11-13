@@ -782,7 +782,6 @@ class MyFuntion {
                     }
                   }
                 } else if (otRegisterEmpOnDates.length == 2) {
-                  print('@@@@@@@@@@@@@@@@ otRegisterEmpOnDates.length == 2)');
                   // max 2 bản ghi OT / ngày
                   otRegisterEmpOnDates
                       .sort((a, b) => a.otTimeEnd.compareTo(b.otTimeEnd));
@@ -939,12 +938,10 @@ class MyFuntion {
           }
 
           otApproved = otApprovedSunday;
-          var ot = normalHours + otActual + otSunDayBefore8h;
+          var ot = normalHours + otSunDayBefore8h;
           otActual = ot;
           normalHours = 0;
-          if (firstIn.hour < 12 && lastOut.hour > 13 && otApprovedSunday > 0) {
-            otActual -= 1; // tru gio nghi trua
-          }
+
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
           if (otActual > 0) {
             attNote1 = 'OT ngày CN ; ';
