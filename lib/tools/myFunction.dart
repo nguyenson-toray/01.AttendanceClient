@@ -657,11 +657,18 @@ class MyFuntion {
                       lastOut.isAtSameMomentAs(restBegin))) {
                 normalHours = lastOut.difference(firstIn).inMinutes / 60;
               }
-              // vao tre sau 12h, ra som truoc 17h
+              // vao tre 12-13h, ra som truoc 17h
               else if ((firstIn.isAfter(restBegin) ||
                       firstIn.isAtSameMomentAs(restBegin)) &&
+                  (firstIn.isBefore(restEnd) ||
+                      firstIn.isAtSameMomentAs(restEnd)) &&
                   (lastOut.isBefore(shiftTimeEnd))) {
                 normalHours = lastOut.difference(restEnd).inMinutes / 60;
+              }
+              // vao tre sau 13h, ra som truoc 17h
+              else if (firstIn.isAfter(restEnd) &&
+                  (lastOut.isBefore(shiftTimeEnd))) {
+                normalHours = lastOut.difference(firstIn).inMinutes / 60;
               } else if (firstIn.isAfter(shiftTimeBegin) &&
                   lastOut.isBefore(shiftTimeEnd) &&
                   !empIdShift1.contains(emp.empId) &&
@@ -922,6 +929,8 @@ class MyFuntion {
                 int.parse(empOTSunday!.otTimeEnd.split(":").first) -
                     int.parse(empOTSunday!.otTimeBegin.split(":").first)
                         .toDouble();
+            print(
+                'shiftBeginSunday: $shiftBeginSunday   shiftEndSunday:$shiftEndSunday  otApprovedSunday: $otApprovedSunday');
             if (firstIn.isBefore(shiftBeginSunday)) {
               // OT truoc 8h
               otSunDayBefore8h =
@@ -941,7 +950,6 @@ class MyFuntion {
           var ot = normalHours + otSunDayBefore8h;
           otActual = ot;
           normalHours = 0;
-
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
           if (otActual > 0) {
             attNote1 = 'OT ngày CN ; ';
