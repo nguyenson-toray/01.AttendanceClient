@@ -526,7 +526,13 @@ class MyFuntion {
               '${emp.empId} ${emp.name} ${emp.group} Resign on ${DateFormat('dd-MMM-yyyy').format(emp.resignOn!)}: Chấm công: ${logs.map((e) => DateFormat('dd-MMM-yyyy HH:mm').format(e.timestamp)).join(', ')}\n';
         }
 
-        double normalHours = 8, otActual = 0, otApproved = 0, otFinal = 0;
+        double normalHours = 0,
+            normalHoursMorning = 0,
+            normalHoursAfterNoon = 0,
+            otActual = 0,
+            otApproved = 0,
+            otFinal = 0;
+        bool isMaternity = false;
         String shift = 'Day';
         int restHour = 1;
         DateTime shiftTimeBegin =
@@ -597,87 +603,41 @@ class MyFuntion {
             shiftTimeEnd = shiftTimeEnd.subtract(const Duration(hours: 1));
             attNote2 +=
                 'Chế độ mang thai/ nuôi con nhỏ ${emp.maternityBegin} ${emp.maternityEnd}';
+            isMaternity = true;
           }
-          if (firstIn.isBefore(shiftTimeBegin) &&
-              lastOut.isBefore(shiftTimeBegin)) {
+          if (lastOut.isBefore(shiftTimeBegin) ||
+              lastOut.isAtSameMomentAs(shiftTimeBegin)) {
             normalHours = 0;
-            otApproved = 0;
             otActual = 0;
             attNote1 += 'Không chấm công RA';
-          } else if (firstIn.isAfter(shiftTimeEnd) &&
-              lastOut.isAfter(shiftTimeEnd)) {
+          } else if (firstIn.isAfter(shiftTimeEnd) ||
+              firstIn.isAtSameMomentAs(shiftTimeEnd)) {
             normalHours = 0;
-            otApproved = 0;
             otActual = 0;
             attNote1 += 'Không chấm công VÀO';
           } else if (firstIn.isAtSameMomentAs(lastOut)) {
             normalHours = 0;
-            otApproved = 0;
             otActual = 0;
           } else {
-            normalHours = 8;
-            // NORMAL
-            if (firstIn.isAfter(shiftTimeBegin) &&
-                (lastOut.isAtSameMomentAs(shiftTimeEnd) ||
-                    lastOut.isAfter(shiftTimeEnd))) {
-              // vao tre, ra dung gio
-              if (firstIn.isBefore(restBegin)) {
-                // truoc 12h
-                normalHours -=
-                    firstIn.difference(shiftTimeBegin).inMinutes / 60;
-              } else if (firstIn.isBefore(restEnd)) {
-                // 12h .. 13h
-                normalHours = 4;
-              } else {
-                //sau 13h
-                normalHours = shiftTimeEnd.difference(firstIn).inMinutes / 60;
-              }
-            } else if ((firstIn.isBefore(shiftTimeBegin) ||
-                    firstIn.isAtSameMomentAs(shiftTimeBegin)) &&
-                lastOut.isBefore(shiftTimeEnd)) {
-              // vao dung gio, ra som
-              if (lastOut.isBefore(restBegin)) {
-                //ra truoc 12h :
-                normalHours = lastOut.difference(shiftTimeBegin).inMinutes / 60;
-              } else if (lastOut.isBefore(restEnd)) {
-                // ra sau 12h & truoc 13h
-                normalHours = 4;
-              } else {
-                // ra sau 13h : 8- so gio ra som
-                if (shiftTimeEnd.difference(lastOut).inSeconds > 0 &&
-                    shiftTimeEnd.difference(lastOut).inSeconds < 60) {
-                  normalHours -= 0.1;
-                } else {}
-                normalHours -= shiftTimeEnd.difference(lastOut).inMinutes / 60;
-              }
-            } else {
-              // vao tre, ra som truoc 12h
-              if (firstIn.isAfter(shiftTimeBegin) &&
-                  (lastOut.isBefore(restBegin) ||
-                      lastOut.isAtSameMomentAs(restBegin))) {
-                normalHours = lastOut.difference(firstIn).inMinutes / 60;
-              }
-              // vao tre 12-13h, ra som truoc 17h
-              else if ((firstIn.isAfter(restBegin) ||
-                      firstIn.isAtSameMomentAs(restBegin)) &&
-                  (firstIn.isBefore(restEnd) ||
-                      firstIn.isAtSameMomentAs(restEnd)) &&
-                  (lastOut.isBefore(shiftTimeEnd))) {
-                normalHours = lastOut.difference(restEnd).inMinutes / 60;
-              }
-              // vao tre sau 13h, ra som truoc 17h
-              else if (firstIn.isAfter(restEnd) &&
-                  (lastOut.isBefore(shiftTimeEnd))) {
-                normalHours = lastOut.difference(firstIn).inMinutes / 60;
-              } else if (firstIn.isAfter(shiftTimeBegin) &&
-                  lastOut.isBefore(shiftTimeEnd) &&
-                  !empIdShift1.contains(emp.empId) &&
-                  !empIdShift2.contains(emp.empId)) {
-                // vao tre sau 8h, ra som truoc 17h
-                // normalHours = lastOut.difference(firstIn).inMinutes / 60 - 1;
-                normalHours = lastOut.difference(firstIn).inMinutes / 60;
-              }
+            // print(
+            //     '${emp.empId} ${emp.name} isMaternity:$isMaternity    shift: $shift  shift time: $shiftTimeBegin - $shiftTimeEnd  rest: $restBegin - $restEnd');
+            // -> Tính normalHours
+            if (firstIn.isBefore(restBegin) ||
+                firstIn.isAtSameMomentAs(restBegin)) {
+              normalHoursMorning = calculateNormalHoursMorning(firstIn, lastOut,
+                  shiftTimeBegin, shiftTimeEnd, restBegin, restEnd);
             }
+            if (lastOut.isAfter(restEnd) || lastOut.isAtSameMomentAs(restEnd)) {
+              normalHoursAfterNoon = calculateNormalHoursAfternoon(firstIn,
+                  lastOut, shiftTimeBegin, shiftTimeEnd, restBegin, restEnd);
+            }
+            if (isMaternity && normalHoursAfterNoon > 0)
+              normalHoursAfterNoon += 1;
+
+            normalHours = normalHoursMorning + normalHoursAfterNoon;
+            // print(
+            //     '  firstIn: $firstIn   lastOut: $lastOut  normalHoursMorning: $normalHoursMorning   normalHoursAfterNoon: $normalHoursAfterNoon  normalHours: $normalHours');
+
             // -> Tính OT
             // Ca 1 & 2 không tính OT (T2-T7) - Ngày CN tính OT như ca ngày
             if ((empIdShift1.contains(emp.empId) ||
@@ -885,9 +845,7 @@ class MyFuntion {
         if (logs.length >= 2 && firstIn.isAfter(shiftTimeBegin)) {
           attNote1 += 'Vào trễ ; ';
         }
-        if (logs.length >= 2 &&
-            lastOut.isBefore(shiftTimeEnd) &&
-            firstIn.isAfter(shiftTimeBegin)) {
+        if (logs.length >= 2 && lastOut.isBefore(shiftTimeEnd)) {
           attNote1 += 'Ra sớm ; ';
         }
         for (var record in leaveRegisteronDate) {
@@ -999,6 +957,79 @@ class MyFuntion {
         time: DateTime.now().add(const Duration(hours: 7)),
         log: log);
     await gValue.mongoDb.insertHistory([history]);
+  }
+
+  static double calculateNormalHoursMorning(
+      DateTime firstIn,
+      DateTime lastOut,
+      DateTime shiftTimeBegin,
+      DateTime shiftTimeEnd,
+      DateTime restBegin,
+      DateTime restEnd) {
+    double normalHoursMorning = 0;
+
+    // vao dung gio hoac vao som so voi bat dau ca
+    if ((firstIn.isBefore(shiftTimeBegin) ||
+        firstIn.isAtSameMomentAs(shiftTimeBegin))) {
+      // ra sau nghi trua
+      if (lastOut.isAtSameMomentAs(restBegin) || (lastOut.isAfter(restBegin))) {
+        //4h
+        normalHoursMorning =
+            restBegin.difference(shiftTimeBegin).inMinutes / 60;
+      }
+      // ra truoc nghi trua
+      else if (lastOut.isBefore(restBegin)) {
+        normalHoursMorning = lastOut.difference(shiftTimeBegin).inMinutes / 60;
+      }
+    }
+    // vao tre so voi bat dau ca
+    else {
+      // ra sau nghi trua
+      if (lastOut.isAtSameMomentAs(restBegin) || (lastOut.isAfter(restBegin))) {
+        //4h
+        normalHoursMorning = restBegin.difference(firstIn).inMinutes / 60;
+      }
+      // ra truoc nghi trua
+      else if (lastOut.isBefore(restBegin)) {
+        normalHoursMorning = lastOut.difference(firstIn).inMinutes / 60;
+      }
+    }
+    return normalHoursMorning;
+  }
+
+  static double calculateNormalHoursAfternoon(
+      DateTime firstIn,
+      DateTime lastOut,
+      DateTime shiftTimeBegin,
+      DateTime shiftTimeEnd,
+      DateTime restBegin,
+      DateTime restEnd) {
+    double normalHoursAfternoon = 0;
+    // ra dung gio hoac ra tre so voi ket thuc ca
+    if ((lastOut.isAtSameMomentAs(shiftTimeEnd) ||
+        lastOut.isAfter(shiftTimeEnd))) {
+      // vao truoc nghi trua
+      if (firstIn.isBefore(restEnd) || firstIn.isAtSameMomentAs(restEnd)) {
+        //4h
+        normalHoursAfternoon = shiftTimeEnd.difference(restEnd).inMinutes / 60;
+      }
+      // vao sau nghi trua
+      else if (firstIn.isAfter(restEnd)) {
+        normalHoursAfternoon = shiftTimeEnd.difference(firstIn).inMinutes / 60;
+      }
+    }
+    // ra som so voi ket thuc ca
+    else {
+      // vao truoc nghi trua
+      if (firstIn.isBefore(restEnd) || firstIn.isAtSameMomentAs(restEnd)) {
+        normalHoursAfternoon = lastOut.difference(restEnd).inMinutes / 60;
+      }
+      // vao sau nghi trua
+      else if (firstIn.isAfter(restEnd)) {
+        normalHoursAfternoon = lastOut.difference(firstIn).inMinutes / 60;
+      }
+    }
+    return normalHoursAfternoon;
   }
 }
 
