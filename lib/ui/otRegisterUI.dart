@@ -20,7 +20,7 @@ class OtRegisterUI extends StatefulWidget {
 
 class _OtRegisterUIState extends State<OtRegisterUI>
     with AutomaticKeepAliveClientMixin {
-  int yearNo = 2025;
+  int yearNo = 2026;
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   PlutoGridMode plutoGridMode = PlutoGridMode.normal;
@@ -120,6 +120,15 @@ class _OtRegisterUIState extends State<OtRegisterUI>
         hour: 23,
         minute: 59,
       ));
+    } else if (yearNo == 2026) {
+      timeBegin = DateTime(2025, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2026, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
     }
     // await gValue.mongoDb.getOTRegisterAll();
     // toastification.show(
@@ -192,20 +201,20 @@ class _OtRegisterUIState extends State<OtRegisterUI>
               children: [
                 Row(
                   children: [
-                    const Text(
-                      "2024",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Checkbox(
-                      value: yearNo != 2025,
-                      onChanged: (value) {
-                        setState(() {
-                          // filterByDate = value!;
-                          yearNo = value! ? 2024 : 2025;
-                        });
-                        refreshData();
-                      },
-                    ),
+                    // const Text(
+                    //   "2024",
+                    //   style: TextStyle(fontWeight: FontWeight.bold),
+                    // ),
+                    // Checkbox(
+                    //   value: yearNo != 2025,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       // filterByDate = value!;
+                    //       yearNo = value! ? 2024 : 2025;
+                    //     });
+                    //     refreshData();
+                    //   },
+                    // ),
                     const Text(
                       "2025",
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -215,7 +224,21 @@ class _OtRegisterUIState extends State<OtRegisterUI>
                       onChanged: (value) {
                         setState(() {
                           // filterByDate = value!;
-                          yearNo = value! ? 2025 : 2024;
+                          yearNo = value! ? 2025 : 2026;
+                        });
+                        refreshData();
+                      },
+                    ),
+                    const Text(
+                      "2026",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Checkbox(
+                      value: yearNo == 2026,
+                      onChanged: (value) {
+                        setState(() {
+                          // filterByDate = value!;
+                          yearNo = value! ? 2026 : 2025;
                         });
                         refreshData();
                       },

@@ -26,7 +26,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
   late PlutoGridStateManager stateManager;
   bool firstBuild = true;
   String newOrEdit = '';
-  int rowIdChanged = 0, colIdChange = 0, yearNo = 2025;
+  int rowIdChanged = 0, colIdChange = 0, yearNo = 2026;
   Map<String, dynamic> rowChangedJson = {};
   late DateTime timeBegin, timeEnd, lastUpdate;
   @override
@@ -63,8 +63,7 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
   }
 
   Future<void> refreshData() async {
-    List<ShiftRegister> newList =
-        await gValue.mongoDb.getShiftRegisterByYear(yearNo);
+    List<ShiftRegister> newList = await gValue.mongoDb.getShiftRegister();
     if (checkDiff(gValue.shiftRegisters, newList)) {
       gValue.logger.t(
           'ShistRegisterUI Data changed : ${gValue.shiftRegisters.length} => ${newList.length} records');
@@ -128,34 +127,48 @@ class _ShiftRegisterUIState extends State<ShiftRegisterUI>
                 ),
                 const Divider(),
                 Row(children: [
-                  const Text(
-                    "2024",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Checkbox(
-                    value: yearNo != 2025,
-                    onChanged: (value) {
-                      setState(() {
-                        // filterByDate = value!;
-                        yearNo = value! ? 2024 : 2025;
-                      });
-                      refreshData();
-                    },
-                  ),
-                  const Text(
-                    "2025",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Checkbox(
-                    value: yearNo == 2025,
-                    onChanged: (value) {
-                      setState(() {
-                        // filterByDate = value!;
-                        yearNo = value! ? 2025 : 2024;
-                      });
-                      refreshData();
-                    },
-                  ),
+                  // const Text(
+                  //   "2024",
+                  //   style: TextStyle(fontWeight: FontWeight.bold),
+                  // ),
+                  // Checkbox(
+                  //   value: yearNo != 2025,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       // filterByDate = value!;
+                  //       yearNo = value! ? 2024 : 2025;
+                  //     });
+                  //     refreshData();
+                  //   },
+                  // ),
+                  // const Text(
+                  //   "2025",
+                  //   style: TextStyle(fontWeight: FontWeight.bold),
+                  // ),
+                  // Checkbox(
+                  //   value: yearNo == 2025,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       // filterByDate = value!;
+                  //       yearNo = value! ? 2025 : 2026;
+                  //     });
+                  //     refreshData();
+                  //   },
+                  // ),
+                  // const Text(
+                  //   "2026",
+                  //   style: TextStyle(fontWeight: FontWeight.bold),
+                  // ),
+                  // Checkbox(
+                  //   value: yearNo == 2026,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       // filterByDate = value!;
+                  //       yearNo = value! ? 2026 : 2025;
+                  //     });
+                  //     refreshData();
+                  //   },
+                  // ),
                   TextButton.icon(
                     onPressed: () {
                       refreshData();

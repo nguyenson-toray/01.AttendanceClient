@@ -268,6 +268,15 @@ class MongoDb {
         hour: 23,
         minute: 59,
       ));
+    } else if (year == 2026) {
+      timeBegin = DateTime(2025, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2026, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
     }
     try {
       if (!db.isConnected) {
@@ -397,6 +406,15 @@ class MongoDb {
         minute: 0,
       ));
       timeEnd = DateTime(2025, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 23,
+        minute: 59,
+      ));
+    } else if (year == 2026) {
+      timeBegin = DateTime(2025, 12, 26).appliedFromTimeOfDay(const TimeOfDay(
+        hour: 0,
+        minute: 0,
+      ));
+      timeEnd = DateTime(2026, 12, 25).appliedFromTimeOfDay(const TimeOfDay(
         hour: 23,
         minute: 59,
       ));

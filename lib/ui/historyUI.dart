@@ -15,7 +15,7 @@ class _HistoryUIState extends State<HistoryUI> {
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   bool firstBuild = true;
-  int yearNo = 2025;
+  int yearNo = 2026;
   late final PlutoGridStateManager stateManager;
   @override
   void initState() {
@@ -32,22 +32,22 @@ class _HistoryUIState extends State<HistoryUI> {
       children: [
         Column(
           children: [
-            Row(
-              children: [
-                const Text(
-                  "2024",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Checkbox(
-                  value: yearNo != 2025,
-                  onChanged: (value) {
-                    setState(() {
-                      yearNo = value! ? 2024 : 2025;
-                    });
-                  },
-                ),
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     const Text(
+            //       "2024",
+            //       style: TextStyle(fontWeight: FontWeight.bold),
+            //     ),
+            //     Checkbox(
+            //       value: yearNo != 2025,
+            //       onChanged: (value) {
+            //         setState(() {
+            //           yearNo = value! ? 2024 : 2025;
+            //         });
+            //       },
+            //     ),
+            //   ],
+            // ),
             Row(
               children: [
                 const Text(
@@ -58,7 +58,23 @@ class _HistoryUIState extends State<HistoryUI> {
                   value: yearNo == 2025,
                   onChanged: (value) {
                     setState(() {
-                      yearNo = value! ? 2025 : 2024;
+                      yearNo = value! ? 2025 : 2026;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Text(
+                  "2026",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Checkbox(
+                  value: yearNo == 2026,
+                  onChanged: (value) {
+                    setState(() {
+                      yearNo = value! ? 2026 : 2025;
                     });
                   },
                 ),
