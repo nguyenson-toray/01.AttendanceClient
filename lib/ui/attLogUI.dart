@@ -34,7 +34,7 @@ class _AttLogUIState extends State<AttLogUI>
   String labelExportTimesheetsDays = 'Export timesheets - Days - With filtered';
   String labelExportTimesheetsMonth = 'Export timesheets - Full month';
   String status = '';
-  List<String> monthYears2025 = [];
+  List<String> monthYears = [];
   late final PlutoGridStateManager stateManager;
   bool firstBuild = true, isLoaded = true, exportTimeSheetDaysVisible = true;
   int countNoName = 0;
@@ -43,8 +43,8 @@ class _AttLogUIState extends State<AttLogUI>
   @override
   void initState() {
     // TODO: implement initState
-    monthYears2025 = MyFuntion.getMonthYearList('2025');
-    selectedMonth = monthYears2025.first;
+    monthYears = MyFuntion.getMonthYearList();
+    selectedMonth = monthYears.first;
     timeBegin = DateTime.now().appliedFromTimeOfDay(const TimeOfDay(
       hour: 0,
       minute: 0,
@@ -351,7 +351,7 @@ class _AttLogUIState extends State<AttLogUI>
                               color: Theme.of(context).hintColor,
                             ),
                           ),
-                          items: monthYears2025
+                          items: monthYears
                               .map((String item) => DropdownMenuItem<String>(
                                     value: item,
                                     child: Text(

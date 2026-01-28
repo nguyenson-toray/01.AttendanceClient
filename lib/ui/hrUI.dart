@@ -30,9 +30,10 @@ class _HRUIState extends State<HRUI>
     Timer(const Duration(milliseconds: 200), () async {
       gValue.screenWidth = MediaQuery.of(context).size.width;
       gValue.screenHeight = MediaQuery.of(context).size.height;
-      gValue.logger.t('screen size : ${gValue.screenWidth} x ${gValue.screenHeight}');
+      gValue.logger
+          .t('screen size : ${gValue.screenWidth} x ${gValue.screenHeight}');
     });
-    tabController = TabController(length: 7, vsync: this);
+    tabController = TabController(length: 6, vsync: this);
     // final department = jsonDecode(gValue.departmentJson);
     Future.delayed(const Duration(milliseconds: 300)).then((value) async => {
           gValue.accessMode =
@@ -76,13 +77,13 @@ class _HRUIState extends State<HRUI>
     // gValue.otRegisters = await gValue.mongoDb.getOTRegisterByRangeDate(
     //     DateTime.utc(2024, 12, 26), timeBegin.add(const Duration(days: 30)));
     // gValue.leaveRegisters = await gValue.mongoDb.getLeaveRegister();
-    gValue.monthYears = MyFuntion.getMonthYearList('2025');
-    for (var month in gValue.monthYears) {
-      gValue.timeSheetMonthYears[month] =
-          await gValue.mongoDb.getTimesheetsMonthYear(month);
-    }
-    gValue.timeSheetMonthYears['2025'] =
-        await gValue.mongoDb.getTimesheetsMonthYear('2025');
+    gValue.monthYears = MyFuntion.getMonthYearList();
+    // for (var month in gValue.monthYears) {
+    //   gValue.timeSheetMonthYears[month] =
+    //       await gValue.mongoDb.getTimesheetsMonthYear(month);
+    // }
+    // gValue.timeSheetMonthYears['2025'] =
+    //     await gValue.mongoDb.getTimesheetsMonthYear('2025');
     setState(() {
       MyFuntion.calculateEmployeeStatus();
       MyFuntion.calculateAttendanceStatus();
@@ -153,13 +154,13 @@ class _HRUIState extends State<HRUI>
                         ),
                         text: "Shift",
                       ),
-                      Tab(
-                        icon: Icon(
-                          Icons.timeline,
-                          color: Colors.red,
-                        ),
-                        text: "Timesheets",
-                      ),
+                      // Tab(
+                      //   icon: Icon(
+                      //     Icons.timeline,
+                      //     color: Colors.red,
+                      //   ),
+                      //   text: "Timesheets",
+                      // ),
                       Tab(
                         icon: Icon(
                           Icons.settings,
@@ -198,7 +199,8 @@ class _HRUIState extends State<HRUI>
                               AttLogUI(),
                               OtRegisterUI(),
                               // LeaveRegisterUI(),
-                              ShiftRegisterUI(), TimesheetsUI(),
+                              ShiftRegisterUI(),
+                              // TimesheetsUI(),
                               SettinngUi(), HistoryUI()
 
                               // ScanQr()

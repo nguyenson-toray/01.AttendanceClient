@@ -273,15 +273,24 @@ class MyFuntion {
             ]));
   }
 
-  static List<String> getMonthYearList(String year) {
-    DateTime endDate = DateTime.now();
-    List<String> list = [];
-    int lastMonth = endDate.month;
-    if (endDate.day > 25) lastMonth += 1;
-    for (int i = 1; i <= lastMonth; i++) {
-      list.add(DateFormat('yMMMM').format(DateTime.utc(int.parse(year), i, 1)));
+  static List<String> getMonthYearList() {
+    DateTime currentDate = DateTime.now();
+    List<String> monthYears = [];
+    int lastMonth = currentDate.month;
+    int currentYear = currentDate.year;
+    if (currentDate.day > 25) lastMonth += 1;
+
+    for (int y = 2024; y < currentYear; y++) {
+      for (int m = 1; m <= 12; m++) {
+        monthYears.add(DateFormat('yMMMM').format(DateTime.utc(y, m, 1)));
+      }
     }
-    return list.reversed.toList();
+    for (int month = 1; month <= lastMonth; month++) {
+      monthYears
+          .add(DateFormat('yMMMM').format(DateTime.utc(currentYear, month, 1)));
+    }
+
+    return monthYears.reversed.toList();
   }
 
   static void calculateAttendanceStatus() {
