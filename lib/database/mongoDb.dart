@@ -54,6 +54,7 @@ class MongoDb {
   }
 
   Future<String> checkPermission(String pcName) async {
+    if (kDebugMode) return 'edit';
     late var allowEdit, allowRead;
     String permission = 'no';
     try {
@@ -232,6 +233,7 @@ class MongoDb {
 
   Future<List<ShiftRegister>> getShiftRegister() async {
     List<ShiftRegister> result = [];
+    print('getShiftRegister------------------');
     try {
       if (!db.isConnected) {
         gValue.logger.t('getShiftRegister DB not connected, try connect again');

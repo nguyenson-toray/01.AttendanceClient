@@ -46,6 +46,7 @@ class gValue {
   static List<String> monthYears = [];
   static List<Employee> employees = <Employee>[];
   static List<String> employeeIdNames = [];
+  static List<String> employeeIdNamesResigned30 = [];
   static List<String> employeeIdAbsents = [];
   static List<String> employeeIdPresents = [];
   static List<String> employeeIdWorkings = [];

@@ -318,6 +318,8 @@ class MyFuntion {
       if (element.workStatus != 'Resigned') {
         gValue.enrolled++;
         gValue.employeeIdNames.add('${element.empId!}   ${element.name!}');
+        gValue.employeeIdNamesResigned30
+            .add('${element.empId!}   ${element.name!}');
         if (element.workStatus == 'Maternity leave') {
           gValue.employeeIdMaternityLeaves.add(element.empId!);
         } else {
@@ -326,6 +328,15 @@ class MyFuntion {
               element.workStatus.toString().contains('young')) {
             gValue.employeeIdPregnantYoungchilds.add(element.empId!);
           }
+        }
+      }
+      if (element.workStatus == 'Resigned' && element.resignOn != null) {
+        if (element.resignOn!
+            .isAfter(DateTime.now().subtract(const Duration(days: 30)))) {
+          gValue.employeeIdNamesResigned30
+              .add('${element.empId!}   ${element.name!} (Resigned)');
+          // print(
+          //     'Resigned within 30 days: ${element.empId!}   ${element.name!} Resign on ${element.resignOn}');
         }
       }
     }
@@ -556,29 +567,43 @@ class MyFuntion {
         } else if (empIdShift2.contains(emp.empId)) {
           shift = 'Shift 2';
         }
-        // Mặc định ca làm việc là 'Day' cho ngày chủ nhật
-        if (date.weekday == DateTime.sunday) {
-          shift = 'Day';
-        }
+
         restHour =
             shifts.firstWhere((element) => element.shift == shift).restHour;
-        final hourBegin = int.parse(shifts
+        var hourBegin = int.parse(shifts
             .firstWhere((element) => element.shift == shift)
             .begin
             .split(':')[0]);
-        final minuteBegin = int.parse(shifts
+        var minuteBegin = int.parse(shifts
             .firstWhere((element) => element.shift == shift)
             .begin
             .split(':')[1]);
-        final hourEnd = int.parse(shifts
+        var hourEnd = int.parse(shifts
             .firstWhere((element) => element.shift == shift)
             .end
             .split(':')[0]);
-        final minuteEnd = int.parse(shifts
+        var minuteEnd = int.parse(shifts
             .firstWhere((element) => element.shift == shift)
             .end
             .split(':')[1]);
         bool isOTRestHour = false;
+        // Mặc định ca làm việc là 'Day' cho ngày chủ nhật nếu không có đơn OT, nếu có đơn thì ca làm việc theo đơn OT
+        if (date.weekday == DateTime.sunday) {
+          shift = 'Day';
+          var oTSunday = otRegisters
+              .where((ot) => (ot.otDate.day == date.day &&
+                  ot.otDate.month == date.month &&
+                  ot.otDate.year == date.year &&
+                  ot.empId == emp.empId))
+              .toList();
+
+          if (oTSunday.isNotEmpty) {
+            hourBegin = int.parse(oTSunday.last.otTimeBegin.split(':')[0]);
+            minuteBegin = int.parse(oTSunday.last.otTimeBegin.split(':')[1]);
+            hourEnd = int.parse(oTSunday.last.otTimeEnd.split(':')[0]);
+            minuteEnd = int.parse(oTSunday.last.otTimeEnd.split(':')[1]);
+          }
+        }
         shiftTimeBegin = DateTime.utc(
             date.year, date.month, date.day, hourBegin, minuteBegin);
         shiftTimeEnd =
@@ -650,8 +675,7 @@ class MyFuntion {
             // -> Tính OT
             // Ca 1 & 2 không tính OT (T2-T7) - Ngày CN tính OT như ca ngày
             if ((empIdShift1.contains(emp.empId) ||
-                    empIdShift2.contains(emp.empId)) &&
-                date.weekday != DateTime.sunday) {
+                empIdShift2.contains(emp.empId))) {
               otActual = 0;
               otApproved = 0;
               otFinal = 0;
@@ -866,63 +890,66 @@ class MyFuntion {
           }
         }
         if (date.weekday == DateTime.sunday) {
-          bool isOTSundayApprove = false;
-          double otSunDayBefore8h = 0;
-          double otApprovedSunday = 0;
-          if (otRegistersOnDate
-              .where((ot) => ot.empId == emp.empId)
-              .toList()
-              .isNotEmpty) {
-            isOTSundayApprove = true;
+          // bool isOTSundayApprove = false;
+          // double otSunDayBefore8h = 0;
+          // double otApprovedSunday = 0;
+          // if (otRegistersOnDate
+          //     .where((ot) => ot.empId == emp.empId)
+          //     .toList()
+          //     .isNotEmpty) {
+          //   isOTSundayApprove = true;
 
-            var empOTSunday = otRegistersOnDate
-                .where((ot) => ot.empId == emp.empId)
-                .toList()
-                .firstOrNull;
-            int shiftBeginH =
-                int.parse(empOTSunday!.otTimeBegin.split(":").first);
-            int shiftBeginM =
-                int.parse(empOTSunday!.otTimeBegin.split(":").last);
-            DateTime shiftBeginSunday = DateTime.utc(
-                date.year, date.month, date.day, shiftBeginH, shiftBeginM);
-            int shiftEndH = int.parse(empOTSunday!.otTimeEnd.split(":").first);
-            int shiftEndM = int.parse(empOTSunday!.otTimeEnd.split(":").last);
-            DateTime shiftEndSunday = DateTime.utc(
-                date.year, date.month, date.day, shiftEndH, shiftEndM);
-            otApprovedSunday =
-                shiftBeginSunday.difference(shiftEndSunday).inMinutes / 60;
+          //   var empOTSunday = otRegistersOnDate
+          //       .where((ot) => ot.empId == emp.empId)
+          //       .toList()
+          //       .firstOrNull;
+          //   int shiftBeginH =
+          //       int.parse(empOTSunday!.otTimeBegin.split(":").first);
+          //   int shiftBeginM =
+          //       int.parse(empOTSunday!.otTimeBegin.split(":").last);
+          //   DateTime shiftBeginSunday = DateTime.utc(
+          //       date.year, date.month, date.day, shiftBeginH, shiftBeginM);
+          //   int shiftEndH = int.parse(empOTSunday!.otTimeEnd.split(":").first);
+          //   int shiftEndM = int.parse(empOTSunday!.otTimeEnd.split(":").last);
+          //   DateTime shiftEndSunday = DateTime.utc(
+          //       date.year, date.month, date.day, shiftEndH, shiftEndM);
+          //   otApprovedSunday =
+          //       shiftBeginSunday.difference(shiftEndSunday).inMinutes / 60;
 
-            otApprovedSunday =
-                int.parse(empOTSunday!.otTimeEnd.split(":").first) -
-                    int.parse(empOTSunday!.otTimeBegin.split(":").first)
-                        .toDouble();
+          //   otApprovedSunday =
+          //       int.parse(empOTSunday!.otTimeEnd.split(":").first) -
+          //           int.parse(empOTSunday!.otTimeBegin.split(":").first)
+          //               .toDouble();
+          //   print(
+          //       'shiftBeginSunday: $shiftBeginSunday   shiftEndSunday:$shiftEndSunday  otApprovedSunday: $otApprovedSunday');
+          //   if (firstIn.isBefore(shiftBeginSunday)) {
+          //     // OT truoc 8h
+          //     otSunDayBefore8h =
+          //         DateTime.utc(date.year, date.month, date.day, 8, 0)
+          //                 .difference(shiftBeginSunday)
+          //                 .inMinutes /
+          //             60;
+          //   } else {
+          //     otSunDayBefore8h =
+          //         shiftBeginSunday.difference(firstIn).inMinutes / 60;
+          //   }
+          // }
+
+          if (otApproved > 0) {
+            otApproved = shiftTimeEnd.difference(shiftTimeBegin).inMinutes / 60;
             print(
-                'shiftBeginSunday: $shiftBeginSunday   shiftEndSunday:$shiftEndSunday  otApprovedSunday: $otApprovedSunday');
-            if (firstIn.isBefore(shiftBeginSunday)) {
-              // OT truoc 8h
-              otSunDayBefore8h =
-                  DateTime.utc(date.year, date.month, date.day, 8, 0)
-                          .difference(shiftBeginSunday)
-                          .inMinutes /
-                      60;
-            } else {
-              otSunDayBefore8h =
-                  shiftBeginSunday.difference(firstIn).inMinutes / 60;
-            }
-            if (shiftBeginSunday.hour < 12 && shiftEndSunday.hour > 13)
-              otApprovedSunday -= 1; // tru gio nghi trua
+                "Sunday: $date    ${emp.empId}  ${emp.name} otApproved: $otApproved");
           }
-
-          otApproved = otApprovedSunday;
-          var ot = normalHours + otSunDayBefore8h;
+          if (shiftTimeBegin.hour < 12 &&
+              shiftTimeEnd.hour > 13 &&
+              otApproved > 0) otApproved -= 1; // tru gio nghi trua
+          var ot = normalHours;
           otActual = ot;
           normalHours = 0;
           otFinal = (otActual <= otApproved) ? otActual : otApproved;
           if (otActual > 0) {
             attNote1 = 'OT ngày CN ; ';
-            if (!isOTSundayApprove)
-              attNote1 =
-                  'Chưa đăng ký OT ngày CN (tạm tính như ca ngày bình thường); ';
+
             if (otActual > 4 &&
                 lastOut.isAfter(restEnd) &&
                 firstIn.isBefore(restBegin)) {

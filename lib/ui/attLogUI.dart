@@ -477,7 +477,8 @@ class _AttLogUIState extends State<AttLogUI>
                         final TextEditingController textEditingController =
                             TextEditingController();
                         int hour = 8, minute = 0;
-                        String employeeIdName = gValue.employeeIdNames.first;
+                        String employeeIdName =
+                            gValue.employeeIdNamesResigned30.first;
                         String empId = employeeIdName.split('   ')[0];
                         String empName = employeeIdName.split('   ')[1];
                         List<String> hourList = [
@@ -507,6 +508,8 @@ class _AttLogUIState extends State<AttLogUI>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
+                                      Text(
+                                          'Bao gồm cả nhân viên đã nghỉ trong vòng 30 ngày qua'),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
@@ -532,7 +535,8 @@ class _AttLogUIState extends State<AttLogUI>
                                                           .hintColor,
                                                     ),
                                                   ),
-                                                  items: gValue.employeeIdNames
+                                                  items: gValue
+                                                      .employeeIdNamesResigned30
                                                       .map((String item) =>
                                                           DropdownMenuItem<
                                                               String>(
@@ -797,6 +801,11 @@ class _AttLogUIState extends State<AttLogUI>
                                   onPressed: () async {
                                     stateManager.resetCurrentState();
                                     if (empName.isNotEmpty) {
+                                      var empNameClean = empName
+                                              .contains('(Resigned)')
+                                          ? empName.substring(
+                                              0, empName.indexOf('(Resigned)'))
+                                          : empName;
                                       var time = dateAddRecord
                                           .appliedFromTimeOfDay(TimeOfDay(
                                               hour: hour, minute: minute));
@@ -809,7 +818,7 @@ class _AttLogUIState extends State<AttLogUI>
                                           objectId: '',
                                           attFingerId: finger,
                                           empId: empId,
-                                          name: empName,
+                                          name: empNameClean,
                                           machineNo: 0,
                                           timestamp: time);
 
@@ -847,6 +856,11 @@ class _AttLogUIState extends State<AttLogUI>
                                 btnOkOnPress: () async {
                                   stateManager.resetCurrentState();
                                   if (empName.isNotEmpty) {
+                                    var empNameClean = empName
+                                            .contains('(Resigned)')
+                                        ? empName.substring(
+                                            0, empName.indexOf('(Resigned)'))
+                                        : empName;
                                     var time = dateAddRecord
                                         .appliedFromTimeOfDay(TimeOfDay(
                                             hour: hour, minute: minute));
@@ -859,7 +873,7 @@ class _AttLogUIState extends State<AttLogUI>
                                         objectId: '',
                                         attFingerId: finger,
                                         empId: empId,
-                                        name: empName,
+                                        name: empNameClean,
                                         machineNo: 0,
                                         timestamp: time);
 
