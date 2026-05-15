@@ -106,12 +106,12 @@ class _SettinngUiState extends State<SettinngUi> {
               ),
               title: Row(
                 children: [
-                  const Text('Shift 1 & 2 : Not allow OT'),
+                  const Text('Shift 1 & 2 : Allow OT'),
                   Checkbox(
-                    value: gValue.shift12NoOt,
+                    value: gValue.allowShift12OT,
                     onChanged: (value) {
                       setState(() {
-                        gValue.shift12NoOt = value!;
+                        gValue.allowShift12OT = value!;
                       });
                     },
                   ),

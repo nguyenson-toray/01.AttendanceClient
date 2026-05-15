@@ -37,7 +37,7 @@ class gValue {
   static bool miniInfoEmployee = true,
       disableEditEmp = true,
       showObjectId = false,
-      shift12NoOt = true;
+      allowShift12OT = true;
   // static double minHourOt = 0;
   // static int defaultOtMinutes = 0;
   // static List<AttReport> attReports = <AttReport>[];

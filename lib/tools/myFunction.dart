@@ -674,8 +674,9 @@ class MyFuntion {
 
             // -> Tính OT
             // Ca 1 & 2 không tính OT (T2-T7) - Ngày CN tính OT như ca ngày
-            if ((empIdShift1.contains(emp.empId) ||
-                empIdShift2.contains(emp.empId))) {
+            if (!gValue.allowShift12OT &&
+                (empIdShift1.contains(emp.empId) ||
+                    empIdShift2.contains(emp.empId))) {
               otActual = 0;
               otApproved = 0;
               otFinal = 0;
