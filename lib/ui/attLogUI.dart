@@ -234,7 +234,8 @@ class _AttLogUIState extends State<AttLogUI>
                 height: 40,
                 child: Row(children: [
                   Visibility(
-                    visible: timeBegin.day == DateTime.now().day,
+                    visible: timeBegin.difference(timeEnd).inDays == 0 &&
+                        exportTimeSheetDaysVisible,
                     child: TextButton.icon(
                       onPressed: () async {
                         if (gValue.attLogs.isEmpty) {
